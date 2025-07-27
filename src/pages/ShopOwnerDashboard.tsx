@@ -1,18 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, ShoppingCart, TrendingUp, Plus, CreditCard, Clock } from 'lucide-react';
+import { Package, ShoppingCart, TrendingUp, Plus, CreditCard, Clock, Upload } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
+import { Link } from 'react-router-dom';
 import shopOwnerImage from '@/assets/shop-owner.jpg';
+import { toast } from '@/hooks/use-toast';
 
 export const ShopOwnerDashboard = () => {
-  const { user } = useAuthStore();
-  
+  const { user, updateShopOwnerStatus } = useAuthStore();
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'validated': return 'default';
       case 'paid': return 'secondary';
       case 'pending': return 'destructive';
+      case 'uploaded': return 'info';
       default: return 'outline';
     }
   };
@@ -20,9 +23,30 @@ export const ShopOwnerDashboard = () => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'validated': return 'Compte validé';
-      case 'paid': return 'En cours de validation';
+      case 'paid': return 'En attente de validation (paiement)';
       case 'pending': return 'Paiement requis';
+      case 'uploaded': return 'En attente de validation (documents)';
       default: return 'Statut inconnu';
+    }
+  };
+
+  const handlePayment = () => {
+    if (user) {
+      updateShopOwnerStatus(user.id, 'paid');
+      toast({
+        title: "Paiement simulé",
+        description: "Votre paiement a été enregistré. Veuillez maintenant télécharger vos documents.",
+      });
+    }
+  };
+
+  const handleDocumentUpload = () => {
+    if (user) {
+      updateShopOwnerStatus(user.id, 'uploaded');
+      toast({
+        title: "Documents téléchargés",
+        description: "Vos documents ont été téléchargés. Votre compte est en attente de validation par l'administrateur.",
+      });
     }
   };
 
@@ -51,9 +75,29 @@ export const ShopOwnerDashboard = () => {
                   <p className="text-muted-foreground mb-4">
                     Pour activer votre compte shop owner, veuillez effectuer le paiement de la souscription.
                   </p>
-                  <Button variant="warning">
+                  <Button variant="warning" onClick={handlePayment}>
                     <CreditCard className="w-4 h-4 mr-2" />
                     Procéder au paiement
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {user?.shopOwnerStatus === 'paid' && (
+          <Card className="mb-8 border-info bg-info/5">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <Upload className="w-8 h-8 text-info mt-1" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg mb-2">Documents requis</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Votre paiement a été enregistré. Veuillez maintenant télécharger les documents justificatifs pour validation.
+                  </p>
+                  <Button variant="info" onClick={handleDocumentUpload}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Télécharger mes documents
                   </Button>
                 </div>
               </div>
@@ -106,6 +150,18 @@ export const ShopOwnerDashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Mes Boutiques</CardTitle>
+                <Link to="/shops/manage">
+                  <Button variant="outline" size="sm">Gérer mes boutiques</Button>
+                </Link>
+                <Link to="/products/manage">
+                  <Button variant="outline" size="sm">Gérer mes produits</Button>
+                </Link>
+                <Link to="/backoffice/orders">
+                  <Button variant="outline" size="sm">Gérer les commandes</Button>
+                </Link>
+                <Link to="/backoffice/users">
+                  <Button variant="outline" size="sm">Gérer les utilisateurs de la boutique</Button>
+                </Link>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -119,15 +175,15 @@ export const ShopOwnerDashboard = () => {
                       <Button variant="outline">Gérer</Button>
                     </div>
                   )) || (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Aucune boutique créée</p>
-                      <Button className="mt-4" variant="gradient">
-                        <Plus className="w-4 h-4 mr-2" />
-                        Créer ma première boutique
-                      </Button>
-                    </div>
-                  )}
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <p>Aucune boutique créée</p>
+                        <Button className="mt-4" variant="gradient">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Créer ma première boutique
+                        </Button>
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>

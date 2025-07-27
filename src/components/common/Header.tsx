@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ShoppingCart, 
-  Heart, 
-  User, 
-  Search, 
+import {
+  ShoppingCart,
+  Heart,
+  User,
+  Search,
   Menu,
   LogOut,
   Settings,
@@ -28,7 +28,7 @@ import { AuthModal } from '@/components/auth/AuthModal';
 export const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
-  
+
   const { user, isAuthenticated, logout } = useAuthStore();
   const { getItemsCount, toggleCart } = useCartStore();
   const { items: favoriteItems } = useFavoritesStore();
@@ -60,9 +60,9 @@ export const Header = () => {
     return 'Mon compte';
   };
 
-  const isMarketplace = location.pathname === '/' || 
-                       location.pathname.startsWith('/products') || 
-                       location.pathname.startsWith('/shops');
+  const isMarketplace = location.pathname === '/' ||
+    location.pathname.startsWith('/products') ||
+    location.pathname.startsWith('/shops');
 
   return (
     <>
@@ -81,20 +81,20 @@ export const Header = () => {
           {/* Navigation centrale - uniquement pour marketplace */}
           {isMarketplace && (
             <nav className="hidden md:flex items-center space-x-6">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
                 Accueil
               </Link>
-              <Link 
-                to="/products" 
+              <Link
+                to="/products"
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
                 Produits
               </Link>
-              <Link 
-                to="/shops" 
+              <Link
+                to="/shops/manage"
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
                 Boutiques
@@ -129,8 +129,8 @@ export const Header = () => {
                 >
                   <Heart className="w-5 h-5" />
                   {favoriteItemsCount > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
                     >
                       {favoriteItemsCount}
@@ -142,12 +142,12 @@ export const Header = () => {
                   variant="ghost"
                   size="icon"
                   className="relative"
-                  onClick={toggleCart}
+                  onClick={() => navigate('/cart')}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {cartItemsCount > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
                     >
                       {cartItemsCount}
@@ -176,28 +176,33 @@ export const Header = () => {
                         {user.email}
                       </p>
                       <Badge variant="outline" className="w-fit">
-                        {user.role === 'admin' ? 'Administrateur' : 
-                         user.role === 'shopOwner' ? 'Propriétaire' : 
-                         'Client'}
+                        {user.role === 'admin' ? 'Administrateur' :
+                          user.role === 'shopOwner' ? 'Propriétaire' :
+                            'Client'}
                       </Badge>
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  
+
                   <DropdownMenuItem onClick={() => navigate(getDashboardPath())}>
                     {user.role === 'admin' ? <BarChart3 className="mr-2 h-4 w-4" /> :
-                     user.role === 'shopOwner' ? <Package className="mr-2 h-4 w-4" /> :
-                     <User className="mr-2 h-4 w-4" />}
+                      user.role === 'shopOwner' ? <Package className="mr-2 h-4 w-4" /> :
+                        <User className="mr-2 h-4 w-4" />}
                     {getDashboardLabel()}
                   </DropdownMenuItem>
-                  
+
+                  <DropdownMenuItem onClick={() => navigate('/account/orders')}>
+                    <Package className="mr-2 h-4 w-4" />
+                    Mes commandes
+                  </DropdownMenuItem>
+
                   {user.role === 'client' && (
                     <DropdownMenuItem onClick={() => navigate('/account/settings')}>
                       <Settings className="mr-2 h-4 w-4" />
                       Paramètres
                     </DropdownMenuItem>
                   )}
-                  
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -207,14 +212,14 @@ export const Header = () => {
               </DropdownMenu>
             ) : (
               <div className="flex items-center space-x-2">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   onClick={() => handleAuthClick('login')}
                 >
                   Connexion
                 </Button>
-                <Button 
-                  variant="gradient" 
+                <Button
+                  variant="gradient"
                   onClick={() => handleAuthClick('register')}
                 >
                   Inscription

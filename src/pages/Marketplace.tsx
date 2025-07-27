@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
-  ShoppingCart, 
-  Heart, 
-  Star, 
-  TrendingUp, 
-  Store, 
+import {
+  ShoppingCart,
+  Heart,
+  Star,
+  TrendingUp,
+  Store,
   Search,
   Filter,
   MapPin,
@@ -102,7 +102,7 @@ const mockShops = [
 export const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  
+
   const { addItem } = useCartStore();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
 
@@ -110,7 +110,7 @@ export const Marketplace = () => {
 
   const filteredProducts = mockProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.shopName.toLowerCase().includes(searchQuery.toLowerCase());
+      product.shopName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -134,7 +134,7 @@ export const Marketplace = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section 
+      <section
         className="relative h-96 bg-cover bg-center flex items-center justify-center text-white"
         style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${heroImage})` }}
       >
@@ -146,9 +146,11 @@ export const Marketplace = () => {
             Des milliers de produits de qualité, vendus par des boutiques de confiance
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="hero">
-              <Store className="w-5 h-5 mr-2" />
-              Parcourir les boutiques
+            <Button size="lg" variant="hero" asChild>
+              <Link to="/shops">
+                <Store className="w-5 h-5 mr-2" />
+                Parcourir les boutiques
+              </Link>
             </Button>
             <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
               <TrendingUp className="w-5 h-5 mr-2" />
@@ -222,17 +224,17 @@ export const Marketplace = () => {
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold">Boutiques en vedette</h2>
-            <Link to="/shops">
+            <Link to="/shops/manage">
               <Button variant="outline">Voir toutes les boutiques</Button>
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockShops.map((shop) => (
               <Card key={shop.id} className="overflow-hidden hover:shadow-hover transition-all duration-300">
                 <div className="h-48 overflow-hidden">
-                  <img 
-                    src={shop.image} 
+                  <img
+                    src={shop.image}
                     alt={shop.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
@@ -272,9 +274,9 @@ export const Marketplace = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group">
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={product.image} 
+                <Link to={`/products/${product.id}`} className="relative h-48 overflow-hidden block">
+                  <img
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -282,7 +284,7 @@ export const Marketplace = () => {
                     size="icon"
                     variant={isFavorite(product.id) ? "default" : "outline"}
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => handleToggleFavorite(product)}
+                    onClick={(e) => { e.preventDefault(); handleToggleFavorite(product); }}
                   >
                     <Heart className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-current' : ''}`} />
                   </Button>
@@ -291,8 +293,8 @@ export const Marketplace = () => {
                       Stock limité
                     </Badge>
                   )}
-                </div>
-                
+                </Link>
+
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
                   <div className="flex items-center text-sm text-muted-foreground">
@@ -300,7 +302,7 @@ export const Marketplace = () => {
                     {product.shopName}
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="pb-2">
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                     {product.description}
@@ -312,9 +314,9 @@ export const Marketplace = () => {
                     <Badge variant="outline">{product.category}</Badge>
                   </div>
                 </CardContent>
-                
+
                 <CardFooter className="pt-2">
-                  <Button 
+                  <Button
                     className="w-full"
                     onClick={() => handleAddToCart(product)}
                     disabled={product.stock === 0}

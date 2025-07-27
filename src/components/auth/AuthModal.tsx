@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuthStore, UserRole } from '@/stores/authStore';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, User, Mail, Lock, Building, UserPlus } from 'lucide-react';
+import { Loader2, User, Mail, Lock, Building, UserPlus, FileText } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -263,15 +263,32 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
               </div>
 
               {registerForm.role === 'shopOwner' && (
-                <div className="bg-warning/10 border border-warning/20 p-3 rounded-lg text-sm">
-                  <div className="flex items-start gap-2">
-                    <Building className="w-4 h-4 text-warning mt-0.5" />
-                    <div>
-                      <strong>Inscription Shop Owner</strong><br />
-                      Un paiement sera requis pour activer votre compte après l'inscription.
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="documents">Documents justificatifs</Label>
+                    <div className="relative">
+                      <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="documents"
+                        type="file"
+                        className="pl-10"
+                        onChange={(e) => console.log("File selected:", e.target.files)}
+                        multiple
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">Carte d'identité, Kbis, etc.</p>
+                  </div>
+
+                  <div className="bg-warning/10 border border-warning/20 p-3 rounded-lg text-sm">
+                    <div className="flex items-start gap-2">
+                      <Building className="w-4 h-4 text-warning mt-0.5" />
+                      <div>
+                        <strong>Inscription Shop Owner</strong><br />
+                        Un paiement sera requis pour activer votre compte après l'inscription.
+                      </div>
                     </div>
                   </div>
-                </div>
+                </>
               )}
 
               <Button 
