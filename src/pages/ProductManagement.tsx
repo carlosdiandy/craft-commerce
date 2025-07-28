@@ -94,7 +94,7 @@ export const ProductManagement = () => {
               <CardTitle>Sélectionner une boutique</CardTitle>
             </CardHeader>
             <CardContent>
-              <Select onValueChange={setSelectedShop}>
+              <Select onValueChange={setSelectedShopId}>
                 <SelectTrigger className="w-full lg:w-1/3">
                   <SelectValue placeholder="Sélectionnez une boutique" />
                 </SelectTrigger>

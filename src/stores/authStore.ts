@@ -16,8 +16,6 @@ export interface User {
   createdAt: string;
 }
 
-import { Product } from './cartStore';
-
 export interface Shop {
   id: string;
   name: string;

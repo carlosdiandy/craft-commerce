@@ -39,7 +39,7 @@ export const UserManagement = () => {
       case 'validated': return 'default';
       case 'paid': return 'secondary';
       case 'pending': return 'destructive';
-      case 'uploaded': return 'info';
+      case 'uploaded': return 'secondary';
       default: return 'outline';
     }
   };

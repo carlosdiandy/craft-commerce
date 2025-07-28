@@ -15,7 +15,7 @@ export const ShopOwnerDashboard = () => {
       case 'validated': return 'default';
       case 'paid': return 'secondary';
       case 'pending': return 'destructive';
-      case 'uploaded': return 'info';
+      case 'uploaded': return 'secondary';
       default: return 'outline';
     }
   };
@@ -95,7 +95,7 @@ export const ShopOwnerDashboard = () => {
                   <p className="text-muted-foreground mb-4">
                     Votre paiement a été enregistré. Veuillez maintenant télécharger les documents justificatifs pour validation.
                   </p>
-                  <Button variant="info" onClick={handleDocumentUpload}>
+                  <Button variant="secondary" onClick={handleDocumentUpload}>
                     <Upload className="w-4 h-4 mr-2" />
                     Télécharger mes documents
                   </Button>
