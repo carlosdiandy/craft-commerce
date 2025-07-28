@@ -19,6 +19,7 @@ import {
 import { useCartStore, Product } from '@/stores/cartStore';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { toast } from '@/hooks/use-toast';
+import { SearchBar } from '@/components/common/SearchBar';
 import heroImage from '@/assets/hero-ecommerce.jpg';
 
 // Données mockées pour la démonstration
@@ -162,21 +163,18 @@ export const Marketplace = () => {
 
       <div className="container px-4 py-8">
         {/* Barre de recherche et filtres */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <Input
-                type="text"
+        <div className="mb-6 lg:mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <SearchBar 
                 placeholder="Rechercher des produits ou boutiques..."
-                className="pl-12 h-12"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onSearch={setSearchQuery}
+                className="h-12"
               />
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
               <Filter className="w-4 h-4" />
-              Filtres
+              Filtres avancés
             </Button>
           </div>
 

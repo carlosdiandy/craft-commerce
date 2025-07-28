@@ -45,47 +45,69 @@ export const UserManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
+    <div className="min-h-screen bg-gradient-hero">
+      <div className="container px-4 py-6 lg:py-8">
+        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Gestion des utilisateurs</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold">Gestion des utilisateurs</h1>
             <p className="text-muted-foreground">Gérez tous les comptes utilisateurs de la plateforme</p>
           </div>
           <Link to="/admin">
-            <Button variant="outline">Retour au Dashboard Admin</Button>
+            <Button variant="outline" className="w-fit">
+              Retour au Dashboard Admin
+            </Button>
           </Link>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Tous les utilisateurs</CardTitle>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <CardTitle className="text-lg lg:text-xl">Tous les utilisateurs</CardTitle>
+              <Badge variant="outline" className="w-fit">
+                {allUsers.length} utilisateur{allUsers.length > 1 ? 's' : ''}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {allUsers.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="space-y-1">
-                    <h4 className="font-medium">{user.name} ({user.role})</h4>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                    {user.role === 'shopOwner' && (
-                      <Badge variant={getStatusVariant(user.shopOwnerStatus)}>
-                        Statut: {user.shopOwnerStatus}
-                      </Badge>
-                    )}
+              {allUsers.length > 0 ? (
+                allUsers.map((user) => (
+                  <div key={user.id} className="flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors gap-3">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">{user.name}</h4>
+                        <Badge variant="outline" className="text-xs">
+                          {user.role === 'admin' ? 'Administrateur' :
+                            user.role === 'shopOwner' ? 'Propriétaire' :
+                              'Client'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      {user.role === 'shopOwner' && (
+                        <Badge variant={getStatusVariant(user.shopOwnerStatus)} className="text-xs">
+                          Statut: {user.shopOwnerStatus}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex gap-2 lg:flex-shrink-0">
+                      <Button variant="outline" size="sm" onClick={() => handleEditUser(user)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Modifier
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(user.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Supprimer
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEditUser(user)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Modifier
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(user.id)}>
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Supprimer
-                    </Button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 lg:py-12 text-muted-foreground">
+                  <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <h3 className="font-medium text-lg mb-2">Aucun utilisateur trouvé</h3>
+                  <p className="text-sm">Il n'y a actuellement aucun utilisateur dans la base de données.</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
