@@ -153,7 +153,7 @@ export const Marketplace = () => {
                 Parcourir les boutiques
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
+            <Button size="lg" variant="link" className="text-white border-white hover:bg-white/10">
               <TrendingUp className="w-5 h-5 mr-2" />
               Produits tendances
             </Button>
@@ -166,7 +166,7 @@ export const Marketplace = () => {
         <div className="mb-6 lg:mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <SearchBar 
+              <SearchBar
                 placeholder="Rechercher des produits ou boutiques..."
                 onSearch={setSearchQuery}
                 className="h-12"
@@ -222,7 +222,7 @@ export const Marketplace = () => {
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold">Boutiques en vedette</h2>
-            <Link to="/shops/manage">
+            <Link to="/shops">
               <Button variant="outline">Voir toutes les boutiques</Button>
             </Link>
           </div>
@@ -252,7 +252,9 @@ export const Marketplace = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <Badge variant="secondary">{shop.productsCount} produits</Badge>
-                    <Button size="sm" variant="outline">Visiter</Button>
+                    <Link to={`/shops/${shop.id}`} >
+                      <Button size="sm" variant="outline">Visiter</Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
