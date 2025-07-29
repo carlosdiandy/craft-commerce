@@ -24,13 +24,13 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
-import { useFavoritesStore } from '@/stores/favoritesStore';
+import { useWishlistStore } from '@/stores/wishlistStore';
 
 export const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuthStore();
   const { getItemsCount } = useCartStore();
-  const { items: favoriteItems } = useFavoritesStore();
+  const { items: favoriteItems } = useWishlistStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -182,7 +182,7 @@ export const MobileMenu = () => {
                 )}
               </Link>
               <Link
-                to="/favorites"
+                to="/wishlist"
                 onClick={() => setIsOpen(false)}
                 className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted transition-colors"
               >

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   ShoppingCart,
   Heart,
@@ -27,6 +28,7 @@ import { useReviewStore } from '@/stores/reviewStore';
 import { Rating } from '@/components/ui/Rating';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import axios from 'axios';
 
 
 // Données mockées pour la démonstration
@@ -136,8 +138,12 @@ export const Marketplace = () => {
   const [products, setProducts] = useState<Product[]>([]);
 
   const { addItem } = useCartStore();
-  const { addWishlistItem, removeWishlistItem, isItemInWishlist } = useWishlistStore();
-  const { getReviewsByProductId } = useReviewStore();
+  const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
+  const { reviews } = useReviewStore();
+  
+  const getReviewsByProductId = (productId: string) => {
+    return reviews.filter(review => review.productId === productId);
+  };
 
   const categories = ['all', 'Électronique', 'Mode', 'Maison', 'Sport'];
   const shopNames = ['all', ...new Set(mockProducts.map(p => p.shopName))];
@@ -489,3 +495,4 @@ export const Marketplace = () => {
       </div>
     </div>
   );
+};

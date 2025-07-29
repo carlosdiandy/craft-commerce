@@ -13,7 +13,7 @@ import { Account } from "@/pages/Account";
 import { ShopManagement } from "@/pages/ShopManagement";
 import { ProductManagement } from "@/pages/ProductManagement";
 import { Cart } from "@/pages/Cart";
-import { Favorites } from "@/pages/Favorites";
+import { Wishlist } from "@/pages/Wishlist";
 import { Shops } from "@/pages/Shops";
 import { ShopDetail } from "@/pages/ShopDetail";
 import { UserManagement } from "@/pages/UserManagement";
@@ -108,7 +108,6 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-  );
-};
+);
 
 export default App;

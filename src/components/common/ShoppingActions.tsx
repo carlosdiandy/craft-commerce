@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
-import { useFavoritesStore } from '@/stores/favoritesStore';
+import { useWishlistStore } from '@/stores/wishlistStore';
+import { useTranslation } from 'react-i18next';
 
 export const ShoppingActions = () => {
   const { getItemsCount } = useCartStore();
-  const { items: favoriteItems } = useFavoritesStore();
+  const { items: favoriteItems } = useWishlistStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const cartItemsCount = getItemsCount();
   const favoriteItemsCount = favoriteItems.length;
@@ -19,7 +21,7 @@ export const ShoppingActions = () => {
         variant="ghost"
         size="icon"
         className="relative"
-        onClick={() => navigate('/favorites')}
+        onClick={() => navigate('/wishlist')}
         title={t('my_wishlist')}
       >
         <Heart className="w-5 h-5" />

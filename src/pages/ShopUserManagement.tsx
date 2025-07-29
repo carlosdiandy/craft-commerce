@@ -158,10 +158,7 @@ export const ShopUserManagement = () => {
                               <p className="text-sm text-muted-foreground">{shopUser.email}</p>
                             </div>
                             <div className="flex gap-2">
-                              const handleEditShopUser = (shopUser: ShopUser) => {
-    setEditingShopUser(shopUser);
-    setSelectedPermissions(shopUser.permissions || []);
-  };
+                              <Button variant="outline" size="sm" onClick={() => setEditingShopUser(shopUser)}>Modifier</Button>
                               <Button variant="destructive" size="sm" onClick={() => handleDeleteShopUser(shopUser.id)}>Supprimer</Button>
                             </div>
                           </div>

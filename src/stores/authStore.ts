@@ -22,7 +22,7 @@ export interface Shop {
   name: string;
   description: string;
   ownerId: string;
-  status: 'active' | 'suspended
+  status: 'active' | 'suspended';
   createdAt: string;
   products?: Product[];
   shopUsers?: ShopUser[];

@@ -302,3 +302,4 @@ export const ProductManagement = () => {
       </div>
     </div>
   );
+};
