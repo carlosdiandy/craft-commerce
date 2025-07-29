@@ -24,7 +24,7 @@ export const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
 
   const { addItem } = useCartStore();
-  const { addWishlistItem, removeWishlistItem, isItemInWishlist } = useWishlistStore();
+  const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
   const { t } = useTranslation();
   const { reviews, fetchReviews, averageRating } = useReviewStore();
 
@@ -58,16 +58,6 @@ export const ProductDetail = () => {
       fetchReviews(productId);
     }
   }, [productId, fetchReviews]);
-
-  const { addItem } = useCartStore();
-  const { addWishlistItem, removeWishlistItem, isItemInWishlist } = useWishlistStore();
-  const { t } = useTranslation();
-  const { reviews, fetchReviews, averageRating } = useReviewStore();
-
-  const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const [selectedMaterial, setSelectedMaterial] = useState<string | undefined>(undefined);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (product) {

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useReviewStore } from '@/stores/reviewStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,8 +10,12 @@ interface ReviewListProps {
 }
 
 export const ReviewList = ({ productId }: ReviewListProps) => {
-  const { getReviewsByProductId } = useReviewStore();
-  const reviews = getReviewsByProductId(productId);
+  const { t } = useTranslation();
+  const { reviews, fetchReviews } = useReviewStore();
+
+  useEffect(() => {
+    fetchReviews(productId);
+  }, [productId, fetchReviews]);
 
   return (
     <Card>

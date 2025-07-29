@@ -33,7 +33,7 @@ export const Cart = () => {
                     {items.map((item) => (
                       <div key={item.product.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-4">
-                          <img src={item.product.image} alt={item.product.name} className="w-16 h-16 object-cover rounded-lg" />
+                          <img src={item.product.images?.[0] || 'https://via.placeholder.com/64'} alt={item.product.name} className="w-16 h-16 object-cover rounded-lg" />
                           <div>
                             <h4 className="font-medium">{item.product.name}</h4>
                             <p className="text-sm text-muted-foreground">{item.product.price}€</p>

@@ -5,13 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Package, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
-import { Package, CalendarDays } from 'lucide-react';
-import { useAuthStore } from '@/stores/authStore';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -84,11 +77,11 @@ export const ShopOrders = () => {
   const getStatusBadgeVariant = (status: Order['status']) => {
     switch (status) {
       case 'DELIVERED':
-        return 'success';
+        return 'default';
       case 'SHIPPED':
-        return 'info';
+        return 'secondary';
       case 'PROCESSING':
-        return 'warning';
+        return 'outline';
       case 'CANCELLED':
         return 'destructive';
       case 'PENDING':
@@ -121,7 +114,7 @@ export const ShopOrders = () => {
                   <div key={order.id} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium">{t('order_number')} #{order.id} - {t('shop')}: {user?.shops?.find(s => s.id === order.shopId)?.name}</h4>
-                      <Select value={order.status} onValueChange={(newStatus) => handleOrderUpdate(order.id, newStatus, order.trackingNumber || null, order.estimatedDeliveryDate || null)}>
+                      <Select value={order.status} onValueChange={(newStatus: Order['status']) => handleOrderUpdate(order.id, newStatus, order.trackingNumber || null, order.estimatedDeliveryDate || null)}>
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder={t('select_status')} />
                         </SelectTrigger>

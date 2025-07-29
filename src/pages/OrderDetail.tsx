@@ -1,38 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Package, CalendarDays, MapPin, CreditCard } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-
-interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-  image?: string;
-}
-
-interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
-  items: OrderItem[];
-  shippingAddress: {
-    street: string;
-    city: string;
-    zipCode: string;
-    country: string;
-  };
-  paymentMethod: string;
-  trackingNumber?: string;
-  estimatedDeliveryDate?: string;
-}
-
-import { useParams, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -107,11 +74,11 @@ export const OrderDetail = () => {
   const getStatusBadgeVariant = (status: Order['status']) => {
     switch (status) {
       case 'Delivered':
-        return 'success';
+        return 'default';
       case 'Shipped':
-        return 'info';
+        return 'secondary';
       case 'Processing':
-        return 'warning';
+        return 'outline';
       case 'Cancelled':
         return 'destructive';
       case 'Pending':

@@ -5,15 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, ShoppingCart, Heart, Store } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
-import { useFavoritesStore } from '@/stores/favoritesStore';
-import { toast } from '@/hooks/use-toast';
-
-import { useParams, Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Star, MapPin, ShoppingCart, Heart, Store } from 'lucide-react';
-import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { toast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
@@ -36,7 +27,7 @@ export const ShopDetail = () => {
   const [shopProducts, setShopProducts] = useState<Product[]>([]);
 
   const { addItem } = useCartStore();
-  const { addWishlistItem, removeWishlistItem, isItemInWishlist } = useWishlistStore();
+  const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
 
   useEffect(() => {
     const fetchShopDetails = async () => {

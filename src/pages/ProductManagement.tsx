@@ -132,6 +132,10 @@ export const ProductManagement = () => {
     }
   };
 
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+  };
+
   const handleDeleteProduct = (productId: string) => {
     if (!selectedShopId) return;
     deleteProductFromShop(selectedShopId, productId);
