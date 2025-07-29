@@ -6,9 +6,31 @@ import { useAuthStore } from '@/stores/authStore';
 import { Link } from 'react-router-dom';
 import shopOwnerImage from '@/assets/shop-owner.jpg';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 export const ShopOwnerDashboard = () => {
   const { user, updateShopOwnerStatus } = useAuthStore();
+  const { t } = useTranslation();
+
+  // Mock data for charts
+  const salesData = [
+    { name: 'Jan', sales: 4000 },
+    { name: 'Feb', sales: 3000 },
+    { name: 'Mar', sales: 5000 },
+    { name: 'Apr', sales: 4500 },
+    { name: 'May', sales: 6000 },
+    { name: 'Jun', sales: 5500 },
+    { name: 'Jul', sales: 7000 },
+  ];
+
+  const productPerformanceData = [
+    { name: 'Product A', sales: 120, views: 2400 },
+    { name: 'Product B', sales: 98, views: 2210 },
+    { name: 'Product C', sales: 200, views: 2290 },
+    { name: 'Product D', sales: 150, views: 2000 },
+    { name: 'Product E', sales: 180, views: 2181 },
+  ];
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -22,11 +44,11 @@ export const ShopOwnerDashboard = () => {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'validated': return 'Compte validé';
-      case 'paid': return 'En attente de validation (paiement)';
-      case 'pending': return 'Paiement requis';
-      case 'uploaded': return 'En attente de validation (documents)';
-      default: return 'Statut inconnu';
+      case 'validated': return t('status_validated');
+      case 'paid': return t('status_paid');
+      case 'pending': return t('status_pending');
+      case 'uploaded': return t('status_uploaded');
+      default: return t('status_unknown');
     }
   };
 
@@ -34,8 +56,8 @@ export const ShopOwnerDashboard = () => {
     if (user) {
       updateShopOwnerStatus(user.id, 'paid');
       toast({
-        title: "Paiement simulé",
-        description: "Votre paiement a été enregistré. Veuillez maintenant télécharger vos documents.",
+        title: t("payment_simulated_title"),
+        description: t("payment_simulated_description"),
       });
     }
   };
@@ -44,8 +66,8 @@ export const ShopOwnerDashboard = () => {
     if (user) {
       updateShopOwnerStatus(user.id, 'uploaded');
       toast({
-        title: "Documents téléchargés",
-        description: "Vos documents ont été téléchargés. Votre compte est en attente de validation par l'administrateur.",
+        title: t("documents_uploaded_title"),
+        description: t("documents_uploaded_description"),
       });
     }
   };
@@ -56,8 +78,8 @@ export const ShopOwnerDashboard = () => {
         <div className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold">Mon Backoffice</h1>
-              <p className="text-muted-foreground">Gérez vos boutiques et produits</p>
+              <h1 className="text-2xl lg:text-3xl font-bold">{t('my_backoffice')}</h1>
+              <p className="text-muted-foreground">{t('manage_shops_products')}</p>
             </div>
             <Badge 
               variant={getStatusVariant(user?.shopOwnerStatus || 'pending')}
@@ -74,13 +96,13 @@ export const ShopOwnerDashboard = () => {
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <CreditCard className="w-8 h-8 text-warning flex-shrink-0" />
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">Paiement requis</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('payment_required')}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Pour activer votre compte shop owner, veuillez effectuer le paiement de la souscription.
+                    {t('payment_required_description')}
                   </p>
                   <Button variant="warning" onClick={handlePayment} className="w-full sm:w-auto">
                     <CreditCard className="w-4 h-4 mr-2" />
-                    Procéder au paiement
+                    {t('proceed_to_payment')}
                   </Button>
                 </div>
               </div>
@@ -94,13 +116,13 @@ export const ShopOwnerDashboard = () => {
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <Upload className="w-8 h-8 text-info flex-shrink-0" />
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">Documents requis</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('documents_required')}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Votre paiement a été enregistré. Veuillez maintenant télécharger les documents justificatifs pour validation.
+                    {t('documents_required_description')}
                   </p>
                   <Button variant="secondary" onClick={handleDocumentUpload} className="w-full sm:w-auto">
                     <Upload className="w-4 h-4 mr-2" />
-                    Télécharger mes documents
+                    {t('upload_my_documents')}
                   </Button>
                 </div>
               </div>
@@ -114,11 +136,11 @@ export const ShopOwnerDashboard = () => {
               <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                 <Clock className="w-8 h-8 text-secondary flex-shrink-0" />
                 <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">En attente de validation</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('pending_validation')}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Vos documents ont été téléchargés avec succès. Notre équipe examine votre dossier et vous contactera sous 48h.
+                    {t('pending_validation_description')}
                   </p>
-                  <Badge variant="secondary">Dossier en cours de traitement</Badge>
+                  <Badge variant="secondary">{t('file_processing')}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -131,77 +153,118 @@ export const ShopOwnerDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Mes boutiques</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('my_shops')}</CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{user?.shops?.length || 0}</div>
-                  <Button size="sm" variant="outline" className="mt-2 w-full">
-                    <Plus className="w-4 h-4 mr-1" />
-                    Créer une boutique
-                  </Button>
+                  <Link to="/shops/manage">
+                    <Button size="sm" variant="outline" className="mt-2 w-full">
+                      <Plus className="w-4 h-4 mr-1" />
+                      {t('create_shop')}
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
 
               <Card className="hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Produits totaux</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('total_products')}</CardTitle>
                   <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">42</div>
-                  <p className="text-xs text-success">+3 cette semaine</p>
+                  <div className="text-2xl font-bold">{user?.shops?.reduce((acc, shop) => acc + (shop.products?.length || 0), 0)}</div>
+                  <p className="text-xs text-muted-foreground">{t('total_products_description')}</p>
                 </CardContent>
               </Card>
 
               <Card className="hover:shadow-lg transition-shadow sm:col-span-2 lg:col-span-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Ventes ce mois</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('total_sales')}</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">€1,234</div>
-                  <p className="text-xs text-success">+18% vs mois dernier</p>
+                  <div className="text-2xl font-bold">€{salesData.reduce((acc, data) => acc + data.sales, 0).toFixed(2)}</div>
+                  <p className="text-xs text-muted-foreground">{t('total_sales_description')}</p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Actions rapides */}
+            {/* Sales Chart */}
+            <Card className="mb-6 lg:mb-8">
+              <CardHeader>
+                <CardTitle>{t('sales_overview')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={salesData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="sales" stroke="#8884d8" activeDot={{ r: 8 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Product Performance Chart */}
+            <Card className="mb-6 lg:mb-8">
+              <CardHeader>
+                <CardTitle>{t('product_performance')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={productPerformanceData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="sales" fill="#82ca9d" name={t('sales')} />
+                    <Bar dataKey="views" fill="#8884d8" name={t('views')} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
               <Link to="/shops/manage">
                 <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
                   <Store className="w-6 h-6" />
-                  <span>Gérer mes boutiques</span>
+                  <span>{t('manage_my_shops')}</span>
                 </Button>
               </Link>
               <Link to="/products/manage">
                 <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
                   <Package className="w-6 h-6" />
-                  <span>Gérer mes produits</span>
+                  <span>{t('manage_my_products')}</span>
                 </Button>
               </Link>
               <Link to="/backoffice/orders">
                 <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
                   <ShoppingCart className="w-6 h-6" />
-                  <span>Gérer les commandes</span>
+                  <span>{t('manage_orders')}</span>
                 </Button>
               </Link>
               <Link to="/backoffice/users">
                 <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
                   <User className="w-6 h-6" />
-                  <span>Utilisateurs boutique</span>
+                  <span>{t('shop_users')}</span>
                 </Button>
               </Link>
             </div>
 
-            {/* Mes boutiques */}
+            {/* My Shops */}
             <Card>
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <CardTitle className="text-lg lg:text-xl">Mes Boutiques</CardTitle>
+                  <CardTitle className="text-lg lg:text-xl">{t('my_shops')}</CardTitle>
                   {user?.shops && user.shops.length > 0 && (
                     <Badge variant="outline" className="w-fit">
-                      {user.shops.length} boutique{user.shops.length > 1 ? 's' : ''}
+                      {user.shops.length} {t('shop_count', { count: user.shops.length })}
                     </Badge>
                   )}
                 </div>
@@ -214,21 +277,21 @@ export const ShopOwnerDashboard = () => {
                         <h4 className="font-medium text-lg">{shop.name}</h4>
                         <p className="text-sm text-muted-foreground mb-2">{shop.description}</p>
                         <Badge variant="outline" className="text-xs">
-                          Statut: {shop.status}
+                          {t('status')}: {shop.status}
                         </Badge>
                       </div>
                       <Button variant="outline" className="sm:flex-shrink-0">
-                        Gérer cette boutique
+                        {t('manage_this_shop')}
                       </Button>
                     </div>
                   )) || (
                       <div className="text-center py-8 lg:py-12 text-muted-foreground">
                         <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <h3 className="font-medium text-lg mb-2">Aucune boutique créée</h3>
-                        <p className="text-sm mb-4">Créez votre première boutique pour commencer à vendre</p>
+                        <h3 className="font-medium text-lg mb-2">{t('no_shop_created')}</h3>
+                        <p className="text-sm mb-4">{t('create_first_shop_description')}</p>
                         <Button className="mt-4" variant="gradient">
                           <Plus className="w-4 h-4 mr-2" />
-                          Créer ma première boutique
+                          {t('create_my_first_shop')}
                         </Button>
                       </div>
                     )}

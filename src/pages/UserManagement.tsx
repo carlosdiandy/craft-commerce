@@ -104,8 +104,8 @@ export const UserManagement = () => {
               ) : (
                 <div className="text-center py-8 lg:py-12 text-muted-foreground">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="font-medium text-lg mb-2">Aucun utilisateur trouvé</h3>
-                  <p className="text-sm">Il n'y a actuellement aucun utilisateur dans la base de données.</p>
+                  <h3 className="font-medium text-lg mb-2">{t('no_users_found')}</h3>
+                  <p className="text-sm">{t('no_users_found_description')}</p>
                 </div>
               )}
             </div>

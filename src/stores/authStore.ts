@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product } from './cartStore';
+import { Product } from './productStore';
+import axios from 'axios';
 
 export type UserRole = 'admin' | 'shopOwner' | 'client';
 export type ShopOwnerStatus = 'pending' | 'paid' | 'validated' | 'uploaded' | 'suspended';
@@ -21,7 +22,7 @@ export interface Shop {
   name: string;
   description: string;
   ownerId: string;
-  status: 'active' | 'suspended';
+  status: 'active' | 'suspended
   createdAt: string;
   products?: Product[];
   shopUsers?: ShopUser[];
@@ -35,6 +36,7 @@ export interface ShopUser {
   email: string;
   role: ShopUserRole;
   createdAt: string;
+  permissions: string[];
 }
 
 interface AuthState {
@@ -71,65 +73,7 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions;
 
-// Simulation des utilisateurs (en production, remplacer par des vraies API)
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@platform.com',
-    name: 'Admin Platform',
-    role: 'admin',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    email: 'shop@example.com',
-    name: 'Shop Owner',
-    role: 'shopOwner',
-    shopOwnerStatus: 'validated',
-    shops: [
-      {
-        id: 'shop1',
-        name: 'Ma Boutique Mode',
-        description: 'Vêtements tendance',
-        ownerId: '2',
-        status: 'active',
-        createdAt: new Date().toISOString(),
-      }
-    ],
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    email: 'client@example.com',
-    name: 'Client Fidèle',
-    role: 'client',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    email: 'pending1@example.com',
-    name: 'Pending Shop 1',
-    role: 'shopOwner',
-    shopOwnerStatus: 'pending',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    email: 'pending2@example.com',
-    name: 'Pending Shop 2',
-    role: 'shopOwner',
-    shopOwnerStatus: 'pending',
-    createdAt: new Date().toISOString(),
-  },
-];
-
-// Function to update a user's status in the mockUsers array
-const updateMockUserStatus = (userId: string, status: ShopOwnerStatus) => {
-  const userIndex = mockUsers.findIndex(u => u.id === userId);
-  if (userIndex !== -1) {
-    mockUsers[userIndex] = { ...mockUsers[userIndex], shopOwnerStatus: status };
-  }
-};
+const API_URL = "http://localhost:8080/api/auth/"; // Assuming backend runs on 8080
 
 export const useAuthStore = create<AuthStore>()(
   persist(
@@ -139,28 +83,30 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       isLoading: false,
 
-      login: async (email: string, password: string) => {
+      login: async (email, password) => {
         set({ isLoading: true });
-
         try {
-          // Simulation API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-
-          const user = mockUsers.find(u => u.email === email);
-          if (user && password === 'password') {
-            const token = `mock-jwt-token-${user.id}`;
-            set({
-              user,
-              token,
-              isAuthenticated: true,
-              isLoading: false,
-            });
-            return true;
-          }
-
-          set({ isLoading: false });
-          return false;
+          const response = await axios.post(API_URL + "signin", {
+            email,
+            password,
+          });
+          const { id, name, email: userEmail, roles, token } = response.data;
+          const user: User = {
+            id: id.toString(),
+            name,
+            email: userEmail,
+            role: roles[0], // Assuming single role for simplicity
+            createdAt: new Date().toISOString(),
+          };
+          set({
+            user,
+            token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          return true;
         } catch (error) {
+          console.error("Login failed:", error);
           set({ isLoading: false });
           return false;
         }
@@ -168,33 +114,31 @@ export const useAuthStore = create<AuthStore>()(
 
       register: async (userData) => {
         set({ isLoading: true });
-
         try {
-          // Simulation API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-
-          const newUser: User = {
-            id: Date.now().toString(),
-            email: userData.email,
+          const response = await axios.post(API_URL + "signup", {
             name: userData.name,
-            role: userData.role,
-            shopOwnerStatus: userData.role === 'shopOwner' ? 'pending' : undefined,
-            shops: userData.role === 'shopOwner' ? [] : undefined,
+            email: userData.email,
+            password: userData.password,
+            role: [userData.role], // Backend expects array of roles
+          });
+          // Assuming successful registration also logs in the user or returns user data
+          const { id, name, email: userEmail, roles, token } = response.data;
+          const user: User = {
+            id: id.toString(),
+            name,
+            email: userEmail,
+            role: roles[0], // Assuming single role for simplicity
             createdAt: new Date().toISOString(),
           };
-
-          mockUsers.push(newUser);
-
-          const token = `mock-jwt-token-${newUser.id}`;
           set({
-            user: newUser,
+            user,
             token,
             isAuthenticated: true,
             isLoading: false,
           });
-
           return true;
         } catch (error) {
+          console.error("Registration failed:", error);
           set({ isLoading: false });
           return false;
         }
@@ -209,6 +153,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       updateUser: (userData) => {
+        // This will be implemented with API calls later
         const { user } = get();
         if (user) {
           set({
@@ -217,194 +162,145 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      deleteUser: (userId: string) => {
-        set(state => {
-          const updatedMockUsers = mockUsers.filter(u => u.id !== userId);
-          // Update the mockUsers array directly (for mock environment)
-          mockUsers.splice(0, mockUsers.length, ...updatedMockUsers);
-          // If the deleted user is the currently logged-in user, log them out
-          if (state.user?.id === userId) {
-            return { user: null, token: null, isAuthenticated: false };
-          }
-          return {};
-        });
+      deleteUser: async (userId: string) => {
+        try {
+          await axios.delete(`http://localhost:8080/api/admin/users/${userId}`, {
+            headers: { Authorization: `Bearer ${get().token}` },
+          });
+          // Optionally, refetch all users or remove from local state
+          set(state => ({
+            user: state.user?.id === userId ? null : state.user,
+          }));
+        } catch (error) {
+          console.error("Failed to delete user:", error);
+        }
       },
 
-      adminUpdateUser: (userId: string, userData: Partial<User>) => {
-        set(state => {
-          const updatedMockUsers = mockUsers.map(u =>
-            u.id === userId ? { ...u, ...userData } : u
-          );
-          // Update the mockUsers array directly (for mock environment)
-          mockUsers.splice(0, mockUsers.length, ...updatedMockUsers);
+      adminUpdateUser: async (userId: string, userData: Partial<User>) => {
+        try {
+          const response = await axios.put(`http://localhost:8080/api/admin/users/${userId}`, userData, {
+            headers: { Authorization: `Bearer ${get().token}` },
+          });
           // If the updated user is the currently logged-in user, update the store's user state
-          if (state.user?.id === userId) {
-            return { user: { ...state.user, ...userData } };
+          if (get().user?.id === userId) {
+            set({ user: response.data });
           }
-          return {};
-        });
+        } catch (error) {
+          console.error("Failed to update user:", error);
+        }
       },
 
       checkAuth: async () => {
         const { token } = get();
         if (token) {
-          // En production, vérifier la validité du token
+          // In a real app, validate token with backend
           set({ isAuthenticated: true });
         }
       },
 
-      updateShopOwnerStatus: (userId: string, status: ShopOwnerStatus) => {
-        updateMockUserStatus(userId, status);
-        // If the updated user is the currently logged-in user, update the store's user state
-        const { user } = get();
-        if (user && user.id === userId) {
-          set({
-            user: { ...user, shopOwnerStatus: status },
+      updateShopOwnerStatus: async (userId: string, status: ShopOwnerStatus) => {
+        try {
+          await axios.put(`http://localhost:8080/api/admin/users/${userId}`, { shopOwnerStatus: status }, {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
+          // If the updated user is the currently logged-in user, update the store's user state
+          if (get().user?.id === userId) {
+            set(state => ({ user: { ...state.user!, shopOwnerStatus: status } }));
+          }
+        } catch (error) {
+          console.error("Failed to update shop owner status:", error);
         }
       },
 
-      getPendingShopOwners: () => {
-        return mockUsers.filter(u => u.role === 'shopOwner' && u.shopOwnerStatus === 'pending');
-      },
-
-      getAllUsers: () => {
-        return mockUsers;
-      },
-
-      addProductToShop: (shopId: string, product: Product) => {
-        set(state => {
-          const updatedUsers = mockUsers.map(user => {
-            if (user.role === 'shopOwner' && user.shops) {
-              const updatedShops = user.shops.map(shop => {
-                if (shop.id === shopId) {
-                  return { ...shop, products: [...(shop.products || []), product] };
-                }
-                return shop;
-              });
-              return { ...user, shops: updatedShops };
-            }
-            return user;
+      getPendingShopOwners: async () => {
+        try {
+          const response = await axios.get("http://localhost:8080/api/admin/users", {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
-          // Update the current user's state if they are the one whose shop was modified
-          const currentUser = updatedUsers.find(u => u.id === state.user?.id);
-          return {
-            user: currentUser || state.user,
-          };
-        });
+          return response.data.filter((user: User) => user.role === 'shopOwner' && user.shopOwnerStatus === 'pending');
+        } catch (error) {
+          console.error("Failed to fetch pending shop owners:", error);
+          return [];
+        }
       },
 
-      updateProductInShop: (shopId: string, productId: string, updatedProduct: Partial<Product>) => {
-        set(state => {
-          const updatedUsers = mockUsers.map(user => {
-            if (user.role === 'shopOwner' && user.shops) {
-              const updatedShops = user.shops.map(shop => {
-                if (shop.id === shopId && shop.products) {
-                  const updatedProducts = shop.products.map(prod =>
-                    prod.id === productId ? { ...prod, ...updatedProduct } : prod
-                  );
-                  return { ...shop, products: updatedProducts };
-                }
-                return shop;
-              });
-              return { ...user, shops: updatedShops };
-            }
-            return user;
+      getAllUsers: async () => {
+        try {
+          const response = await axios.get("http://localhost:8080/api/admin/users", {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
-          const currentUser = updatedUsers.find(u => u.id === state.user?.id);
-          return {
-            user: currentUser || state.user,
-          };
-        });
+          return response.data;
+        } catch (error) {
+          console.error("Failed to fetch all users:", error);
+          return [];
+        }
       },
 
-      deleteProductFromShop: (shopId: string, productId: string) => {
-        set(state => {
-          const updatedUsers = mockUsers.map(user => {
-            if (user.role === 'shopOwner' && user.shops) {
-              const updatedShops = user.shops.map(shop => {
-                if (shop.id === shopId && shop.products) {
-                  const filteredProducts = shop.products.filter(prod => prod.id !== productId);
-                  return { ...shop, products: filteredProducts };
-                }
-                return shop;
-              });
-              return { ...user, shops: updatedShops };
-            }
-            return user;
+      addProductToShop: async (shopId: string, product: Product) => {
+        try {
+          const response = await axios.post("http://localhost:8080/api/products/", product, {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
-          const currentUser = updatedUsers.find(u => u.id === state.user?.id);
-          return {
-            user: currentUser || state.user,
-          };
-        });
+          // Optionally, update the local state with the new product
+          console.log("Product added:", response.data);
+        } catch (error) {
+          console.error("Failed to add product to shop:", error);
+        }
       },
 
-      addShopUser: (shopId: string, shopUser: ShopUser) => {
-        set(state => {
-          const updatedUsers = mockUsers.map(user => {
-            if (user.role === 'shopOwner' && user.shops) {
-              const updatedShops = user.shops.map(shop => {
-                if (shop.id === shopId) {
-                  return { ...shop, shopUsers: [...(shop.shopUsers || []), shopUser] };
-                }
-                return shop;
-              });
-              return { ...user, shops: updatedShops };
-            }
-            return user;
+      updateProductInShop: async (shopId: string, productId: string, updatedProduct: Partial<Product>) => {
+        try {
+          const response = await axios.put(`http://localhost:8080/api/products/${productId}`, updatedProduct, {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
-          const currentUser = updatedUsers.find(u => u.id === state.user?.id);
-          return {
-            user: currentUser || state.user,
-          };
-        });
+          console.log("Product updated:", response.data);
+        } catch (error) {
+          console.error("Failed to update product in shop:", error);
+        }
       },
 
-      updateShopUser: (shopId: string, shopUserId: string, updatedShopUser: Partial<ShopUser>) => {
-        set(state => {
-          const updatedUsers = mockUsers.map(user => {
-            if (user.role === 'shopOwner' && user.shops) {
-              const updatedShops = user.shops.map(shop => {
-                if (shop.id === shopId && shop.shopUsers) {
-                  const updatedShopUsers = shop.shopUsers.map(su =>
-                    su.id === shopUserId ? { ...su, ...updatedShopUser } : su
-                  );
-                  return { ...shop, shopUsers: updatedShopUsers };
-                }
-                return shop;
-              });
-              return { ...user, shops: updatedShops };
-            }
-            return user;
+      deleteProductFromShop: async (shopId: string, productId: string) => {
+        try {
+          await axios.delete(`http://localhost:8080/api/products/${productId}`, {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
-          const currentUser = updatedUsers.find(u => u.id === state.user?.id);
-          return {
-            user: currentUser || state.user,
-          };
-        });
+          console.log("Product deleted:", productId);
+        } catch (error) {
+          console.error("Failed to delete product from shop:", error);
+        }
       },
 
-      deleteShopUser: (shopId: string, shopUserId: string) => {
-        set(state => {
-          const updatedUsers = mockUsers.map(user => {
-            if (user.role === 'shopOwner' && user.shops) {
-              const updatedShops = user.shops.map(shop => {
-                if (shop.id === shopId && shop.shopUsers) {
-                  const filteredShopUsers = shop.shopUsers.filter(su => su.id !== shopUserId);
-                  return { ...shop, shopUsers: filteredShopUsers };
-                }
-                return shop;
-              });
-              return { ...user, shops: updatedShops };
-            }
-            return user;
+      addShopUser: async (shopId: string, shopUser: ShopUser) => {
+        try {
+          const response = await axios.post(`http://localhost:8080/api/shops/${shopId}/users`, shopUser, {
+            headers: { Authorization: `Bearer ${get().token}` },
           });
-          const currentUser = updatedUsers.find(u => u.id === state.user?.id);
-          return {
-            user: currentUser || state.user,
-          };
-        });
+          console.log("Shop user added:", response.data);
+        } catch (error) {
+          console.error("Failed to add shop user:", error);
+        }
+      },
+
+      updateShopUser: async (shopId: string, shopUserId: string, updatedShopUser: Partial<ShopUser>) => {
+        try {
+          const response = await axios.put(`http://localhost:8080/api/shops/${shopId}/users/${shopUserId}`, updatedShopUser, {
+            headers: { Authorization: `Bearer ${get().token}` },
+          });
+          console.log("Shop user updated:", response.data);
+        } catch (error) {
+          console.error("Failed to update shop user:", error);
+        }
+      },
+
+      deleteShopUser: async (shopId: string, shopUserId: string) => {
+        try {
+          await axios.delete(`http://localhost:8080/api/shops/${shopId}/users/${shopUserId}`, {
+            headers: { Authorization: `Bearer ${get().token}` },
+          });
+          console.log("Shop user deleted:", shopUserId);
+        } catch (error) {
+          console.error("Failed to delete shop user:", error);
+        }
       },
     }),
     {

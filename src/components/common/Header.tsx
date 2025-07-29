@@ -60,6 +60,12 @@ export const Header = () => {
               >
                 Boutiques
               </Link>
+              <Link
+                to="/about"
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                À Propos
+              </Link>
             </nav>
           )}
 

@@ -20,8 +20,8 @@ export const Account = () => {
     if (user) {
       updateUser({ name, email });
       toast({
-        title: 'Profil mis à jour',
-        description: 'Vos informations ont été mises à jour avec succès.',
+        title: t('profile_updated'),
+        description: t('profile_updated_description'),
       });
     }
   };

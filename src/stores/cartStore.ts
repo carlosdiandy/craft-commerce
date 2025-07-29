@@ -1,17 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  shopId: string;
-  shopName: string;
-  category: string;
-  stock: number;
-  description: string;
-}
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { Product, ProductVariant } from './productStore';
 
 export interface CartItem {
   product: Product;
@@ -56,7 +48,7 @@ export const useCartStore = create<CartStore>()(
           set({
             items: items.map(item =>
               item.product.id === product.id && 
-              JSON.stringify(item.selectedVariants) === JSON.stringify(variants)
+              (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants)
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),

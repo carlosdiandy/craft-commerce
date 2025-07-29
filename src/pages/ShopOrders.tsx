@@ -6,74 +6,148 @@ import { Link } from 'react-router-dom';
 import { Package, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 
-// Mock data for orders (replace with real data from backend)
-const mockOrders = [
-  {
-    id: 'ORD001',
-    date: '2024-07-20',
-    total: 150.00,
-    status: 'Delivered',
-    shopId: 'shop1',
-    items: [
-      { id: 'prod1', name: 'iPhone 15 Pro', quantity: 1, price: 1199.00 },
-      { id: 'prod2', name: 'AirPods Pro', quantity: 1, price: 249.00 },
-    ],
-  },
-  {
-    id: 'ORD002',
-    date: '2024-07-15',
-    total: 50.00,
-    status: 'Processing',
-    shopId: 'shop1',
-    items: [
-      { id: 'prod3', name: 'USB-C Cable', quantity: 2, price: 15.00 },
-    ],
-  },
-  {
-    id: 'ORD003',
-    date: '2024-07-10',
-    total: 250.00,
-    status: 'Delivered',
-    shopId: 'shop2',
-    items: [
-      { id: 'prod4', name: 'Running Shoes', quantity: 1, price: 100.00 },
-      { id: 'prod5', name: 'Sport Socks', quantity: 3, price: 10.00 },
-    ],
-  },
-];
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { Package, CalendarDays } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+
+interface OrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  image?: string;
+}
+
+interface Order {
+  id: string;
+  date: string;
+  total: number;
+  status: 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  shopId: string;
+  items: OrderItem[];
+  trackingNumber?: string;
+  estimatedDeliveryDate?: string;
+}
 
 export const ShopOrders = () => {
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const { t } = useTranslation();
 
-  // Filter orders based on the shops owned by the current user
-  const userShopIds = user?.shops?.map(shop => shop.id) || [];
-  const filteredOrders = mockOrders.filter(order => userShopIds.includes(order.shopId));
+  const fetchShopOrders = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/orders/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // Filter orders based on the shops owned by the current user
+      const userShopIds = user?.shops?.map(shop => shop.id) || [];
+      const filteredOrders = response.data.filter((order: Order) => userShopIds.includes(order.shopId));
+      setOrders(filteredOrders);
+    } catch (error) {
+      console.error("Failed to fetch shop orders:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user && token) {
+      fetchShopOrders();
+    }
+  }, [user, token]);
+
+  const handleOrderUpdate = async (orderId: string, newStatus: Order['status'], trackingNumber: string | null, estimatedDeliveryDate: string | null) => {
+    try {
+      await axios.put(`http://localhost:8080/api/orders/${orderId}/status`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (trackingNumber !== null || estimatedDeliveryDate !== null) {
+        await axios.put(`http://localhost:8080/api/orders/${orderId}/tracking`, {
+          trackingNumber,
+          estimatedDeliveryDate,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      fetchShopOrders(); // Re-fetch orders to update UI
+    } catch (error) {
+      console.error("Failed to update order:", error);
+    }
+  };
+
+  const getStatusBadgeVariant = (status: Order['status']) => {
+    switch (status) {
+      case 'DELIVERED':
+        return 'success';
+      case 'SHIPPED':
+        return 'info';
+      case 'PROCESSING':
+        return 'warning';
+      case 'CANCELLED':
+        return 'destructive';
+      case 'PENDING':
+      default:
+        return 'secondary';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="container px-4 py-8">
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Gestion des commandes</h1>
-            <p className="text-muted-foreground">Gérez les commandes de vos boutiques</p>
+            <h1 className="text-3xl font-bold">{t('manage_orders')}</h1>
+            <p className="text-muted-foreground">{t('manage_shop_orders_description')}</p>
           </div>
           <Link to="/backoffice">
-            <Button variant="outline">Retour au Backoffice</Button>
+            <Button variant="outline">{t('back_to_backoffice')}</Button>
           </Link>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Commandes de mes boutiques</CardTitle>
+            <CardTitle>{t('my_shop_orders')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {filteredOrders.length > 0 ? (
-                filteredOrders.map((order) => (
+              {orders.length > 0 ? (
+                orders.map((order) => (
                   <div key={order.id} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">Commande #{order.id} - Boutique: {mockShops.find(s => s.id === order.shopId)?.name}</h4>
-                      <Badge variant="secondary">{order.status}</Badge>
+                      <h4 className="font-medium">{t('order_number')} #{order.id} - {t('shop')}: {user?.shops?.find(s => s.id === order.shopId)?.name}</h4>
+                      <Select value={order.status} onValueChange={(newStatus) => handleOrderUpdate(order.id, newStatus, order.trackingNumber || null, order.estimatedDeliveryDate || null)}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder={t('select_status')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PENDING">{t('status_pending')}</SelectItem>
+                          <SelectItem value="PROCESSING">{t('status_processing')}</SelectItem>
+                          <SelectItem value="SHIPPED">{t('status_shipped')}</SelectItem>
+                          <SelectItem value="DELIVERED">{t('status_delivered')}</SelectItem>
+                          <SelectItem value="CANCELLED">{t('status_cancelled')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Input
+                        placeholder={t('tracking_number')}
+                        value={order.trackingNumber || ''}
+                        onChange={(e) => handleOrderUpdate(order.id, order.status, e.target.value, order.estimatedDeliveryDate || null)}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="date"
+                        placeholder={t('estimated_delivery')}
+                        value={order.estimatedDeliveryDate || ''}
+                        onChange={(e) => handleOrderUpdate(order.id, order.status, order.trackingNumber || null, e.target.value)}
+                        className="w-[150px]"
+                      />
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center mb-2">
                       <CalendarDays className="w-4 h-4 mr-1" />
@@ -85,14 +159,16 @@ export const ShopOrders = () => {
                         <p key={item.id}>{item.name} x {item.quantity} ({item.price}€)</p>
                       ))}
                     </div>
-                    <Button variant="outline" size="sm" className="mt-4">Voir les détails</Button>
+                    <Link to={`/account/orders/${order.id}`}>
+                      <Button variant="outline" size="sm" className="mt-4">{t('view_details')}</Button>
+                    </Link>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">Aucune commande pour vos boutiques.</h3>
-                  <p>Les commandes passées sur vos boutiques apparaîtront ici.</p>
+                  <h3 className="text-lg font-semibold mb-2">{t('no_orders_for_your_shops')}</h3>
+                  <p>{t('no_orders_for_your_shops_description')}</p>
                 </div>
               )}
             </div>
@@ -102,15 +178,3 @@ export const ShopOrders = () => {
     </div>
   );
 };
-
-// Mock shops data (should ideally come from a shared source or authStore)
-const mockShops = [
-  {
-    id: 'shop1',
-    name: 'Ma Boutique Mode',
-  },
-  {
-    id: 'shop2',
-    name: 'Sport & Style',
-  },
-];

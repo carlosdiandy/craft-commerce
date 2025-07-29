@@ -44,8 +44,8 @@ export const Checkout = () => {
     });
 
     toast({
-      title: 'Commande passée',
-      description: 'Votre commande a été passée avec succès!',
+      title: t('order_placed'),
+      description: t('order_placed_success'),
     });
 
     clearCart();

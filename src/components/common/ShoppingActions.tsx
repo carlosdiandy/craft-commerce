@@ -20,7 +20,7 @@ export const ShoppingActions = () => {
         size="icon"
         className="relative"
         onClick={() => navigate('/favorites')}
-        title="Mes favoris"
+        title={t('my_wishlist')}
       >
         <Heart className="w-5 h-5" />
         {favoriteItemsCount > 0 && (

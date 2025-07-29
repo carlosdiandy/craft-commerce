@@ -4,77 +4,116 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Package, CalendarDays } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useAuthStore } from '@/stores/authStore';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
-// Mock data for orders (replace with real data from backend)
-const mockOrders = [
-  {
-    id: 'ORD001',
-    date: '2024-07-20',
-    total: 150.00,
-    status: 'Delivered',
-    items: [
-      { id: 'prod1', name: 'iPhone 15 Pro', quantity: 1, price: 1199.00 },
-      { id: 'prod2', name: 'AirPods Pro', quantity: 1, price: 249.00 },
-    ],
-  },
-  {
-    id: 'ORD002',
-    date: '2024-07-15',
-    total: 50.00,
-    status: 'Processing',
-    items: [
-      { id: 'prod3', name: 'USB-C Cable', quantity: 2, price: 15.00 },
-    ],
-  },
-];
+interface OrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  image?: string;
+}
+
+interface Order {
+  id: string;
+  date: string;
+  total: number;
+  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  items: OrderItem[];
+  shippingAddress?: {
+    street: string;
+    city: string;
+    zipCode: string;
+    country: string;
+  };
+  paymentMethod?: string;
+  trackingNumber?: string;
+  estimatedDeliveryDate?: string;
+}
 
 export const OrderHistory = () => {
+  const { token } = useAuthStore();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/orders/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setOrders(response.data);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      }
+    };
+
+    if (token) {
+      fetchOrders();
+    }
+  }, [token]);
+
   return (
     <div className="min-h-screen bg-muted/30">
       <div className="container px-4 py-8">
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Historique des commandes</h1>
-            <p className="text-muted-foreground">Retrouvez toutes vos commandes passées</p>
+            <h1 className="text-3xl font-bold">{t('order_history')}</h1>
+            <p className="text-muted-foreground">{t('order_history_description')}</p>
           </div>
           <Link to="/account">
-            <Button variant="outline">Retour au compte</Button>
+            <Button variant="outline">{t('back_to_account')}</Button>
           </Link>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Mes commandes</CardTitle>
+            <CardTitle>{t('my_orders')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockOrders.length > 0 ? (
-                mockOrders.map((order) => (
+              {orders.length > 0 ? (
+                orders.map((order) => (
                   <div key={order.id} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">Commande #{order.id}</h4>
+                      <h4 className="font-medium">{t('order_number')} #{order.id}</h4>
                       <Badge variant="secondary">{order.status}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center mb-2">
                       <CalendarDays className="w-4 h-4 mr-1" />
                       {order.date}
                     </p>
+                    {order.trackingNumber && (
+                      <p className="text-sm text-muted-foreground flex items-center mb-2">
+                        {t('tracking_number')}: {order.trackingNumber}
+                      </p>
+                    )}
+                    {order.estimatedDeliveryDate && (
+                      <p className="text-sm text-muted-foreground flex items-center mb-2">
+                        {t('estimated_delivery')}: {order.estimatedDeliveryDate}
+                      </p>
+                    )}
                     <p className="text-lg font-bold mb-2">Total: {order.total}€</p>
                     <div className="space-y-1 text-sm">
                       {order.items.map((item) => (
                         <p key={item.id}>{item.name} x {item.quantity} ({item.price}€)</p>
                       ))}
                     </div>
-                    <Button variant="outline" size="sm" className="mt-4">Voir les détails</Button>
+                    <Link to={`/account/orders/${order.id}`}>
+                      <Button variant="outline" size="sm" className="mt-4">{t('view_details')}</Button>
+                    </Link>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">Aucune commande trouvée</h3>
-                  <p>Vous n'avez pas encore passé de commande.</p>
+                  <h3 className="text-lg font-semibold mb-2">{t('no_orders_found')}</h3>
+                  <p>{t('no_orders_found_description')}</p>
                   <Link to="/">
-                    <Button className="mt-4">Commencer mes achats</Button>
+                    <Button className="mt-4">{t('start_shopping')}</Button>
                   </Link>
                 </div>
               )}

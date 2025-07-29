@@ -23,6 +23,8 @@ import { AdminShopOverview } from "@/pages/AdminShopOverview";
 import { Checkout } from "@/pages/Checkout";
 import { ProductDetail } from "@/pages/ProductDetail";
 import { ShopUserManagement } from "@/pages/ShopUserManagement";
+import { OrderDetail } from "@/pages/OrderDetail";
+import { AboutUs } from "@/pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,11 @@ const App = () => (
               <OrderHistory />
             </ProtectedRoute>
           } />
+          <Route path="/account/orders/:orderId" element={
+            <ProtectedRoute allowedRoles={['client', 'shopOwner', 'admin']}>
+              <OrderDetail />
+            </ProtectedRoute>
+          } />
           <Route path="/shops/manage" element={
             <ProtectedRoute allowedRoles={['shopOwner']}>
               <ShopManagement />
@@ -91,7 +98,7 @@ const App = () => (
               <Checkout />
             </ProtectedRoute>
           } />
-          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/shops" element={<Shops />} />
           <Route path="/shops/:shopId" element={<ShopDetail />} />
           <Route path="/products/:productId" element={<ProductDetail />} />
@@ -101,6 +108,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
