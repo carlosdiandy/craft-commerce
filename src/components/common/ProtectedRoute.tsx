@@ -30,7 +30,7 @@ export const ProtectedRoute = ({
   }
 
   // Vérifier le statut pour les shop owners
-  if (requireValidated && user.role === 'shopOwner') {
+  if (requireValidated && user.role === 'ROLE_SHOP_OWNER') {
     const status = user.shopOwnerStatus;
     
     if (status === 'pending') {
@@ -56,7 +56,7 @@ export const ProtectedRoute = ({
       );
     }
 
-    if (status === 'paid') {
+    if (status === 'approved') {
       return (
         <div className="min-h-screen flex items-center justify-center p-4">
           <Card className="max-w-md w-full">

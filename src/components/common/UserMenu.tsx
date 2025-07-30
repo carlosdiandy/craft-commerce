@@ -32,20 +32,20 @@ export const UserMenu = ({ onAuthClick }: UserMenuProps) => {
   };
 
   const getDashboardPath = () => {
-    if (user?.role === 'admin') return '/admin';
-    if (user?.role === 'shopOwner') return '/backoffice';
+    if (user?.role === 'ROLE_ADMIN') return '/admin';
+    if (user?.role === 'ROLE_SHOP_OWNER') return '/backoffice';
     return '/account';
   };
 
   const getDashboardLabel = () => {
-    if (user?.role === 'admin') return 'Admin Dashboard';
-    if (user?.role === 'shopOwner') return 'Mon Backoffice';
+    if (user?.role === 'ROLE_ADMIN') return 'Admin Dashboard';
+    if (user?.role === 'ROLE_SHOP_OWNER') return 'Mon Backoffice';
     return 'Mon Compte';
   };
 
   const getDashboardIcon = () => {
-    if (user?.role === 'admin') return BarChart3;
-    if (user?.role === 'shopOwner') return Package;
+    if (user?.role === 'ROLE_ADMIN') return BarChart3;
+    if (user?.role === 'ROLE_SHOP_OWNER') return Package;
     return User;
   };
 
@@ -82,8 +82,8 @@ export const UserMenu = ({ onAuthClick }: UserMenuProps) => {
           <div className="hidden lg:flex flex-col items-start">
             <span className="font-medium text-sm leading-none">{user.name}</span>
             <span className="text-xs text-muted-foreground mt-0.5">
-              {user.role === 'admin' ? 'Administrateur' :
-                user.role === 'shopOwner' ? 'Propriétaire' :
+              {user.role === 'ROLE_ADMIN' ? 'Administrateur' :
+                user.role === 'ROLE_SHOP_OWNER' ? 'Propriétaire' :
                   'Client'}
             </span>
           </div>
@@ -101,8 +101,8 @@ export const UserMenu = ({ onAuthClick }: UserMenuProps) => {
               {user.email}
             </p>
             <Badge variant="outline" className="w-fit text-xs">
-              {user.role === 'admin' ? 'Administrateur' :
-                user.role === 'shopOwner' ? 'Propriétaire' :
+              {user.role === 'ROLE_ADMIN' ? 'Administrateur' :
+                user.role === 'ROLE_SHOP_OWNER' ? 'Propriétaire' :
                   'Client'}
             </Badge>
           </div>
@@ -119,7 +119,7 @@ export const UserMenu = ({ onAuthClick }: UserMenuProps) => {
           Mes commandes
         </DropdownMenuItem>
 
-        {user.role === 'client' && (
+        {user.role === 'ROLE_CLIENT' && (
           <DropdownMenuItem onClick={() => navigate('/account/settings')}>
             <Settings className="mr-2 h-4 w-4" />
             Paramètres

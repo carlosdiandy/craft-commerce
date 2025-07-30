@@ -38,10 +38,9 @@ export const UserManagement = () => {
 
   const getStatusVariant = (status: ShopOwnerStatus | undefined) => {
     switch (status) {
-      case 'validated': return 'default';
-      case 'paid': return 'secondary';
+      case 'approved': return 'default';
       case 'pending': return 'destructive';
-      case 'uploaded': return 'secondary';
+      case 'rejected': return 'destructive';
       default: return 'outline';
     }
   };
@@ -79,13 +78,13 @@ export const UserManagement = () => {
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{user.name}</h4>
                         <Badge variant="outline" className="text-xs">
-                          {user.role === 'admin' ? 'Administrateur' :
-                            user.role === 'shopOwner' ? 'Propriétaire' :
+                          {user.role === 'ROLE_ADMIN' ? 'Administrateur' :
+                            user.role === 'ROLE_SHOP_OWNER' ? 'Propriétaire' :
                               'Client'}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{user.email}</p>
-                      {user.role === 'shopOwner' && (
+                      {user.role === 'ROLE_SHOP_OWNER' && (
                         <Badge variant={getStatusVariant(user.shopOwnerStatus)} className="text-xs">
                           Statut: {user.shopOwnerStatus}
                         </Badge>

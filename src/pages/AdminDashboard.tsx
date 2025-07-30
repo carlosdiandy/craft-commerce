@@ -15,9 +15,9 @@ export const AdminDashboard = () => {
   const allUsers = getAllUsers();
   const { t } = useTranslation();
 
-  const totalShopOwners = allUsers.filter(u => u.role === 'shopOwner').length;
-  const totalClients = allUsers.filter(u => u.role === 'client').length;
-  const activeShops = allUsers.filter(u => u.role === 'shopOwner' && u.shopOwnerStatus === 'validated').flatMap(u => u.shops || []).filter(s => s.status === 'active').length;
+  const totalShopOwners = allUsers.filter(u => u.role === 'ROLE_SHOP_OWNER').length;
+  const totalClients = allUsers.filter(u => u.role === 'ROLE_CLIENT').length;
+  const activeShops = allUsers.filter(u => u.role === 'ROLE_SHOP_OWNER' && u.shopOwnerStatus === 'approved').flatMap(u => u.shops || []).filter(s => s.status === 'active').length;
 
   // Mock data for charts
   const salesData = [
@@ -51,7 +51,7 @@ export const AdminDashboard = () => {
   ];
 
   const handleValidate = (user: User) => {
-    updateShopOwnerStatus(user.id, 'validated');
+    updateShopOwnerStatus(user.id, 'approved');
     toast({
       title: t("shop_owner_validated_title"),
       description: t("shop_owner_validated_description", { userName: user.name }),
@@ -59,7 +59,7 @@ export const AdminDashboard = () => {
   };
 
   const handleReject = (user: User) => {
-    updateShopOwnerStatus(user.id, 'suspended'); // Or 'rejected' if we add that status
+    updateShopOwnerStatus(user.id, 'rejected');
     toast({
       title: t("shop_owner_rejected_title"),
       description: t("shop_owner_rejected_description", { userName: user.name }),

@@ -23,7 +23,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'client' as UserRole,
+    role: 'ROLE_CLIENT' as UserRole,
     shopOwnerType: 'individual' as 'individual' | 'company',
   });
 
@@ -65,13 +65,13 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       email: registerForm.email,
       password: registerForm.password,
       role: registerForm.role,
-      shopOwnerType: registerForm.role === 'shopOwner' ? registerForm.shopOwnerType : undefined,
+      shopOwnerType: registerForm.role === 'ROLE_SHOP_OWNER' ? registerForm.shopOwnerType : undefined,
     });
 
     if (success) {
       toast({
         title: "Inscription réussie",
-        description: registerForm.role === 'shopOwner' 
+        description: registerForm.role === 'ROLE_SHOP_OWNER' 
           ? "Votre compte a été créé. Un paiement est requis pour activer votre boutique."
           : "Votre compte a été créé avec succès.",
       });
@@ -204,13 +204,13 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="client">Client</SelectItem>
-                    <SelectItem value="shopOwner">Propriétaire de boutique</SelectItem>
+                    <SelectItem value="ROLE_CLIENT">Client</SelectItem>
+                    <SelectItem value="ROLE_SHOP_OWNER">Propriétaire de boutique</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {registerForm.role === 'shopOwner' && (
+              {registerForm.role === 'ROLE_SHOP_OWNER' && (
                 <div className="space-y-2">
                   <Label htmlFor="shop-type">Type d'entreprise</Label>
                   <Select 
@@ -262,7 +262,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                 </div>
               </div>
 
-              {registerForm.role === 'shopOwner' && (
+              {registerForm.role === 'ROLE_SHOP_OWNER' && (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="documents">Documents justificatifs</Label>

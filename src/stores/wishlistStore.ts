@@ -32,16 +32,13 @@ export const useWishlistStore = create<WishlistStore>()(
       addItem: (product, quantity = 1, variants) => {
         const { items } = get();
         const existingItem = items.find(
-          item =>
-            item.productId === product.id &&
-            (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants)
+          item => item.productId === product.id
         );
 
         if (existingItem) {
           set({
             items: items.map(item =>
-              item.productId === product.id &&
-              (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants)
+              item.productId === product.id
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),
@@ -51,12 +48,11 @@ export const useWishlistStore = create<WishlistStore>()(
             items: [
               ...items,
               {
+                id: Date.now().toString(),
+                userId: '',
                 productId: product.id,
-                productName: product.name,
-                productImage: product.images?.[0] || '',
-                price: product.price,
                 quantity,
-                selectedVariants: variants,
+                addedDate: new Date().toISOString(),
               },
             ],
           });
@@ -66,11 +62,7 @@ export const useWishlistStore = create<WishlistStore>()(
       removeItem: (productId, variants) => {
         const { items } = get();
         set({
-          items: items.filter(
-            item =>
-              !(item.productId === productId &&
-                (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants))
-          ),
+          items: items.filter(item => item.productId !== productId),
         });
       },
 
@@ -83,8 +75,7 @@ export const useWishlistStore = create<WishlistStore>()(
         const { items } = get();
         set({
           items: items.map(item =>
-            item.productId === productId &&
-            (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants)
+            item.productId === productId
               ? { ...item, quantity }
               : item
           ),
@@ -92,19 +83,11 @@ export const useWishlistStore = create<WishlistStore>()(
       },
 
       isItemInWishlist: (productId, variants) => {
-        return get().items.some(
-          item =>
-            item.productId === productId &&
-            (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants)
-        );
+        return get().items.some(item => item.productId === productId);
       },
 
       getWishlistItem: (productId, variants) => {
-        return get().items.find(
-          item =>
-            item.productId === productId &&
-            (item.selectedVariants ? JSON.stringify(item.selectedVariants) === JSON.stringify(variants) : !variants)
-        );
+        return get().items.find(item => item.productId === productId);
       },
     }),
     {

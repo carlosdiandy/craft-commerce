@@ -274,10 +274,10 @@ export const ProductManagement = () => {
                                       {variant.material && `, ${t('material')}: ${variant.material}`}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                      <span>{t('stock')}: {variant.stockQuantity}</span>
-                                      <Input
-                                        type="number"
-                                        defaultValue={variant.stockQuantity}
+                                       <span>{t('stock')}: {variant.stock}</span>
+                                       <Input
+                                         type="number"
+                                         defaultValue={variant.stock}
                                         className="w-20"
                                         onChange={(e) => console.log(`Update variant ${variant.id} stock to ${e.target.value}`)} // Implement actual update
                                       />

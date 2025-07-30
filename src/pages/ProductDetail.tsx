@@ -101,7 +101,7 @@ export const ProductDetail = () => {
   });
 
   const displayPrice = currentVariant ? product!.price + (currentVariant.priceAdjustment || 0) : product?.price;
-  const displayStock = currentVariant ? currentVariant.stockQuantity : product?.stock;
+  const displayStock = currentVariant ? currentVariant.stock : product?.stock;
 
   const handleAddToCart = () => {
     if (product) {

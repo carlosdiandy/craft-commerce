@@ -34,40 +34,28 @@ export const ShopOwnerDashboard = () => {
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'validated': return 'default';
-      case 'paid': return 'secondary';
+      case 'approved': return 'default';
       case 'pending': return 'destructive';
-      case 'uploaded': return 'secondary';
+      case 'rejected': return 'destructive';
       default: return 'outline';
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'validated': return t('status_validated');
-      case 'paid': return t('status_paid');
+      case 'approved': return t('status_approved');
       case 'pending': return t('status_pending');
-      case 'uploaded': return t('status_uploaded');
+      case 'rejected': return t('status_rejected');
       default: return t('status_unknown');
     }
   };
 
   const handlePayment = () => {
     if (user) {
-      updateShopOwnerStatus(user.id, 'paid');
+      updateShopOwnerStatus(user.id, 'approved');
       toast({
         title: t("payment_simulated_title"),
         description: t("payment_simulated_description"),
-      });
-    }
-  };
-
-  const handleDocumentUpload = () => {
-    if (user) {
-      updateShopOwnerStatus(user.id, 'uploaded');
-      toast({
-        title: t("documents_uploaded_title"),
-        description: t("documents_uploaded_description"),
       });
     }
   };
@@ -110,44 +98,7 @@ export const ShopOwnerDashboard = () => {
           </Card>
         )}
 
-        {user?.shopOwnerStatus === 'paid' && (
-          <Card className="mb-6 lg:mb-8 border-info bg-info/5">
-            <CardContent className="p-4 lg:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                <Upload className="w-8 h-8 text-info flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">{t('documents_required')}</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {t('documents_required_description')}
-                  </p>
-                  <Button variant="secondary" onClick={handleDocumentUpload} className="w-full sm:w-auto">
-                    <Upload className="w-4 h-4 mr-2" />
-                    {t('upload_my_documents')}
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {user?.shopOwnerStatus === 'uploaded' && (
-          <Card className="mb-6 lg:mb-8 border-secondary bg-secondary/5">
-            <CardContent className="p-4 lg:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                <Clock className="w-8 h-8 text-secondary flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-2">{t('pending_validation')}</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {t('pending_validation_description')}
-                  </p>
-                  <Badge variant="secondary">{t('file_processing')}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {user?.shopOwnerStatus === 'validated' && (
+        {user?.shopOwnerStatus === 'approved' && (
           <>
             {/* Stats des boutiques */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">

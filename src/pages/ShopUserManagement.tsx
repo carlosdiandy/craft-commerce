@@ -123,15 +123,15 @@ export const ShopUserManagement = () => {
                       <div className="space-y-2">
                         <Label htmlFor="userRole">Rôle</Label>
                         <Select
-                          value={editingShopUser?.role || 'shop_employee'}
+                          value={editingShopUser?.role || 'SHOP_EMPLOYEE'}
                           onValueChange={(value: ShopUserRole) => setEditingShopUser(prev => prev ? { ...prev, role: value } : null)}
                         >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="shop_admin">Admin de boutique</SelectItem>
-                            <SelectItem value="shop_employee">Employé de boutique</SelectItem>
+                            <SelectItem value="SHOP_ADMIN">Admin de boutique</SelectItem>
+                            <SelectItem value="SHOP_EMPLOYEE">Employé de boutique</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -155,7 +155,7 @@ export const ShopUserManagement = () => {
                         selectedShop.shopUsers.map((shopUser) => (
                           <div key={shopUser.id} className="flex items-center justify-between p-4 border rounded-lg">
                             <div className="space-y-1">
-                              <h4 className="font-medium">{shopUser.name} ({shopUser.role === 'shop_admin' ? 'Admin' : 'Employé'})</h4>
+                              <h4 className="font-medium">{shopUser.name} ({shopUser.role === 'SHOP_ADMIN' ? 'Admin' : 'Employé'})</h4>
                               <p className="text-sm text-muted-foreground">{shopUser.email}</p>
                             </div>
                             <div className="flex gap-2">

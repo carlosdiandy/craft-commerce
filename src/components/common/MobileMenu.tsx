@@ -44,14 +44,14 @@ export const MobileMenu = () => {
   };
 
   const getDashboardPath = () => {
-    if (user?.role === 'admin') return '/admin';
-    if (user?.role === 'shopOwner') return '/backoffice';
+    if (user?.role === 'ROLE_ADMIN') return '/admin';
+    if (user?.role === 'ROLE_SHOP_OWNER') return '/backoffice';
     return '/account';
   };
 
   const getDashboardLabel = () => {
-    if (user?.role === 'admin') return 'Admin Dashboard';
-    if (user?.role === 'shopOwner') return 'Mon Backoffice';
+    if (user?.role === 'ROLE_ADMIN') return 'Admin Dashboard';
+    if (user?.role === 'ROLE_SHOP_OWNER') return 'Mon Backoffice';
     return 'Mon Compte';
   };
 
@@ -69,11 +69,11 @@ export const MobileMenu = () => {
     { 
       label: getDashboardLabel(), 
       path: getDashboardPath(), 
-      icon: user?.role === 'admin' ? BarChart3 : user?.role === 'shopOwner' ? Package : User,
+      icon: user?.role === 'ROLE_ADMIN' ? BarChart3 : user?.role === 'ROLE_SHOP_OWNER' ? Package : User,
       show: isAuthenticated 
     },
     { label: 'Mes commandes', path: '/account/orders', icon: Package, show: isAuthenticated },
-    { label: 'Paramètres', path: '/account/settings', icon: Settings, show: isAuthenticated && user?.role === 'client' },
+    { label: 'Paramètres', path: '/account/settings', icon: Settings, show: isAuthenticated && user?.role === 'ROLE_CLIENT' },
   ];
 
   return (
@@ -110,8 +110,8 @@ export const MobileMenu = () => {
                   <p className="font-medium truncate">{user.name}</p>
                   <p className="text-sm text-muted-foreground truncate">{user.email}</p>
                   <Badge variant="outline" className="mt-1">
-                    {user.role === 'admin' ? 'Administrateur' :
-                      user.role === 'shopOwner' ? 'Propriétaire' :
+                    {user.role === 'ROLE_ADMIN' ? 'Administrateur' :
+                      user.role === 'ROLE_SHOP_OWNER' ? 'Propriétaire' :
                         'Client'}
                   </Badge>
                 </div>

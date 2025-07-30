@@ -13,16 +13,28 @@ export const Wishlist = () => {
   const { addItem: addCartItem } = useCartStore();
 
   const handleMoveToCart = (item: any) => {
-    addCartItem({ ...item, id: item.productId }, item.quantity, item.selectedVariants);
-    removeItem(item.productId, item.selectedVariants);
+    // Create a mock product for cart
+    const mockProduct = { 
+      id: item.productId, 
+      name: `Product ${item.productId}`, 
+      price: 0, 
+      category: '', 
+      description: '', 
+      images: [], 
+      stock: item.quantity,
+      shopId: '',
+      shopName: ''
+    };
+    addCartItem(mockProduct, item.quantity);
+    removeItem(item.productId);
     toast({
       title: t('moved_to_cart'),
-      description: t('product_moved_to_cart', { productName: item.productName }),
+      description: t('product_moved_to_cart'),
     });
   };
 
-  const handleRemoveItem = (productId: string, variants?: Record<string, string>) => {
-    removeItem(productId, variants);
+  const handleRemoveItem = (productId: string) => {
+    removeItem(productId);
     toast({
       title: t('removed_from_wishlist'),
       description: t('product_removed_from_wishlist'),
@@ -50,28 +62,21 @@ export const Wishlist = () => {
             <div className="space-y-4">
               {items.length > 0 ? (
                 items.map((item) => (
-                  <div key={item.productId + JSON.stringify(item.selectedVariants)} className="flex items-center gap-4 p-4 border rounded-lg">
-                    <img src={item.productImage} alt={item.productName} className="w-20 h-20 object-cover rounded-md" />
+                  <div key={item.productId} className="flex items-center gap-4 p-4 border rounded-lg">
+                    <img src="/placeholder.svg" alt={`Product ${item.productId}`} className="w-20 h-20 object-cover rounded-md" />
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{item.productName}</h3>
-                      {item.selectedVariants && (
-                        <p className="text-sm text-muted-foreground">
-                          {Object.entries(item.selectedVariants).map(([key, value]) => (
-                            <span key={key} className="capitalize mr-2">{key}: {value}</span>
-                          ))}
-                        </p>
-                      )}
-                      <p className="text-muted-foreground">{item.price}€</p>
+                      <h3 className="font-semibold text-lg">Product {item.productId}</h3>
+                      <p className="text-muted-foreground">Added: {new Date(item.addedDate).toLocaleDateString()}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" onClick={() => updateQuantity(item.productId, item.quantity - 1, item.selectedVariants)}>-</Button>
+                      <Button size="sm" variant="outline" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>-</Button>
                       <span>{item.quantity}</span>
-                      <Button size="sm" variant="outline" onClick={() => updateQuantity(item.productId, item.quantity + 1, item.selectedVariants)}>+</Button>
+                      <Button size="sm" variant="outline" onClick={() => updateQuantity(item.productId, item.quantity + 1)}>+</Button>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => handleMoveToCart(item)}>
                       <ShoppingCart className="w-5 h-5" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.productId, item.selectedVariants)}>
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.productId)}>
                       <HeartCrack className="w-5 h-5" />
                     </Button>
                   </div>

@@ -38,63 +38,63 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Marketplace />} />
           <Route path="/admin" element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <AdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/admin/users" element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <UserManagement />
             </ProtectedRoute>
           } />
           <Route path="/admin/shops" element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <AdminShopOverview />
             </ProtectedRoute>
           } />
           <Route path="/backoffice" element={
-            <ProtectedRoute allowedRoles={['shopOwner']}>
+            <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopOwnerDashboard />
             </ProtectedRoute>
           } />
           <Route path="/account" element={
-            <ProtectedRoute allowedRoles={['client', 'shopOwner', 'admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_CLIENT', 'ROLE_SHOP_OWNER', 'ROLE_ADMIN']}>
               <Account />
             </ProtectedRoute>
           } />
           <Route path="/account/orders" element={
-            <ProtectedRoute allowedRoles={['client', 'shopOwner', 'admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_CLIENT', 'ROLE_SHOP_OWNER', 'ROLE_ADMIN']}>
               <OrderHistory />
             </ProtectedRoute>
           } />
           <Route path="/account/orders/:orderId" element={
-            <ProtectedRoute allowedRoles={['client', 'shopOwner', 'admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_CLIENT', 'ROLE_SHOP_OWNER', 'ROLE_ADMIN']}>
               <OrderDetail />
             </ProtectedRoute>
           } />
           <Route path="/shops/manage" element={
-            <ProtectedRoute allowedRoles={['shopOwner']}>
+            <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopManagement />
             </ProtectedRoute>
           } />
           <Route path="/products/manage" element={
-            <ProtectedRoute allowedRoles={['shopOwner']}>
+            <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ProductManagement />
             </ProtectedRoute>
           } />
           <Route path="/backoffice/orders" element={
-            <ProtectedRoute allowedRoles={['shopOwner']}>
+            <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopOrders />
             </ProtectedRoute>
           } />
           <Route path="/backoffice/users" element={
-            <ProtectedRoute allowedRoles={['shopOwner']}>
+            <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopUserManagement />
             </ProtectedRoute>
           } />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={
-            <ProtectedRoute allowedRoles={['client', 'shopOwner', 'admin']}>
+            <ProtectedRoute allowedRoles={['ROLE_CLIENT', 'ROLE_SHOP_OWNER', 'ROLE_ADMIN']}>
               <Checkout />
             </ProtectedRoute>
           } />
