@@ -6,9 +6,11 @@ import { useAuthStore, User, UserRole, ShopOwnerStatus } from '@/stores/authStor
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { Users, Edit, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const UserManagement = () => {
   const { getAllUsers, deleteUser, adminUpdateUser } = useAuthStore();
+  const { t } = useTranslation();
   const allUsers = getAllUsers();
 
   const handleEditUser = (userToEdit: User) => {

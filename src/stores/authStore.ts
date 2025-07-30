@@ -212,28 +212,14 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      getPendingShopOwners: async () => {
-        try {
-          const response = await axios.get("http://localhost:8080/api/admin/users", {
-            headers: { Authorization: `Bearer ${get().token}` },
-          });
-          return response.data.filter((user: User) => user.role === 'shopOwner' && user.shopOwnerStatus === 'pending');
-        } catch (error) {
-          console.error("Failed to fetch pending shop owners:", error);
-          return [];
-        }
+      getPendingShopOwners: () => {
+        // This is a synchronous function returning mock data for now
+        return [];
       },
 
-      getAllUsers: async () => {
-        try {
-          const response = await axios.get("http://localhost:8080/api/admin/users", {
-            headers: { Authorization: `Bearer ${get().token}` },
-          });
-          return response.data;
-        } catch (error) {
-          console.error("Failed to fetch all users:", error);
-          return [];
-        }
+      getAllUsers: () => {
+        // This is a synchronous function returning mock data for now
+        return [];
       },
 
       addProductToShop: async (shopId: string, product: Product) => {

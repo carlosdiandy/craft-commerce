@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,21 +10,15 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 const productSchema = z.object({
   productName: z.string().min(1, { message: "Le nom du produit est requis." }).max(100, { message: "Le nom du produit est trop long." }),
   productDescription: z.string().min(1, { message: "La description est requise." }).max(500, { message: "La description est trop longue." }),
-  productPrice: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0.01, { message: "Le prix doit être supérieur à 0." })
-  ),
-  productStock: z.preprocess(
-    (val) => Number(val),
-    z.number().int().min(0, { message: "Le stock ne peut pas être négatif." })
-  ),
+  productPrice: z.coerce.number().min(0.01, { message: "Le prix doit être supérieur à 0." }),
+  productStock: z.coerce.number().int().min(0, { message: "Le stock ne peut pas être négatif." }),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -37,8 +30,12 @@ export const ProductManagement = () => {
   const [productImages, setProductImages] = useState<string[]>([]);
   const { t } = useTranslation();
 
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<ProductFormValues>({
     defaultValues: {
       productName: '',
       productDescription: '',
@@ -46,8 +43,6 @@ export const ProductManagement = () => {
       productStock: 0,
     },
   });
-
-  const { register, handleSubmit, reset, formState: { errors } } = form;
 
   const selectedShop = user?.shops?.find(shop => shop.id === selectedShopId);
 
@@ -86,7 +81,7 @@ export const ProductManagement = () => {
     setProductImages(prevImages => prevImages.filter((_, index) => index !== indexToRemove));
   };
 
-  const onSubmit = (values: ProductFormValues) => {
+  const onSubmit: SubmitHandler<ProductFormValues> = (values) => {
     if (!selectedShopId) {
       toast({
         title: t('error'),

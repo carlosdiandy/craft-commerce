@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product } from './cartStore';
+import { Product } from './productStore';
 
 export interface WishlistItem {
   productId: string;
@@ -54,7 +54,7 @@ export const useWishlistStore = create<WishlistStore>()(
               {
                 productId: product.id,
                 productName: product.name,
-                productImage: product.image,
+                productImage: product.images?.[0] || '',
                 price: product.price,
                 quantity,
                 selectedVariants: variants,

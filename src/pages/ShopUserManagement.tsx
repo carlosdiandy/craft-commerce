@@ -28,6 +28,7 @@ export const ShopUserManagement = () => {
       email: formData.get('userEmail') as string,
       role: formData.get('userRole') as ShopUserRole,
       createdAt: new Date().toISOString(),
+      permissions: [],
     };
 
     addShopUser(selectedShopId, newShopUser);

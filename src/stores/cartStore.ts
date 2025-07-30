@@ -1,8 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { Product, ProductVariant } from './productStore';
 
 export interface CartItem {

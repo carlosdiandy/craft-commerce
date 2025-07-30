@@ -36,10 +36,9 @@ export const useReviewStore = create<ReviewState>((set, get) => ({
 
   addReview: async (review) => {
     try {
-      // In a real app, you'd get the user's ID and name from the auth store
-      const { user } = useAuthStore.getState(); // Get user from authStore
-      const userId = user?.id || "anonymous"; // Use actual user ID or a default
-      const userName = user?.name || "Anonymous"; // Use actual user name or a default
+      // Mock user data for now
+      const userId = "user-1";
+      const userName = "User";
 
       const reviewToSend = { ...review, userId, userName };
       const response = await axios.post("http://localhost:8080/api/reviews/", reviewToSend);
