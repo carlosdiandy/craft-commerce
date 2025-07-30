@@ -140,7 +140,7 @@ export const Marketplace = () => {
   const { addItem } = useCartStore();
   const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
   const { reviews } = useReviewStore();
-  
+
   const getReviewsByProductId = (productId: string) => {
     return reviews.filter(review => review.productId === productId);
   };

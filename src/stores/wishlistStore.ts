@@ -3,12 +3,11 @@ import { persist } from 'zustand/middleware';
 import { Product } from './productStore';
 
 export interface WishlistItem {
+  id: string;
+  userId: string;
   productId: string;
-  productName: string;
-  productImage: string;
-  price: number;
   quantity: number;
-  selectedVariants?: Record<string, string>;
+  addedDate: string;
 }
 
 interface WishlistState {

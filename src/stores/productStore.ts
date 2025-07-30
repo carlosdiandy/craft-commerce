@@ -3,7 +3,7 @@ export interface ProductVariant {
   color?: string;
   size?: string;
   material?: string;
-  stockQuantity: number;
+  stock: number;
   priceAdjustment: number;
 }
 

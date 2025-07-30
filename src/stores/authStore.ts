@@ -3,8 +3,29 @@ import { persist } from 'zustand/middleware';
 import { Product } from './productStore';
 import axios from 'axios';
 
-export type UserRole = 'admin' | 'shopOwner' | 'client';
-export type ShopOwnerStatus = 'pending' | 'paid' | 'validated' | 'uploaded' | 'suspended';
+import { Shipping } from './shippingStore';
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  orderItems: OrderItem[];
+  totalAmount: number;
+  orderDate: string;
+  status: string;
+  trackingNumber: string;
+  estimatedDeliveryDate: string;
+  shipping: Shipping;
+}
+
+export type UserRole = 'ROLE_ADMIN' | 'ROLE_SHOP_OWNER' | 'ROLE_CLIENT';
+export type ShopOwnerStatus = 'pending' | 'approved' | 'rejected';
 
 export interface User {
   id: string;
@@ -28,7 +49,7 @@ export interface Shop {
   shopUsers?: ShopUser[];
 }
 
-export type ShopUserRole = 'shop_admin' | 'shop_employee';
+export type ShopUserRole = 'SHOP_ADMIN' | 'SHOP_EMPLOYEE';
 
 export interface ShopUser {
   id: string;
