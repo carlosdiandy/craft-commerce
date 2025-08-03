@@ -29,6 +29,7 @@ import { Rating } from '@/components/ui/Rating';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import axios from 'axios';
+import { Shop } from '@/stores/authStore';
 
 
 // Données mockées pour la démonstration
@@ -136,6 +137,7 @@ export const Marketplace = () => {
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [selectedShop, setSelectedShop] = useState<string>('all');
   const [products, setProducts] = useState<Product[]>([]);
+  const [shops, setShops] = useState<Shop[]>([]);
 
   const { addItem } = useCartStore();
   const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
@@ -161,6 +163,7 @@ export const Marketplace = () => {
       if (selectedShop !== 'all') params.append('shopName', selectedShop);
 
       const response = await axios.get(`http://localhost:8080/api/products/?${params.toString()}`);
+      console.table(response.data)
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -168,8 +171,22 @@ export const Marketplace = () => {
     }
   };
 
+  const fetchShops = async () => {
+    try {
+      const params = new URLSearchParams();
+
+      const response = await axios.get(`http://localhost:8080/api/shops/`);
+      console.table(response.data)
+      setShops(response.data);
+    } catch (error) {
+      console.error("Failed to fetch shops:", error);
+      setShops([]); // Clear products on error
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchShops();
   }, [searchQuery, selectedCategory, minPrice, maxPrice, sortBy, sortOrder, inStockOnly, selectedShop]);
 
   const handleAddToCart = (product: Product) => {
@@ -381,7 +398,7 @@ export const Marketplace = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockShops.map((shop) => (
+            {shops.map((shop) => (
               <Card key={shop.id} className="overflow-hidden hover:shadow-hover transition-all duration-300">
                 <div className="h-48 overflow-hidden">
                   <img
@@ -395,16 +412,16 @@ export const Marketplace = () => {
                     <h3 className="font-semibold text-lg">{shop.name}</h3>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium ml-1">{shop.rating}</span>
+                      <span className="text-sm font-medium ml-1">{4.8}</span>
                     </div>
                   </div>
                   <p className="text-muted-foreground text-sm mb-3">{shop.description}</p>
                   <div className="flex items-center text-sm text-muted-foreground mb-3">
                     <MapPin className="w-4 h-4 mr-1" />
-                    {shop.location}
+                    Location
                   </div>
                   <div className="flex items-center justify-between">
-                    <Badge variant="secondary">{shop.productsCount} {t('products_count', { count: shop.productsCount })}</Badge>
+                    <Badge variant="secondary">2 {t('products_count', { count: 2 })}</Badge>
                     <Link to={`/shops/${shop.id}`} >
                       <Button size="sm" variant="outline">{t('visit')}</Button>
                     </Link>
@@ -428,11 +445,13 @@ export const Marketplace = () => {
             {products.map((product) => (
               <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group">
                 <Link to={`/products/${product.id}`} className="relative h-48 overflow-hidden block">
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  {(product.images && product.images.length > 0) && (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  )}
                   <Button
                     size="icon"
                     variant={isItemInWishlist(product.id) ? "default" : "outline"}

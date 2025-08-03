@@ -31,9 +31,9 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(loginForm.email, loginForm.password);
-    
-    if (success) {
+    const response = await login(loginForm.email, loginForm.password);
+
+    if (response.status) {
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté.",
@@ -42,7 +42,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     } else {
       toast({
         title: "Erreur de connexion",
-        description: "Email ou mot de passe incorrect.",
+        description: response.response.message,
         variant: "destructive",
       });
     }
@@ -50,7 +50,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (registerForm.password !== registerForm.confirmPassword) {
       toast({
         title: "Erreur",
@@ -60,7 +60,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       return;
     }
 
-    const success = await register({
+    const response = await register({
       name: registerForm.name,
       email: registerForm.email,
       password: registerForm.password,
@@ -68,10 +68,10 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       shopOwnerType: registerForm.role === 'ROLE_SHOP_OWNER' ? registerForm.shopOwnerType : undefined,
     });
 
-    if (success) {
+    if (response.status) {
       toast({
         title: "Inscription réussie",
-        description: registerForm.role === 'ROLE_SHOP_OWNER' 
+        description: registerForm.role === 'ROLE_SHOP_OWNER'
           ? "Votre compte a été créé. Un paiement est requis pour activer votre boutique."
           : "Votre compte a été créé avec succès.",
       });
@@ -79,7 +79,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     } else {
       toast({
         title: "Erreur d'inscription",
-        description: "Une erreur est survenue lors de l'inscription.",
+        description: `${response.response.message}`,
         variant: "destructive",
       });
     }
@@ -148,9 +148,9 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                 <em>Mot de passe: password</em>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 variant="gradient"
                 disabled={isLoading}
               >
@@ -196,8 +196,8 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
 
               <div className="space-y-2">
                 <Label htmlFor="register-role">Type de compte</Label>
-                <Select 
-                  value={registerForm.role} 
+                <Select
+                  value={registerForm.role}
                   onValueChange={(value: UserRole) => setRegisterForm({ ...registerForm, role: value })}
                 >
                   <SelectTrigger>
@@ -213,9 +213,9 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
               {registerForm.role === 'ROLE_SHOP_OWNER' && (
                 <div className="space-y-2">
                   <Label htmlFor="shop-type">Type d'entreprise</Label>
-                  <Select 
-                    value={registerForm.shopOwnerType} 
-                    onValueChange={(value: 'individual' | 'company') => 
+                  <Select
+                    value={registerForm.shopOwnerType}
+                    onValueChange={(value: 'individual' | 'company') =>
                       setRegisterForm({ ...registerForm, shopOwnerType: value })
                     }
                   >
@@ -291,9 +291,9 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                 </>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 variant="gradient"
                 disabled={isLoading}
               >

@@ -111,11 +111,12 @@ export const ShopDetail = () => {
               {shopProducts.map((product) => (
                 <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group">
                   <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={product.images[0]} 
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                    {(product.images && product.images.length > 0) &&
+                      (<img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />)}
                     <Button
                       size="icon"
                       variant={isItemInWishlist(product.id) ? "default" : "outline"}
@@ -130,7 +131,7 @@ export const ShopDetail = () => {
                       </Badge>
                     )}
                   </div>
-                  
+
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
                     <div className="flex items-center text-sm text-muted-foreground">
@@ -138,7 +139,7 @@ export const ShopDetail = () => {
                       {shop.name}
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="pb-2">
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                       {product.description}
@@ -150,9 +151,9 @@ export const ShopDetail = () => {
                       <Badge variant="outline">{product.category}</Badge>
                     </div>
                   </CardContent>
-                  
+
                   <CardFooter className="pt-2">
-                    <Button 
+                    <Button
                       className="w-full"
                       onClick={() => handleAddToCart(product)}
                       disabled={product.stock === 0}

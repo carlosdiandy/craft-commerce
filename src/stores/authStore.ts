@@ -4,6 +4,7 @@ import { Product } from './productStore';
 import axios from 'axios';
 
 import { Shipping } from './shippingStore';
+import { HttpErrorResponse } from './HttpStore';
 
 export interface OrderItem {
   id: string;
@@ -42,6 +43,7 @@ export interface Shop {
   id: string;
   name: string;
   description: string;
+  image: string,
   ownerId: string;
   status: 'active' | 'suspended';
   createdAt: string;
@@ -68,14 +70,14 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ status: boolean; response: HttpErrorResponse; }>;
   register: (userData: {
     email: string;
     password: string;
     name: string;
     role: UserRole;
     shopOwnerType?: 'individual' | 'company';
-  }) => Promise<boolean>;
+  }) => Promise<{ status: boolean; response: HttpErrorResponse; }>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   deleteUser: (userId: string) => void;
@@ -106,8 +108,10 @@ export const useAuthStore = create<AuthStore>()(
 
       login: async (email, password) => {
         set({ isLoading: true });
+        var status: boolean = true;;
+        var response: any;
         try {
-          const response = await axios.post(API_URL + "signin", {
+          response = await axios.post(API_URL + "signin", {
             email,
             password,
           });
@@ -125,18 +129,20 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
             isLoading: false,
           });
-          return true;
         } catch (error) {
           console.error("Login failed:", error);
           set({ isLoading: false });
-          return false;
+          status = false
         }
+        return { status: status, response: response };
       },
 
       register: async (userData) => {
         set({ isLoading: true });
+        let status: boolean;
+        var response: any;
         try {
-          const response = await axios.post(API_URL + "signup", {
+          response = await axios.post(API_URL + "signup", {
             name: userData.name,
             email: userData.email,
             password: userData.password,
@@ -157,12 +163,14 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
             isLoading: false,
           });
-          return true;
+
         } catch (error) {
           console.error("Registration failed:", error);
           set({ isLoading: false });
-          return false;
+          status = false;
         }
+
+        return { status: status, response: response };
       },
 
       logout: () => {
