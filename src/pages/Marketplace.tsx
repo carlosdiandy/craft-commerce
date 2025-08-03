@@ -242,6 +242,20 @@ export const Marketplace = () => {
         </div>
       </section>
 
+      
+      {/* Debug Toast Button */}
+      <div className="container px-4 py-4 text-center">
+        <Button 
+          onClick={() => toast({
+            title: "Test Toast",
+            description: "This is a test toast message"
+          })}
+          variant="outline"
+        >
+          Test Toast
+        </Button>
+      </div>
+
       <div className="container px-4 py-8">
         {/* Barre de recherche et filtres */}
         <div className="mb-6 lg:mb-8 space-y-4">
