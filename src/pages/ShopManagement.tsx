@@ -21,6 +21,7 @@ export const ShopManagement = () => {
         id: Date.now().toString(),
         name: shopName,
         description: shopDescription,
+        image: '/placeholder.svg',
         ownerId: user.id,
         status: 'active' as const,
         createdAt: new Date().toISOString(),
