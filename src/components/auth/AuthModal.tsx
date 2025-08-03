@@ -42,7 +42,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     } else {
       toast({
         title: "Erreur de connexion",
-        description: response.response.message,
+        description: response.response?.message || "Une erreur est survenue lors de la connexion.",
         variant: "destructive",
       });
     }
@@ -79,7 +79,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     } else {
       toast({
         title: "Erreur d'inscription",
-        description: `${response.response.message}`,
+        description: response.response?.message || "Une erreur est survenue lors de l'inscription.",
         variant: "destructive",
       });
     }
