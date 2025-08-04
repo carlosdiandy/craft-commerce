@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { ShippingResponse, CreateShippingRequest, ApiResponse } from '@/types/api';
+import { apiGet, apiPost, apiPut, handleApiError } from '@/services/apiService';
 
 export interface Shipping {
   id: string;
@@ -30,18 +32,37 @@ export const useShippingStore = create<ShippingStore>((set) => ({
   shipping: null,
 
   createShipping: async (shipping) => {
-    const response = await axios.post(API_URL, shipping);
-    set({ shipping: response.data });
+    try {
+      const response = await apiPost<ShippingResponse>('/shipping', shipping);
+      if (response.success && response.data) {
+        set({ shipping: response.data });
+      }
+    } catch (error) {
+      console.error("Failed to create shipping:", error);
+    }
   },
 
   updateShipping: async (shipping) => {
     if (!shipping.id) throw new Error("Shipping ID is required for updates.");
-    const response = await axios.put(`${API_URL}/${shipping.id}`, shipping);
-    set({ shipping: response.data });
+    try {
+      const response = await apiPut<ShippingResponse>(`/shipping/${shipping.id}`, shipping);
+      if (response.success && response.data) {
+        set({ shipping: response.data });
+      }
+    } catch (error) {
+      console.error("Failed to update shipping:", error);
+    }
   },
 
   fetchShippingByOrderId: async (orderId) => {
-    const response = await axios.get(`${API_URL}/order/${orderId}`);
-    set({ shipping: response.data });
+    try {
+      const response = await apiGet<ShippingResponse>(`/shipping/order/${orderId}`);
+      if (response.success && response.data) {
+        set({ shipping: response.data });
+      }
+    } catch (error) {
+      console.error("Failed to fetch shipping:", error);
+      set({ shipping: null });
+    }
   },
 }));

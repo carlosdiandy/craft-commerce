@@ -30,6 +30,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import axios from 'axios';
 import { Shop } from '@/stores/authStore';
+import { ProductResponse, ShopResponse } from '@/types/api';
+import { apiGet } from '@/services/apiService';
 
 
 // Données mockées pour la démonstration
@@ -162,9 +164,14 @@ export const Marketplace = () => {
       if (inStockOnly) params.append('inStockOnly', 'true');
       if (selectedShop !== 'all') params.append('shopName', selectedShop);
 
-      const response = await axios.get(`http://localhost:8080/api/products/?${params.toString()}`);
-      console.table(response.data)
-      setProducts(response.data);
+      const response = await apiGet<ProductResponse[]>(`/products/?${params.toString()}`);
+      if (response.success && response.data) {
+        console.table(response.data);
+        setProducts(response.data);
+      } else {
+        console.error("Failed to fetch products:", response.error);
+        setProducts([]);
+      }
     } catch (error) {
       console.error("Failed to fetch products:", error);
       setProducts([]); // Clear products on error
@@ -175,12 +182,29 @@ export const Marketplace = () => {
     try {
       const params = new URLSearchParams();
 
-      const response = await axios.get(`http://localhost:8080/api/shops/`);
-      console.table(response.data)
-      setShops(response.data);
+      const response = await apiGet<ShopResponse[]>(`/shops/`);
+      if (response.success && response.data) {
+        console.table(response.data);
+        // Map ShopResponse to Shop format
+        const mappedShops: Shop[] = response.data.map(shop => ({
+          id: shop.id,
+          name: shop.name,
+          description: shop.description,
+          image: shop.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
+          ownerId: shop.ownerId,
+          status: shop.status as 'active' | 'suspended',
+          createdAt: shop.createdAt,
+          products: [],
+          shopUsers: []
+        }));
+        setShops(mappedShops);
+      } else {
+        console.error("Failed to fetch shops:", response.error);
+        setShops([]);
+      }
     } catch (error) {
       console.error("Failed to fetch shops:", error);
-      setShops([]); // Clear products on error
+      setShops([]); // Clear shops on error
     }
   };
 

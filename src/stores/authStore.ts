@@ -5,6 +5,16 @@ import axios from 'axios';
 
 import { Shipping } from './shippingStore';
 import { HttpErrorResponse } from './HttpStore';
+import { 
+  AuthResponse, 
+  LoginRequest, 
+  RegisterRequest,
+  ApiResponse,
+  UserResponse,
+  ProductResponse,
+  ShopUserResponse 
+} from '@/types/api';
+import { apiPost, apiPut, apiDelete, handleApiError } from '@/services/apiService';
 
 export interface OrderItem {
   id: string;
@@ -70,14 +80,14 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (email: string, password: string) => Promise<{ status: boolean; response: HttpErrorResponse; }>;
+  login: (email: string, password: string) => Promise<ApiResponse<AuthResponse>>;
   register: (userData: {
     email: string;
     password: string;
     name: string;
     role: UserRole;
     shopOwnerType?: 'individual' | 'company';
-  }) => Promise<{ status: boolean; response: HttpErrorResponse; }>;
+  }) => Promise<ApiResponse<AuthResponse>>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   deleteUser: (userId: string) => void;
@@ -108,69 +118,73 @@ export const useAuthStore = create<AuthStore>()(
 
       login: async (email, password) => {
         set({ isLoading: true });
-        var status: boolean = true;;
-        var response: any;
         try {
-          response = await axios.post(API_URL + "signin", {
-            email,
-            password,
-          });
-          const { id, name, email: userEmail, roles, token } = response.data;
-          const user: User = {
-            id: id.toString(),
-            name,
-            email: userEmail,
-            role: roles[0], // Assuming single role for simplicity
-            createdAt: new Date().toISOString(),
-          };
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+          const loginData: LoginRequest = { email, password };
+          const response = await apiPost<AuthResponse>('/auth/signin', loginData);
+          
+          if (response.success && response.data) {
+            const { id, name, email: userEmail, roles, token } = response.data;
+            const user: User = {
+              id: id.toString(),
+              name,
+              email: userEmail,
+              role: roles[0] as UserRole, // Assuming single role for simplicity
+              createdAt: new Date().toISOString(),
+            };
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            set({ isLoading: false });
+          }
+          
+          return response;
         } catch (error) {
           console.error("Login failed:", error);
           set({ isLoading: false });
-          status = false
+          return handleApiError(error);
         }
-        return { status: status, response: response };
       },
 
       register: async (userData) => {
         set({ isLoading: true });
-        let status: boolean;
-        var response: any;
         try {
-          response = await axios.post(API_URL + "signup", {
+          const registerData: RegisterRequest = {
             name: userData.name,
             email: userData.email,
             password: userData.password,
-            role: [userData.role], // Backend expects array of roles
-          });
-          // Assuming successful registration also logs in the user or returns user data
-          const { id, name, email: userEmail, roles, token } = response.data;
-          const user: User = {
-            id: id.toString(),
-            name,
-            email: userEmail,
-            role: roles[0], // Assuming single role for simplicity
-            createdAt: new Date().toISOString(),
+            role: userData.role,
           };
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+          const response = await apiPost<AuthResponse>('/auth/signup', registerData);
 
+          if (response.success && response.data) {
+            const { id, name, email: userEmail, roles, token } = response.data;
+            const user: User = {
+              id: id.toString(),
+              name,
+              email: userEmail,
+              role: roles[0] as UserRole, // Assuming single role for simplicity
+              createdAt: new Date().toISOString(),
+            };
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            set({ isLoading: false });
+          }
+          
+          return response;
         } catch (error) {
           console.error("Registration failed:", error);
           set({ isLoading: false });
-          status = false;
+          return handleApiError(error);
         }
-
-        return { status: status, response: response };
       },
 
       logout: () => {

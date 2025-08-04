@@ -33,7 +33,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     e.preventDefault();
     const response = await login(loginForm.email, loginForm.password);
 
-    if (response.status) {
+    if (response.success) {
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté.",
@@ -42,7 +42,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     } else {
       toast({
         title: "Erreur de connexion",
-        description: response.response?.message || "Une erreur est survenue lors de la connexion.",
+        description: response.message || response.error || "Une erreur est survenue lors de la connexion.",
         variant: "destructive",
       });
     }
@@ -68,7 +68,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       shopOwnerType: registerForm.role === 'ROLE_SHOP_OWNER' ? registerForm.shopOwnerType : undefined,
     });
 
-    if (response.status) {
+    if (response.success) {
       toast({
         title: "Inscription réussie",
         description: registerForm.role === 'ROLE_SHOP_OWNER'
@@ -79,7 +79,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
     } else {
       toast({
         title: "Erreur d'inscription",
-        description: response.response?.message || "Une erreur est survenue lors de l'inscription.",
+        description: response.message || response.error || "Une erreur est survenue lors de l'inscription.",
         variant: "destructive",
       });
     }
