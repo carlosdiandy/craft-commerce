@@ -13,14 +13,17 @@ export const ShopOwnerDashboard = () => {
   const { user, updateShopOwnerStatus, addProductToShop } = useAuthStore();
   const { shops, fetchShops } = useShopStore();
   const { products, fetchProducts } = useProductStore();
-  const { orders, fetchOrders } = useOrderStore();
+  const { orders, fetchOrdersByShop } = useOrderStore();
   const [selectedShop, setSelectedShop] = useState(null);
 
   useEffect(() => {
     fetchShops();
     fetchProducts();
-    fetchOrders();
-  }, [fetchShops, fetchProducts, fetchOrders]);
+    // Only fetch orders if we have a selected shop
+    if (selectedShop) {
+      fetchOrdersByShop(selectedShop.id);
+    }
+  }, [fetchShops, fetchProducts, fetchOrdersByShop, selectedShop]);
 
   const handleAddProduct = () => {
     if (selectedShop) {
