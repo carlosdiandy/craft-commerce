@@ -10,7 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import { ProductList } from '@/components/common/ProductList';
+import { UserList } from '@/components/common/UserList';
+import { OrderList } from '@/components/common/OrderList';
 
 export const ShopManagement = () => {
   const { shopId } = useParams<{ shopId: string }>();
@@ -120,24 +122,12 @@ export const ShopManagement = () => {
                     </CardContent>
                 </Card>
             </TabsContent>
-            import { ProductList } from '@/components/common/ProductList';
-
-// ... other imports
-
             <TabsContent value="products">
                 {shopId && <ProductList shopId={shopId} />}
             </TabsContent>
-            import { UserList } from '@/components/common/UserList';
-
-// ... other imports
-
             <TabsContent value="users">
                 {shopId && <UserList shopId={shopId} />}
             </TabsContent>
-            import { OrderList } from '@/components/common/OrderList';
-
-// ... other imports
-
             <TabsContent value="orders">
                 {shopId && <OrderList shopId={shopId} />}
             </TabsContent>

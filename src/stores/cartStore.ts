@@ -14,6 +14,7 @@ interface CartActions {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   calculateTotal: () => void;
+  getItemsCount: () => number;
 }
 
 type CartStore = CartState & CartActions;
@@ -73,6 +74,11 @@ export const useCartStore = create<CartStore>()(
         const { items } = get();
         const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
         set({ total });
+      },
+
+      getItemsCount: () => {
+        const { items } = get();
+        return items.reduce((count, item) => count + item.quantity, 0);
       },
     }),
     {
