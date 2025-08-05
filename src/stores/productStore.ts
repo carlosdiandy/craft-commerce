@@ -1,9 +1,9 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product, ProductResponse, ApiResponse } from '@/types/api';
+import { Product, ProductResponse, ApiResponse, ProductVariant } from '@/types/api';
 
-export { Product, ProductVariant } from '@/types/api';
+export type { Product, ProductVariant };
 
 interface ProductState {
   products: Product[];

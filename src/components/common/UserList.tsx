@@ -1,10 +1,11 @@
+
 import { useShopStore } from '@/stores/shopStore';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ShopUser } from '@/stores/authStore';
+import { ShopUser } from '@/types/api';
 
 interface UserListProps {
   shopId: string;
@@ -19,7 +20,17 @@ export const UserList = ({ shopId }: UserListProps) => {
     const loadUsers = async () => {
       const response = await fetchShopUsers(shopId);
       if (response.success && response.data) {
-        setUsers(response.data);
+        // Transform ShopUserResponse to ShopUser
+        const transformedUsers: ShopUser[] = response.data.map(user => ({
+          id: user.id,
+          name: user.name || user.email || 'Unknown User',
+          email: user.email || '',
+          role: user.role as 'SHOP_ADMIN' | 'SHOP_EMPLOYEE',
+          shopId: user.shopId,
+          createdAt: user.createdAt,
+          permissions: user.permissions
+        }));
+        setUsers(transformedUsers);
       }
     };
     loadUsers();

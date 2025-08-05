@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuthStore, ShopUser, ShopUserRole } from '@/stores/authStore';
+import { useAuthStore, ShopUser } from '@/stores/authStore';
+import { ShopUserRole } from '@/types/api';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
-import { UserPlus, Edit, Trash2 } from 'lucide-react';
 
 export const ShopUserManagement = () => {
   const { user, addShopUser, updateShopUser, deleteShopUser } = useAuthStore();
@@ -27,8 +27,8 @@ export const ShopUserManagement = () => {
       name: formData.get('userName') as string,
       email: formData.get('userEmail') as string,
       role: formData.get('userRole') as ShopUserRole,
+      shopId: selectedShopId,
       createdAt: new Date().toISOString(),
-      permissions: [],
     };
 
     addShopUser(selectedShopId, newShopUser);

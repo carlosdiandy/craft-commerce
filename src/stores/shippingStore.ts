@@ -1,68 +1,111 @@
-import { create } from 'zustand';
-import axios from 'axios';
-import { ShippingResponse, CreateShippingRequest, ApiResponse } from '@/types/api';
-import { apiGet, apiPost, apiPut, handleApiError } from '@/services/apiService';
 
-export interface Shipping {
-  id: string;
-  orderId: string;
-  addressId: string;
-  shippingMethod: string;
-  shippingCost: number;
-  shippingDate: string;
-  deliveryDate: string;
-}
+import { create } from 'zustand';
+import { Shipping, ShippingResponse, CreateShippingRequest, ApiResponse } from '@/types/api';
 
 interface ShippingState {
-  shipping: Shipping | null;
+  shippings: Shipping[];
+  isLoading: boolean;
+  error: string | null;
 }
 
 interface ShippingActions {
-  createShipping: (shipping: Omit<Shipping, 'id'>) => Promise<void>;
-  updateShipping: (shipping: Partial<Shipping>) => Promise<void>;
   fetchShippingByOrderId: (orderId: string) => Promise<void>;
+  createShipping: (data: CreateShippingRequest) => Promise<ApiResponse<Shipping>>;
+  updateShipping: (id: string, data: Partial<Shipping>) => Promise<ApiResponse<Shipping>>;
+  deleteShipping: (id: string) => Promise<ApiResponse<null>>;
 }
-
 
 type ShippingStore = ShippingState & ShippingActions;
 
-const API_URL = "http://localhost:8080/api/shipping";
+export const useShippingStore = create<ShippingStore>((set, get) => ({
+  shippings: [],
+  isLoading: false,
+  error: null,
 
-export const useShippingStore = create<ShippingStore>((set) => ({
-  shipping: null,
-
-  createShipping: async (shipping) => {
+  fetchShippingByOrderId: async (orderId: string) => {
+    set({ isLoading: true, error: null });
     try {
-      const response = await apiPost<ShippingResponse>('/shipping', shipping);
-      if (response.success && response.data) {
-        set({ shipping: response.data });
-      }
+      // Mock implementation - replace with actual API call
+      const mockShipping: Shipping = {
+        id: '1',
+        orderId,
+        trackingNumber: 'TRK123456789',
+        carrier: 'DHL',
+        status: 'shipped',
+        estimatedDelivery: '2024-01-15',
+        createdAt: '2024-01-10T10:00:00Z',
+        addressId: 'addr1',
+        shippingMethod: 'standard',
+        shippingCost: 5.99,
+        shippingDate: '2024-01-10',
+        deliveryDate: '2024-01-15'
+      };
+      
+      set((state) => ({
+        shippings: [...state.shippings.filter(s => s.orderId !== orderId), mockShipping],
+        isLoading: false,
+      }));
     } catch (error) {
-      console.error("Failed to create shipping:", error);
+      set({ isLoading: false, error: 'Failed to fetch shipping' });
     }
   },
 
-  updateShipping: async (shipping) => {
-    if (!shipping.id) throw new Error("Shipping ID is required for updates.");
+  createShipping: async (data: CreateShippingRequest) => {
+    set({ isLoading: true, error: null });
     try {
-      const response = await apiPut<ShippingResponse>(`/shipping/${shipping.id}`, shipping);
-      if (response.success && response.data) {
-        set({ shipping: response.data });
-      }
+      const newShipping: Shipping = {
+        id: Date.now().toString(),
+        ...data,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        addressId: 'addr1',
+        shippingMethod: 'standard',
+        shippingCost: 5.99,
+        shippingDate: new Date().toISOString(),
+      };
+      
+      set((state) => ({
+        shippings: [...state.shippings, newShipping],
+        isLoading: false,
+      }));
+      
+      return { success: true, data: newShipping };
     } catch (error) {
-      console.error("Failed to update shipping:", error);
+      set({ isLoading: false, error: 'Failed to create shipping' });
+      return { success: false, error: 'Failed to create shipping' };
     }
   },
 
-  fetchShippingByOrderId: async (orderId) => {
+  updateShipping: async (id: string, data: Partial<Shipping>) => {
+    set({ isLoading: true, error: null });
     try {
-      const response = await apiGet<ShippingResponse>(`/shipping/order/${orderId}`);
-      if (response.success && response.data) {
-        set({ shipping: response.data });
-      }
+      set((state) => ({
+        shippings: state.shippings.map((shipping) =>
+          shipping.id === id ? { ...shipping, ...data } : shipping
+        ),
+        isLoading: false,
+      }));
+      
+      const updatedShipping = get().shippings.find(s => s.id === id)!;
+      return { success: true, data: updatedShipping };
     } catch (error) {
-      console.error("Failed to fetch shipping:", error);
-      set({ shipping: null });
+      set({ isLoading: false, error: 'Failed to update shipping' });
+      return { success: false, error: 'Failed to update shipping' };
+    }
+  },
+
+  deleteShipping: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      set((state) => ({
+        shippings: state.shippings.filter((shipping) => shipping.id !== id),
+        isLoading: false,
+      }));
+      
+      return { success: true };
+    } catch (error) {
+      set({ isLoading: false, error: 'Failed to delete shipping' });
+      return { success: false, error: 'Failed to delete shipping' };
     }
   },
 }));

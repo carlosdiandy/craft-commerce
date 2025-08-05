@@ -25,6 +25,7 @@ export interface ApiErrorResponse {
 // User roles and status
 export type UserRole = 'ROLE_CLIENT' | 'ROLE_SHOP_OWNER' | 'ROLE_ADMIN';
 export type ShopOwnerStatus = 'pending' | 'approved' | 'rejected';
+export type ShopUserRole = 'SHOP_ADMIN' | 'SHOP_EMPLOYEE';
 
 // User related types
 export interface User {
@@ -36,10 +37,12 @@ export interface User {
   updatedAt?: string;
   isActive?: boolean;
   shopOwnerStatus?: ShopOwnerStatus;
+  shops?: Shop[];
 }
 
 export interface UserResponse extends User {
   shopOwnerStatus?: ShopOwnerStatus;
+  shops?: Shop[];
 }
 
 // Authentication types
@@ -74,6 +77,10 @@ export interface ProductVariant {
   value: string;
   price?: number;
   stock?: number;
+  color?: string;
+  size?: string;
+  material?: string;
+  priceAdjustment?: number;
 }
 
 export interface Product {
@@ -165,7 +172,7 @@ export interface ShopUser {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: ShopUserRole;
   shopId: string;
   createdAt: string;
   permissions?: string[];
@@ -275,6 +282,21 @@ export interface CreateReviewRequest {
 }
 
 // Shipping types
+export interface Shipping {
+  id: string;
+  orderId: string;
+  trackingNumber?: string;
+  carrier?: string;
+  status: string;
+  estimatedDelivery?: string;
+  createdAt: string;
+  addressId: string;
+  shippingMethod: string;
+  shippingCost: number;
+  shippingDate: string;
+  deliveryDate?: string;
+}
+
 export interface ShippingResponse {
   id: string;
   orderId: string;
