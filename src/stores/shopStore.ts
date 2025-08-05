@@ -13,7 +13,7 @@ interface ShopState {
 
 interface ShopActions {
   fetchShops: () => Promise<void>;
-  createShop: (shopData: Omit<Shop, 'id' | 'ownerId' | 'status' | 'createdAt'>) => Promise<ApiResponse<ShopResponse>>;
+  createShop: (shopData: Omit<Shop, 'id' | 'ownerId' | 'status' | 'createdAt' | 'products' | 'shopUsers'>) => Promise<ApiResponse<ShopResponse>>;
   updateShop: (shopId: string, shopData: Partial<Shop>) => Promise<ApiResponse<ShopResponse>>;
   deleteShop: (shopId: string) => Promise<ApiResponse<null>>;
   fetchShopUsers: (shopId: string) => Promise<ApiResponse<ShopUserResponse[]>>;
@@ -23,6 +23,21 @@ interface ShopActions {
 }
 
 type ShopStore = ShopState & ShopActions;
+
+// Helper function to convert ShopResponse to Shop
+const convertShopResponseToShop = (shopResponse: ShopResponse): Shop => ({
+  id: shopResponse.id,
+  name: shopResponse.name,
+  description: shopResponse.description,
+  image: shopResponse.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
+  ownerId: shopResponse.ownerId,
+  status: (shopResponse.status === 'active' || shopResponse.status === 'suspended') 
+    ? shopResponse.status as 'active' | 'suspended' 
+    : 'active',
+  createdAt: shopResponse.createdAt,
+  products: [],
+  shopUsers: []
+});
 
 export const useShopStore = create<ShopStore>()(
   persist(
@@ -36,7 +51,8 @@ export const useShopStore = create<ShopStore>()(
         try {
           const response = await apiGet<ShopResponse[]>('/shops');
           if (response.success && response.data) {
-            set({ shops: response.data, isLoading: false });
+            const shops = response.data.map(convertShopResponseToShop);
+            set({ shops, isLoading: false });
           } else {
             set({ isLoading: false, error: response.error || 'Failed to fetch shops' });
           }
@@ -49,9 +65,10 @@ export const useShopStore = create<ShopStore>()(
         set({ isLoading: true, error: null });
         try {
           const response = await apiPost<ShopResponse>('/shops', shopData);
-          if (response.success) {
+          if (response.success && response.data) {
+            const newShop = convertShopResponseToShop(response.data);
             set((state) => ({
-              shops: [...state.shops, response.data!],
+              shops: [...state.shops, newShop],
               isLoading: false,
             }));
           } else {
@@ -68,10 +85,11 @@ export const useShopStore = create<ShopStore>()(
         set({ isLoading: true, error: null });
         try {
           const response = await apiPut<ShopResponse>(`/shops/${shopId}`, shopData);
-          if (response.success) {
+          if (response.success && response.data) {
+            const updatedShop = convertShopResponseToShop(response.data);
             set((state) => ({
               shops: state.shops.map((shop) =>
-                shop.id === shopId ? { ...shop, ...response.data } : shop
+                shop.id === shopId ? { ...shop, ...updatedShop } : shop
               ),
               isLoading: false,
             }));
@@ -108,8 +126,6 @@ export const useShopStore = create<ShopStore>()(
         set({ isLoading: true, error: null });
         try {
           const response = await apiGet<ShopUserResponse[]>(`/shops/${shopId}/users`);
-          // Note: This does not store the users in the main state as it's specific to a shop.
-          // The component calling this should handle the response.
           set({ isLoading: false });
           return response;
         } catch (error) {

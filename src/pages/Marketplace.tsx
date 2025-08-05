@@ -258,27 +258,13 @@ export const Marketplace = () => {
                 {t('browse_shops')}
               </Link>
             </Button>
-            <Button size="lg" variant="link" className="text-white border-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
               <TrendingUp className="w-5 h-5 mr-2" />
               {t('trending_products')}
             </Button>
           </div>
         </div>
       </section>
-
-      
-      {/* Debug Toast Button */}
-      <div className="container px-4 py-4 text-center">
-        <Button 
-          onClick={() => toast({
-            title: "Test Toast",
-            description: "This is a test toast message"
-          })}
-          variant="outline"
-        >
-          Test Toast
-        </Button>
-      </div>
 
       <div className="container px-4 py-8">
         {/* Barre de recherche et filtres */}

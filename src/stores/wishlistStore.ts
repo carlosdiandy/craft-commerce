@@ -1,25 +1,17 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product } from './productStore';
-
-export interface WishlistItem {
-  id: string;
-  userId: string;
-  productId: string;
-  quantity: number;
-  addedDate: string;
-}
+import { Product } from '@/types/api';
 
 interface WishlistState {
-  items: WishlistItem[];
+  items: Product[];
 }
 
 interface WishlistActions {
-  addItem: (product: Product, quantity?: number, variants?: Record<string, string>) => void;
-  removeItem: (productId: string, variants?: Record<string, string>) => void;
-  updateQuantity: (productId: string, quantity: number, variants?: Record<string, string>) => void;
-  isItemInWishlist: (productId: string, variants?: Record<string, string>) => boolean;
-  getWishlistItem: (productId: string, variants?: Record<string, string>) => WishlistItem | undefined;
+  addItem: (product: Product) => void;
+  removeItem: (productId: string) => void;
+  clearWishlist: () => void;
+  isItemInWishlist: (productId: string) => boolean;
 }
 
 type WishlistStore = WishlistState & WishlistActions;
@@ -29,69 +21,32 @@ export const useWishlistStore = create<WishlistStore>()(
     (set, get) => ({
       items: [],
 
-      addItem: (product, quantity = 1, variants) => {
-        const { items } = get();
-        const existingItem = items.find(
-          item => item.productId === product.id
-        );
-
-        if (existingItem) {
-          set({
-            items: items.map(item =>
-              item.productId === product.id
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            ),
-          });
-        } else {
-          set({
-            items: [
-              ...items,
-              {
-                id: Date.now().toString(),
-                userId: '',
-                productId: product.id,
-                quantity,
-                addedDate: new Date().toISOString(),
-              },
-            ],
-          });
-        }
-      },
-
-      removeItem: (productId, variants) => {
-        const { items } = get();
-        set({
-          items: items.filter(item => item.productId !== productId),
+      addItem: (product) => {
+        set((state) => {
+          const exists = state.items.some(item => item.id === product.id);
+          if (!exists) {
+            return { items: [...state.items, product] };
+          }
+          return state;
         });
       },
 
-      updateQuantity: (productId, quantity, variants) => {
-        if (quantity <= 0) {
-          get().removeItem(productId, variants);
-          return;
-        }
-
-        const { items } = get();
-        set({
-          items: items.map(item =>
-            item.productId === productId
-              ? { ...item, quantity }
-              : item
-          ),
-        });
+      removeItem: (productId) => {
+        set((state) => ({
+          items: state.items.filter(item => item.id !== productId),
+        }));
       },
 
-      isItemInWishlist: (productId, variants) => {
-        return get().items.some(item => item.productId === productId);
+      clearWishlist: () => {
+        set({ items: [] });
       },
 
-      getWishlistItem: (productId, variants) => {
-        return get().items.find(item => item.productId === productId);
+      isItemInWishlist: (productId) => {
+        return get().items.some(item => item.id === productId);
       },
     }),
     {
-      name: 'wishlist-store',
+      name: 'wishlist-storage',
     }
   )
 );

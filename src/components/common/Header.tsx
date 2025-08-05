@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -86,11 +87,10 @@ export const Header = () => {
           {/* Actions à droite */}
           <div className="flex items-center space-x-2">
             {/* Panier et favoris - uniquement pour marketplace */}
-
             {isMarketplace && (
-              <div className="hidden sm:block">
+              <div className="hidden sm:flex items-center space-x-1">
                 <ShoppingActions />
-                <NotificationBell />
+                {isAuthenticated && <NotificationBell />}
               </div>
             )}
 
