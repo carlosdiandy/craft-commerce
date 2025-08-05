@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -5,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuthStore, UserRole } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, User, Mail, Lock, Building, UserPlus, FileText } from 'lucide-react';
+import { UserRole, RegisterRequest } from '@/types/api';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -60,13 +62,15 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       return;
     }
 
-    const response = await register({
+    const registerData: RegisterRequest = {
       name: registerForm.name,
       email: registerForm.email,
       password: registerForm.password,
       role: registerForm.role,
       shopOwnerType: registerForm.role === 'ROLE_SHOP_OWNER' ? registerForm.shopOwnerType : undefined,
-    });
+    };
+
+    const response = await register(registerData);
 
     if (response.success) {
       toast({
@@ -279,9 +283,9 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
                     <p className="text-sm text-muted-foreground">Carte d'identité, Kbis, etc.</p>
                   </div>
 
-                  <div className="bg-warning/10 border border-warning/20 p-3 rounded-lg text-sm">
+                  <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg text-sm">
                     <div className="flex items-start gap-2">
-                      <Building className="w-4 h-4 text-warning mt-0.5" />
+                      <Building className="w-4 h-4 text-yellow-600 mt-0.5" />
                       <div>
                         <strong>Inscription Shop Owner</strong><br />
                         Un paiement sera requis pour activer votre compte après l'inscription.

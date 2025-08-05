@@ -7,19 +7,39 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+// Success and Error response types for API service
+export interface ApiSuccessResponse<T> {
+  success: true;
+  data: T;
+  message?: string;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  error: string;
+  message: string;
+  status?: number;
+  path?: string;
+}
+
+// User roles and status
+export type UserRole = 'ROLE_CLIENT' | 'ROLE_SHOP_OWNER' | 'ROLE_ADMIN';
+export type ShopOwnerStatus = 'pending' | 'approved' | 'rejected';
+
 // User related types
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'ROLE_CLIENT' | 'ROLE_SHOP_OWNER' | 'ROLE_ADMIN';
+  role: UserRole;
   createdAt: string;
   updatedAt?: string;
   isActive?: boolean;
+  shopOwnerStatus?: ShopOwnerStatus;
 }
 
 export interface UserResponse extends User {
-  shopOwnerStatus?: 'pending' | 'approved' | 'rejected';
+  shopOwnerStatus?: ShopOwnerStatus;
 }
 
 // Authentication types
@@ -33,16 +53,29 @@ export interface RegisterRequest {
   email: string;
   password: string;
   role?: string;
+  shopOwnerType?: 'individual' | 'company';
 }
 
 export interface AuthResponse {
   user: UserResponse;
   token: string;
   refreshToken?: string;
-  shopOwnerStatus?: 'pending' | 'approved' | 'rejected';
+  shopOwnerStatus?: ShopOwnerStatus;
+  success?: boolean;
+  message?: string;
+  error?: string;
 }
 
 // Product related types
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  name: string;
+  value: string;
+  price?: number;
+  stock?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -56,15 +89,7 @@ export interface Product {
   createdAt?: string;
   updatedAt?: string;
   isActive?: boolean;
-}
-
-export interface ProductVariant {
-  id: string;
-  productId: string;
-  name: string;
-  value: string;
-  price?: number;
-  stock?: number;
+  variants?: ProductVariant[];
 }
 
 export interface ProductResponse extends Product {
@@ -72,6 +97,27 @@ export interface ProductResponse extends Product {
   rating?: number;
   reviewCount?: number;
 }
+
+export interface ProductsListResponse {
+  products: ProductResponse[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export interface ProductDetailResponse extends ProductResponse {}
+
+export interface CreateProductRequest {
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  stock: number;
+  shopId: string;
+  images?: string[];
+}
+
+export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
 
 // Shop related types
 export interface Shop {
@@ -106,6 +152,15 @@ export interface ShopResponse {
   location?: string;
 }
 
+export interface ShopsListResponse {
+  shops: ShopResponse[];
+  total: number;
+}
+
+export interface ShopDetailResponse extends ShopResponse {
+  products?: ProductResponse[];
+}
+
 export interface ShopUser {
   id: string;
   name: string;
@@ -123,9 +178,29 @@ export interface ShopUserResponse {
   role: string;
   permissions?: string[];
   createdAt: string;
+  name?: string;
+  email?: string;
 }
 
+export interface CreateShopUserRequest {
+  userId: string;
+  role: string;
+  permissions?: string[];
+}
+
+export interface UpdateShopUserRequest extends Partial<CreateShopUserRequest> {}
+
 // Order related types
+export interface OrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productImage?: string;
+  quantity: number;
+  price: number;
+  total: number;
+}
+
 export interface Order {
   id: string;
   userId: string;
@@ -139,20 +214,26 @@ export interface Order {
   updatedAt?: string;
   shippingAddress?: Address;
   paymentMethod?: string;
-}
-
-export interface OrderItem {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage?: string;
-  quantity: number;
-  price: number;
-  total: number;
+  orderDate?: string;
+  totalAmount?: number;
+  orderItems?: OrderItem[];
 }
 
 export interface OrderResponse extends Order {
   trackingNumber?: string;
+}
+
+export interface OrdersListResponse {
+  orders: OrderResponse[];
+  total: number;
+}
+
+export interface OrderDetailResponse extends OrderResponse {}
+
+export interface UpdateOrderRequest {
+  status?: string;
+  trackingNumber?: string;
+  estimatedDeliveryDate?: string;
 }
 
 // Address type
@@ -182,11 +263,47 @@ export interface ReviewResponse extends Review {
   userAvatar?: string;
 }
 
+export interface ReviewsListResponse {
+  reviews: ReviewResponse[];
+  total: number;
+}
+
+export interface CreateReviewRequest {
+  productId: string;
+  rating: number;
+  comment: string;
+}
+
+// Shipping types
+export interface ShippingResponse {
+  id: string;
+  orderId: string;
+  trackingNumber?: string;
+  carrier?: string;
+  status: string;
+  estimatedDelivery?: string;
+  createdAt: string;
+}
+
+export interface CreateShippingRequest {
+  orderId: string;
+  trackingNumber?: string;
+  carrier?: string;
+  estimatedDelivery?: string;
+}
+
 // Cart types
 export interface CartItem {
   product: Product;
   quantity: number;
   selectedVariants?: { [key: string]: string };
+}
+
+// Wishlist item
+export interface WishlistItem {
+  productId: string;
+  addedDate: string;
+  quantity: number;
 }
 
 // Pagination types
@@ -204,4 +321,10 @@ export interface ErrorResponse {
   message: string;
   statusCode: number;
   timestamp: string;
+}
+
+// Users list response
+export interface UsersListResponse {
+  users: UserResponse[];
+  total: number;
 }

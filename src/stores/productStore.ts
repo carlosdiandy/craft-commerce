@@ -13,6 +13,7 @@ interface ProductState {
 
 interface ProductActions {
   fetchProducts: (filters?: any) => Promise<void>;
+  fetchProductsByShop: (shopId: string) => Promise<void>;
   addProduct: (product: Omit<Product, 'id'>) => Promise<ApiResponse<ProductResponse>>;
   updateProduct: (productId: string, product: Partial<Product>) => Promise<ApiResponse<ProductResponse>>;
   deleteProduct: (productId: string) => Promise<ApiResponse<null>>;
@@ -39,6 +40,30 @@ export const useProductStore = create<ProductStore>()(
               price: 1199,
               images: ['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800'],
               shopId: 'shop1',
+              shopName: 'TechStore Premium',
+              category: 'Électronique',
+              stock: 15,
+              description: 'Le dernier iPhone avec puce A17 Pro'
+            }
+          ];
+          
+          set({ products: mockProducts, isLoading: false });
+        } catch (error) {
+          set({ isLoading: false, error: 'Failed to fetch products' });
+        }
+      },
+
+      fetchProductsByShop: async (shopId: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          // Mock implementation - replace with actual API call
+          const mockProducts: Product[] = [
+            {
+              id: '1',
+              name: 'iPhone 15 Pro',
+              price: 1199,
+              images: ['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800'],
+              shopId: shopId,
               shopName: 'TechStore Premium',
               category: 'Électronique',
               stock: 15,

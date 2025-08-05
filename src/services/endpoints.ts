@@ -1,9 +1,9 @@
+
 import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
   ProductResponse,
-  ProductsListResponse,
   ProductDetailResponse,
   CreateProductRequest,
   UpdateProductRequest,
@@ -44,7 +44,7 @@ export const authAPI = {
 export const productAPI = {
   getAll: (params?: Record<string, string>): Promise<ApiResponse<ProductResponse[]>> => {
     const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
-    return apiGet<ProductResponse[]>(`/products/${queryString}`);
+    return apiGet<ProductResponse[]>(`/products${queryString}`);
   },
   
   getById: (id: string): Promise<ApiResponse<ProductResponse>> =>
@@ -60,7 +60,7 @@ export const productAPI = {
     apiDelete<void>(`/products/${id}`),
   
   getByShop: (shopId: string): Promise<ApiResponse<ProductResponse[]>> =>
-    apiGet<ProductResponse[]>(`/products/?shopId=${shopId}`),
+    apiGet<ProductResponse[]>(`/products?shopId=${shopId}`),
 };
 
 // Shop endpoints

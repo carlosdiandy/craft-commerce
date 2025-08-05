@@ -1,9 +1,11 @@
+
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore, UserRole } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertTriangle, CreditCard, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { UserRole } from '@/types/api';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -38,15 +40,15 @@ export const ProtectedRoute = ({
         <div className="min-h-screen flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
             <CardContent className="p-6 text-center space-y-4">
-              <div className="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto">
-                <Clock className="w-8 h-8 text-warning" />
+              <div className="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto">
+                <Clock className="w-8 h-8 text-yellow-600" />
               </div>
               <h2 className="text-xl font-semibold">Compte en attente</h2>
               <p className="text-muted-foreground">
                 Votre compte shop owner est en cours de validation. 
                 Veuillez effectuer le paiement requis pour activer votre compte.
               </p>
-              <Button variant="warning" className="w-full">
+              <Button variant="outline" className="w-full">
                 <CreditCard className="w-4 h-4 mr-2" />
                 Effectuer le paiement
               </Button>
@@ -61,8 +63,8 @@ export const ProtectedRoute = ({
         <div className="min-h-screen flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
             <CardContent className="p-6 text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Clock className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
+                <Clock className="w-8 h-8 text-blue-600" />
               </div>
               <h2 className="text-xl font-semibold">Validation en cours</h2>
               <p className="text-muted-foreground">
