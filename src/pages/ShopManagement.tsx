@@ -1,102 +1,147 @@
 
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useShopStore } from '@/stores/shopStore';
+import { useAuthStore, Shop } from '@/stores/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuthStore } from '@/stores/authStore';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 export const ShopManagement = () => {
-  const { user, updateUser } = useAuthStore();
+  const { shopId } = useParams<{ shopId: string }>();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { shops, fetchShops, updateShop, createShop, isLoading } = useShopStore();
+  const { user } = useAuthStore();
+  const [shop, setShop] = useState<Partial<Shop> | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const shopName = formData.get('shopName') as string;
-    const shopDescription = formData.get('shopDescription') as string;
+  useEffect(() => {
+    fetchShops();
+  }, [fetchShops]);
 
-    if (user) {
-      const newShop = {
-        id: Date.now().toString(),
-        name: shopName,
-        description: shopDescription,
-        image: '/placeholder.svg',
-        ownerId: user.id,
-        status: 'active' as const,
-        createdAt: new Date().toISOString(),
-      };
+  useEffect(() => {
+    if (shopId && shops.length > 0) {
+      const currentShop = shops.find((s) => s.id === shopId);
+      if (currentShop) {
+        setShop(currentShop);
+      } else {
+        // If shop not found, maybe redirect or show an error
+        navigate('/backoffice');
+      }
+    }
+    if (!shopId) {
+        setIsEditing(true)
+    }
+  }, [shopId, shops, navigate]);
 
-      const updatedShops = [...(user.shops || []), newShop];
-      updateUser({ shops: updatedShops });
-
-      toast({
-        title: 'Boutique créée',
-        description: `La boutique ${shopName} a été créée avec succès.`,
-      });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (shop) {
+      setShop({ ...shop, [e.target.name]: e.target.value });
     }
   };
 
+  const handleSave = async () => {
+    if (shop && shopId) {
+      const response = await updateShop(shopId, shop);
+      if (response.success) {
+        toast({ title: t('shop_updated_success') });
+        setIsEditing(false);
+      } else {
+        toast({ title: t('shop_updated_error'), description: response.error, variant: 'destructive' });
+      }
+    }
+    if (!shopId && shop) {
+        const response = await createShop(shop as Shop);
+        if (response.success) {
+          toast({ title: t('shop_created_success') });
+          navigate(`/shops/manage/${response.data?.id}`)
+        } else {
+          toast({ title: t('shop_created_error'), description: response.error, variant: 'destructive' });
+        }
+      }
+  };
+
+  if (isLoading && !shop) {
+    return <div>{t('loading_shop_details')}</div>;
+  }
+
+  if (!shop && !isEditing) {
+    return <div>{t('shop_not_found')}</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="container px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Gérer mes boutiques</h1>
-            <p className="text-muted-foreground">Créez et modifiez vos boutiques</p>
-          </div>
-          <Link to="/backoffice">
-            <Button variant="outline">Retour au backoffice</Button>
-          </Link>
-        </div>
+    <div className="container mx-auto p-4">
+        <Tabs defaultValue="general">
+            <TabsList>
+                <TabsTrigger value="general">{t('general')}</TabsTrigger>
+                <TabsTrigger value="products">{t('products')}</TabsTrigger>
+                <TabsTrigger value="users">{t('users')}</TabsTrigger>
+                <TabsTrigger value="orders">{t('orders')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="general">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{isEditing ? t('edit_shop') : shop?.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                        <label htmlFor="name">{t('shop_name')}</label>
+                        <Input
+                            id="name"
+                            name="name"
+                            value={shop?.name || ''}
+                            onChange={handleInputChange}
+                            disabled={!isEditing}
+                        />
+                        </div>
+                        <div>
+                        <label htmlFor="description">{t('shop_description')}</label>
+                        <Textarea
+                            id="description"
+                            name="description"
+                            value={shop?.description || ''}
+                            onChange={handleInputChange}
+                            disabled={!isEditing}
+                        />
+                        </div>
+                        {isEditing ? (
+                        <Button onClick={handleSave} disabled={isLoading}>
+                            {isLoading ? t('saving') : t('save_changes')}
+                        </Button>
+                        ) : (
+                        <Button onClick={() => setIsEditing(true)}>{t('edit_shop')}</Button>
+                        )}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            import { ProductList } from '@/components/common/ProductList';
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Créer une nouvelle boutique</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="shopName">Nom de la boutique</Label>
-                    <Input id="shopName" name="shopName" placeholder="Ma superbe boutique" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shopDescription">Description</Label>
-                    <Input id="shopDescription" name="shopDescription" placeholder="Vêtements, accessoires, etc." />
-                  </div>
-                  <Button type="submit">Créer la boutique</Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+// ... other imports
 
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mes boutiques</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {user?.shops?.map((shop) => (
-                    <div key={shop.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <h4 className="font-medium">{shop.name}</h4>
-                        <p className="text-sm text-muted-foreground">{shop.description}</p>
-                      </div>
-                      <Button variant="outline" size="sm">Gérer</Button>
-                    </div>
-                  ))}
-                  {(!user?.shops || user.shops.length === 0) && (
-                    <p className="text-muted-foreground text-center">Vous n'avez pas encore de boutique.</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
+            <TabsContent value="products">
+                {shopId && <ProductList shopId={shopId} />}
+            </TabsContent>
+            import { UserList } from '@/components/common/UserList';
+
+// ... other imports
+
+            <TabsContent value="users">
+                {shopId && <UserList shopId={shopId} />}
+            </TabsContent>
+            import { OrderList } from '@/components/common/OrderList';
+
+// ... other imports
+
+            <TabsContent value="orders">
+                {shopId && <OrderList shopId={shopId} />}
+            </TabsContent>
+        </Tabs>
     </div>
   );
 };

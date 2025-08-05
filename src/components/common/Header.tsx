@@ -7,11 +7,14 @@ import { MobileMenu } from './MobileMenu';
 import { SearchBar } from './SearchBar';
 import { UserMenu } from './UserMenu';
 import { ShoppingActions } from './ShoppingActions';
+import { useAuthStore } from '@/stores/authStore';
+import { NotificationBell } from './NotificationBell';
 
 export const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const location = useLocation();
+  const { user, isAuthenticated } = useAuthStore();
 
   const handleAuthClick = (tab: 'login' | 'register') => {
     setAuthModalTab(tab);
@@ -21,6 +24,22 @@ export const Header = () => {
   const isMarketplace = location.pathname === '/' ||
     location.pathname.startsWith('/products') ||
     location.pathname.startsWith('/shops');
+
+  const navLinks = [
+    { to: '/', label: 'Accueil' },
+    { to: '/products', label: 'Produits' },
+    { to: '/shops', label: 'Boutiques' },
+    { to: '/about', label: 'À Propos' },
+  ];
+
+  if (isAuthenticated && user) {
+    if (user.role === 'ROLE_ADMIN') {
+      navLinks.push({ to: '/admin', label: 'Dashboard' });
+    }
+    if (user.role === 'ROLE_SHOP_OWNER') {
+      navLinks.push({ to: '/backoffice', label: 'Backoffice' });
+    }
+  }
 
   return (
     <>
@@ -42,37 +61,22 @@ export const Header = () => {
           {/* Navigation centrale - uniquement pour marketplace */}
           {isMarketplace && (
             <nav className="hidden lg:flex items-center space-x-6">
-              <Link
-                to="/"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Accueil
-              </Link>
-              <Link
-                to="/products"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Produits
-              </Link>
-              <Link
-                to="/shops/manage"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Boutiques
-              </Link>
-              <Link
-                to="/about"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                À Propos
-              </Link>
+              {navLinks.map(link => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-sm font-medium hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           )}
 
           {/* Barre de recherche - uniquement pour marketplace */}
           {isMarketplace && (
             <div className="hidden md:block flex-1 max-w-md mx-4">
-              <SearchBar 
+              <SearchBar
                 placeholder="Rechercher des produits..."
                 className="w-full"
               />
@@ -82,9 +86,11 @@ export const Header = () => {
           {/* Actions à droite */}
           <div className="flex items-center space-x-2">
             {/* Panier et favoris - uniquement pour marketplace */}
+
             {isMarketplace && (
               <div className="hidden sm:block">
                 <ShoppingActions />
+                <NotificationBell />
               </div>
             )}
 

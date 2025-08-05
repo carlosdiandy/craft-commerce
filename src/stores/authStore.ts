@@ -123,13 +123,14 @@ export const useAuthStore = create<AuthStore>()(
           const response = await apiPost<AuthResponse>('/auth/signin', loginData);
           
           if (response.success && response.data) {
-            const { id, name, email: userEmail, roles, token } = response.data;
+            const { id, name, email: userEmail, roles, token, shopOwnerStatus } = response.data;
             const user: User = {
               id: id.toString(),
               name,
               email: userEmail,
               role: roles[0] as UserRole, // Assuming single role for simplicity
               createdAt: new Date().toISOString(),
+              shopOwnerStatus,
             };
             set({
               user,
@@ -161,13 +162,14 @@ export const useAuthStore = create<AuthStore>()(
           const response = await apiPost<AuthResponse>('/auth/signup', registerData);
 
           if (response.success && response.data) {
-            const { id, name, email: userEmail, roles, token } = response.data;
+            const { id, name, email: userEmail, roles, token, shopOwnerStatus } = response.data;
             const user: User = {
               id: id.toString(),
               name,
               email: userEmail,
               role: roles[0] as UserRole, // Assuming single role for simplicity
               createdAt: new Date().toISOString(),
+              shopOwnerStatus,
             };
             set({
               user,
@@ -243,12 +245,12 @@ export const useAuthStore = create<AuthStore>()(
 
       updateShopOwnerStatus: async (userId: string, status: ShopOwnerStatus) => {
         try {
-          await axios.put(`http://localhost:8080/api/admin/users/${userId}`, { shopOwnerStatus: status }, {
-            headers: { Authorization: `Bearer ${get().token}` },
-          });
-          // If the updated user is the currently logged-in user, update the store's user state
-          if (get().user?.id === userId) {
-            set(state => ({ user: { ...state.user!, shopOwnerStatus: status } }));
+          const response = await apiPut<UserResponse>(`/admin/users/${userId}`, { shopOwnerStatus: status });
+          if (response.success && response.data) {
+            // If the updated user is the currently logged-in user, update the store's user state
+            if (get().user?.id === userId) {
+              set(state => ({ user: { ...state.user!, shopOwnerStatus: status } }));
+            }
           }
         } catch (error) {
           console.error("Failed to update shop owner status:", error);

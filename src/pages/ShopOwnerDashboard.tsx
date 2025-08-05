@@ -1,36 +1,57 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Package, ShoppingCart, TrendingUp, Plus, CreditCard, Clock, Upload, Store, User } from 'lucide-react';
+import { Package, ShoppingCart, TrendingUp, Plus, CreditCard } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { Link } from 'react-router-dom';
-import shopOwnerImage from '@/assets/shop-owner.jpg';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { useShopStore } from '@/stores/shopStore';
+import { useOrderStore } from '@/stores/orderStore';
+import { useProductStore } from '@/stores/productStore';
+import { useEffect } from 'react';
 
 export const ShopOwnerDashboard = () => {
   const { user, updateShopOwnerStatus } = useAuthStore();
+  const { shops, fetchShops, isLoading } = useShopStore();
+  const { orders, fetchOrdersByShop } = useOrderStore();
+  const { products, fetchProductsByShop } = useProductStore();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  // Mock data for charts
-  const salesData = [
-    { name: 'Jan', sales: 4000 },
-    { name: 'Feb', sales: 3000 },
-    { name: 'Mar', sales: 5000 },
-    { name: 'Apr', sales: 4500 },
-    { name: 'May', sales: 6000 },
-    { name: 'Jun', sales: 5500 },
-    { name: 'Jul', sales: 7000 },
-  ];
+  useEffect(() => {
+    if (user?.shopOwnerStatus === 'approved') {
+      fetchShops();
+    }
+  }, [user?.shopOwnerStatus, fetchShops]);
 
-  const productPerformanceData = [
-    { name: 'Product A', sales: 120, views: 2400 },
-    { name: 'Product B', sales: 98, views: 2210 },
-    { name: 'Product C', sales: 200, views: 2290 },
-    { name: 'Product D', sales: 150, views: 2000 },
-    { name: 'Product E', sales: 180, views: 2181 },
-  ];
+  useEffect(() => {
+    if (shops.length > 0) {
+      shops.forEach(shop => {
+        fetchOrdersByShop(shop.id);
+        fetchProductsByShop(shop.id);
+      });
+    }
+  }, [shops, fetchOrdersByShop, fetchProductsByShop]);
+
+  const totalSales = orders.reduce((acc, order) => acc + order.totalAmount, 0);
+  const salesData = orders.reduce((acc, order) => {
+    const date = new Date(order.orderDate).toLocaleString('default', { month: 'short' });
+    const existing = acc.find(item => item.name === date);
+    if (existing) {
+      existing.sales += order.totalAmount;
+    } else {
+      acc.push({ name: date, sales: order.totalAmount });
+    }
+    return acc;
+  }, [] as { name: string; sales: number }[]);
+
+  const productPerformanceData = products.map(product => ({
+    name: product.name,
+    sales: orders.reduce((acc, order) => acc + order.orderItems.reduce((acc, item) => item.productId === product.id ? acc + item.quantity : acc, 0), 0),
+    views: 0, // This is mock data, as we don't have product views yet
+  }));
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -58,6 +79,10 @@ export const ShopOwnerDashboard = () => {
         description: t("payment_simulated_description"),
       });
     }
+  };
+
+  const handleManageShop = (shopId: string) => {
+    navigate(`/shops/manage/${shopId}`);
   };
 
   return (
@@ -108,7 +133,7 @@ export const ShopOwnerDashboard = () => {
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{user?.shops?.length || 0}</div>
+                  <div className="text-2xl font-bold">{shops.length}</div>
                   <Link to="/shops/manage">
                     <Button size="sm" variant="outline" className="mt-2 w-full">
                       <Plus className="w-4 h-4 mr-1" />
@@ -124,7 +149,7 @@ export const ShopOwnerDashboard = () => {
                   <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{user?.shops?.reduce((acc, shop) => acc + (shop.products?.length || 0), 0)}</div>
+                  <div className="text-2xl font-bold">{products.length}</div>
                   <p className="text-xs text-muted-foreground">{t('total_products_description')}</p>
                 </CardContent>
               </Card>
@@ -135,7 +160,7 @@ export const ShopOwnerDashboard = () => {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">€{salesData.reduce((acc, data) => acc + data.sales, 0).toFixed(2)}</div>
+                  <div className="text-2xl font-bold">€{totalSales.toFixed(2)}</div>
                   <p className="text-xs text-muted-foreground">{t('total_sales_description')}</p>
                 </CardContent>
               </Card>
@@ -213,37 +238,45 @@ export const ShopOwnerDashboard = () => {
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <CardTitle className="text-lg lg:text-xl">{t('my_shops')}</CardTitle>
-                  {user?.shops && user.shops.length > 0 && (
+                  {shops.length > 0 && (
                     <Badge variant="outline" className="w-fit">
-                      {user.shops.length} {t('shop_count', { count: user.shops.length })}
+                      {shops.length} {t('shop_count', { count: shops.length })}
                     </Badge>
                   )}
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {user?.shops?.map((shop) => (
-                    <div key={shop.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors gap-3">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-lg">{shop.name}</h4>
-                        <p className="text-sm text-muted-foreground mb-2">{shop.description}</p>
-                        <Badge variant="outline" className="text-xs">
-                          {t('status')}: {shop.status}
-                        </Badge>
-                      </div>
-                      <Button variant="outline" className="sm:flex-shrink-0">
-                        {t('manage_this_shop')}
-                      </Button>
+                  {isLoading ? (
+                    <div className="text-center py-8 lg:py-12 text-muted-foreground">
+                      <p>{t('loading_shops')}</p>
                     </div>
-                  )) || (
+                  ) : shops.length > 0 ? (
+                    shops.map((shop) => (
+                      <div key={shop.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors gap-3">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-lg">{shop.name}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{shop.description}</p>
+                          <Badge variant="outline" className="text-xs">
+                            {t('status')}: {shop.status}
+                          </Badge>
+                        </div>
+                        <Button variant="outline" className="sm:flex-shrink-0" onClick={() => handleManageShop(shop.id)}>
+                          {t('manage_this_shop')}
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
                       <div className="text-center py-8 lg:py-12 text-muted-foreground">
                         <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
                         <h3 className="font-medium text-lg mb-2">{t('no_shop_created')}</h3>
                         <p className="text-sm mb-4">{t('create_first_shop_description')}</p>
-                        <Button className="mt-4" variant="gradient">
-                          <Plus className="w-4 h-4 mr-2" />
-                          {t('create_my_first_shop')}
-                        </Button>
+                        <Link to="/shops/manage">
+                          <Button className="mt-4" variant="gradient">
+                            <Plus className="w-4 h-4 mr-2" />
+                            {t('create_my_first_shop')}
+                          </Button>
+                        </Link>
                       </div>
                     )}
                 </div>

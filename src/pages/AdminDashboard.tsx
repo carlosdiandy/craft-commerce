@@ -2,67 +2,80 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Users, Store, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
-import adminImage from '@/assets/admin-dashboard.jpg';
-import { useAuthStore, User } from '@/stores/authStore';
+import { useAdminStore } from '@/stores/adminStore';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { useEffect } from 'react';
 
 export const AdminDashboard = () => {
-  const { getPendingShopOwners, updateShopOwnerStatus, getAllUsers } = useAuthStore();
-  const pendingShopOwners = getPendingShopOwners();
-  const allUsers = getAllUsers();
+  const { users, shops, orders, fetchAllUsers, fetchAllShops, fetchAllOrders, updateUserStatus } = useAdminStore();
   const { t } = useTranslation();
 
-  const totalShopOwners = allUsers.filter(u => u.role === 'ROLE_SHOP_OWNER').length;
-  const totalClients = allUsers.filter(u => u.role === 'ROLE_CLIENT').length;
-  const activeShops = allUsers.filter(u => u.role === 'ROLE_SHOP_OWNER' && u.shopOwnerStatus === 'approved').flatMap(u => u.shops || []).filter(s => s.status === 'active').length;
+  useEffect(() => {
+    fetchAllUsers();
+    fetchAllShops();
+    fetchAllOrders();
+  }, [fetchAllUsers, fetchAllShops, fetchAllOrders]);
 
-  // Mock data for charts
-  const salesData = [
-    { name: 'Jan', sales: 10000 },
-    { name: 'Feb', sales: 12000 },
-    { name: 'Mar', sales: 15000 },
-    { name: 'Apr', sales: 13000 },
-    { name: 'May', sales: 17000 },
-    { name: 'Jun', sales: 16000 },
-    { name: 'Jul', sales: 20000 },
-  ];
+  const pendingShopOwners = users.filter(u => u.role === 'ROLE_SHOP_OWNER' && u.shopOwnerStatus === 'pending');
+  const totalShopOwners = users.filter(u => u.role === 'ROLE_SHOP_OWNER').length;
+  const totalClients = users.filter(u => u.role === 'ROLE_CLIENT').length;
+  const activeShops = shops.filter(s => s.status === 'active').length;
 
-  const userGrowthData = [
-    { name: 'Jan', clients: 50, shopOwners: 5 },
-    { name: 'Feb', clients: 60, shopOwners: 7 },
-    { name: 'Mar', clients: 75, shopOwners: 10 },
-    { name: 'Apr', clients: 80, shopOwners: 11 },
-    { name: 'May', clients: 90, shopOwners: 13 },
-    { name: 'Jun', clients: 95, shopOwners: 14 },
-    { name: 'Jul', clients: 110, shopOwners: 16 },
-  ];
+  const salesData = orders.reduce((acc, order) => {
+    const date = new Date(order.orderDate).toLocaleString('default', { month: 'short' });
+    const existing = acc.find(item => item.name === date);
+    if (existing) {
+      existing.sales += order.totalAmount;
+    } else {
+      acc.push({ name: date, sales: order.totalAmount });
+    }
+    return acc;
+  }, [] as { name: string; sales: number }[]);
 
-  const shopActivityData = [
-    { name: 'Jan', active: 10, new: 2 },
-    { name: 'Feb', active: 11, new: 1 },
-    { name: 'Mar', active: 13, new: 2 },
-    { name: 'Apr', active: 12, new: 0 },
-    { name: 'May', active: 14, new: 2 },
-    { name: 'Jun', active: 15, new: 1 },
-    { name: 'Jul', active: 17, new: 2 },
-  ];
+  const userGrowthData = users.reduce((acc, user) => {
+    const date = new Date(user.createdAt).toLocaleString('default', { month: 'short' });
+    const existing = acc.find(item => item.name === date);
+    if (existing) {
+      if (user.role === 'ROLE_CLIENT') {
+        existing.clients++;
+      } else if (user.role === 'ROLE_SHOP_OWNER') {
+        existing.shopOwners++;
+      }
+    } else {
+      acc.push({ name: date, clients: user.role === 'ROLE_CLIENT' ? 1 : 0, shopOwners: user.role === 'ROLE_SHOP_OWNER' ? 1 : 0 });
+    }
+    return acc;
+  }, [] as { name: string; clients: number; shopOwners: number }[]);
 
-  const handleValidate = (user: User) => {
-    updateShopOwnerStatus(user.id, 'approved');
+  const shopActivityData = shops.reduce((acc, shop) => {
+    const date = new Date(shop.createdAt).toLocaleString('default', { month: 'short' });
+    const existing = acc.find(item => item.name === date);
+    if (existing) {
+      if (shop.status === 'active') {
+        existing.active++;
+      }
+    } else {
+      acc.push({ name: date, active: shop.status === 'active' ? 1 : 0, new: 1 });
+    }
+    return acc;
+  }, [] as { name: string; active: number; new: number }[]);
+
+  const handleValidate = (userId: string) => {
+    updateUserStatus(userId, 'approved');
     toast({
       title: t("shop_owner_validated_title"),
-      description: t("shop_owner_validated_description", { userName: user.name }),
+      description: t("shop_owner_validated_description", { userName: users.find(u => u.id === userId)?.name || '' }),
     });
   };
 
-  const handleReject = (user: User) => {
-    updateShopOwnerStatus(user.id, 'rejected');
+  const handleReject = (userId: string) => {
+    updateUserStatus(userId, 'rejected');
     toast({
       title: t("shop_owner_rejected_title"),
-      description: t("shop_owner_rejected_description", { userName: user.name }),
+      description: t("shop_owner_rejected_description", { userName: users.find(u => u.id === userId)?.name || '' }),
     });
   };
 
@@ -221,10 +234,10 @@ export const AdminDashboard = () => {
                       </div>
                     </div>
                     <div className="flex gap-2 sm:flex-shrink-0">
-                      <Button variant="default" size="sm" onClick={() => handleValidate(user)}>
+                      <Button variant="default" size="sm" onClick={() => handleValidate(user.id)}>
                         {t('validate')}
                       </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleReject(user)}>
+                      <Button variant="destructive" size="sm" onClick={() => handleReject(user.id)}>
                         {t('reject')}
                       </Button>
                     </div>

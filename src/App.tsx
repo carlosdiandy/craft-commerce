@@ -72,7 +72,7 @@ const App = () => (
               <OrderDetail />
             </ProtectedRoute>
           } />
-          <Route path="/shops/manage" element={
+          <Route path="/shops/manage/:shopId" element={
             <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopManagement />
             </ProtectedRoute>

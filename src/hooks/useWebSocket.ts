@@ -1,40 +1,31 @@
-import { useEffect, useState } from 'react';
-import SockJS from 'sockjs-client';
-import { Client, Stomp } from '@stomp/stompjs';
-import { toast } from '@/hooks/use-toast';
+import { useEffect, useRef, useState } from 'react';
+import { Client, IMessage } from '@stomp/stompjs';
 
-export const useWebSocket = () => {
-  const [stompClient, setStompClient] = useState<Client | null>(null);
+export const useWebSocket = (topic: string) => {
+  const [messages, setMessages] = useState<any[]>([]);
+  const stompClient = useRef<Client | null>(null);
 
   useEffect(() => {
-    const socket = new SockJS('http://localhost:8080/ws');
-    const client = Stomp.over(socket);
+    const client = new Client({
+      brokerURL: 'ws://localhost:8080/ws',
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
 
     client.onConnect = () => {
-      console.log('Connected to WebSocket');
-      setStompClient(client);
-
-      client.subscribe('/topic/notifications', (message) => {
-        toast({
-          title: 'Notification',
-          description: message.body,
-        });
+      client.subscribe(topic, (message: IMessage) => {
+        setMessages(prevMessages => [...prevMessages, JSON.parse(message.body)]);
       });
     };
 
-    client.onStompError = (frame) => {
-      console.error('Broker reported error:' + frame.headers['message']);
-      console.error('Additional details:' + frame.body);
-    };
-
     client.activate();
+    stompClient.current = client;
 
     return () => {
-      if (client.connected) {
-        client.deactivate();
-      }
+      client.deactivate();
     };
-  }, []);
+  }, [topic]);
 
-  return stompClient;
+  return messages;
 };
