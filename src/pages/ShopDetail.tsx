@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { toast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiGet } from '@/services/apiService';
 import { Product } from '@/stores/productStore';
 
 interface Shop {
@@ -32,10 +32,10 @@ export const ShopDetail = () => {
   useEffect(() => {
     const fetchShopDetails = async () => {
       try {
-        const shopResponse = await axios.get(`http://localhost:8080/api/shops/${shopId}`);
+        const shopResponse = await apiGet<Shop>(`/shops/${shopId}`);
         setShop(shopResponse.data);
 
-        const productsResponse = await axios.get(`http://localhost:8080/api/products/?shopId=${shopId}`);
+        const productsResponse = await apiGet<Product[]>(`/products/?shopId=${shopId}`);
         setShopProducts(productsResponse.data);
       } catch (error) {
         console.error("Failed to fetch shop details or products:", error);

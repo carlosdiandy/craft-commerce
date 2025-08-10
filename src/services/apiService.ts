@@ -66,11 +66,21 @@ export const handleApiError = (error: any): ApiErrorResponse => {
     return error as ApiErrorResponse;
   }
   
+  const errorData = error.response?.data;
+  const status = error.response?.status || 500;
+  let details: { [key: string]: string } | undefined;
+
+  if (status === 400 && errorData) { // Assuming 400 for validation errors
+    details = errorData; // The GlobalExceptionHandler returns a map directly
+  }
+
   return {
     success: false,
-    error: error.message || 'An unexpected error occurred',
-    message: error.message || 'Request failed',
-    status: error.status || 500,
+    error: errorData?.error || error.message || 'An unexpected error occurred',
+    message: errorData?.message || error.message || 'Request failed',
+    status: status,
+    path: error.config?.url,
+    details: details,
   };
 };
 

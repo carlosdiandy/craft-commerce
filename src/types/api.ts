@@ -20,10 +20,11 @@ export interface ApiErrorResponse {
   message: string;
   status?: number;
   path?: string;
+  details?: { [key: string]: string }; // New field for validation errors
 }
 
 // User roles and status
-export type UserRole = 'ROLE_CLIENT' | 'ROLE_SHOP_OWNER' | 'ROLE_ADMIN';
+export type UserRole = 'ROLE_CLIENT' | 'ROLE_SHOP_OWNER' | 'ROLE_ADMIN' | 'ROLE_SHOP_EMPLOYEE'; // Updated
 export type ShopOwnerStatus = 'pending' | 'approved' | 'rejected';
 export type ShopUserRole = 'SHOP_ADMIN' | 'SHOP_EMPLOYEE';
 
@@ -97,6 +98,7 @@ export interface Product {
   updatedAt?: string;
   isActive?: boolean;
   variants?: ProductVariant[];
+  lowStockThreshold?: number; // Added
 }
 
 export interface ProductResponse extends Product {
@@ -349,4 +351,53 @@ export interface ErrorResponse {
 export interface UsersListResponse {
   users: UserResponse[];
   total: number;
+}
+
+// New Interfaces for Promotions, Coupons, Support Tickets, Analytics, GDPR
+
+export interface Promotion {
+  id: string;
+  name: string;
+  description: string;
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING';
+  discountValue: number; // Use number for BigDecimal
+  startDate: string; // LocalDateTime
+  endDate: string; // LocalDateTime
+  active: boolean;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  type: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  discountValue: number; // Use number for BigDecimal
+  expiryDate: string; // LocalDateTime
+  usageLimit: number;
+  timesUsed: number;
+  active: boolean;
+}
+
+export interface SupportTicket {
+  id: string;
+  subject: string;
+  description: string;
+  user: User; // User who created the ticket
+  assignedTo?: User; // Support agent assigned to the ticket
+  status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+  createdAt: string; // LocalDateTime
+  updatedAt?: string; // LocalDateTime
+  resolvedAt?: string; // LocalDateTime
+}
+
+export interface AnalyticsData {
+  totalOrders: number;
+  totalRevenue: number;
+  totalProducts: number;
+  totalUsers: number;
+  totalShops: number;
+  orderStatusDistribution: { [key: string]: number };
+}
+
+export interface GDPRData {
+  userData: string; // JSON string of user data
 }

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiGet } from '@/services/apiService';
 
 interface Shop {
   id: string;
@@ -23,7 +23,7 @@ export const Shops = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/shops/");
+        const response = await apiGet<Shop[]>("/shops/");
         setShops(response.data);
       } catch (error) {
         console.error("Failed to fetch shops:", error);

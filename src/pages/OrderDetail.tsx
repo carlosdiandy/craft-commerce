@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Package, CalendarDays, MapPin, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import axios from 'axios';
+import { apiGet } from '@/services/apiService';
 import { useAuthStore } from '@/stores/authStore';
 
 interface OrderItem {
@@ -43,9 +43,7 @@ export const OrderDetail = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/orders/${orderId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiGet<Order>(`/orders/${orderId}`);
         setOrder(response.data);
       } catch (error) {
         console.error("Failed to fetch order:", error);

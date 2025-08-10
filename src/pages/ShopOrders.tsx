@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Package, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiGet, apiPut } from '@/services/apiService';
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -37,9 +37,7 @@ export const ShopOrders = () => {
 
   const fetchShopOrders = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/orders/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiGet<Order[]>("/orders/");
       // Filter orders based on the shops owned by the current user
       const userShopIds = user?.shops?.map(shop => shop.id) || [];
       const filteredOrders = response.data.filter((order: Order) => userShopIds.includes(order.shopId));
@@ -57,15 +55,11 @@ export const ShopOrders = () => {
 
   const handleOrderUpdate = async (orderId: string, newStatus: Order['status'], trackingNumber: string | null, estimatedDeliveryDate: string | null) => {
     try {
-      await axios.put(`http://localhost:8080/api/orders/${orderId}/status`, { status: newStatus }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiPut(`/orders/${orderId}/status`, { status: newStatus });
       if (trackingNumber !== null || estimatedDeliveryDate !== null) {
-        await axios.put(`http://localhost:8080/api/orders/${orderId}/tracking`, {
+        await apiPut(`/orders/${orderId}/tracking`, {
           trackingNumber,
           estimatedDeliveryDate,
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
         });
       }
       fetchShopOrders(); // Re-fetch orders to update UI

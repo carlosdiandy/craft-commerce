@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Store, Edit } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiGet } from '@/services/apiService';
 import { useAuthStore } from '@/stores/authStore';
 
 interface Shop {
@@ -25,9 +25,7 @@ export const AdminShopOverview = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/shops/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiGet<Shop[]>("/shops/");
         setShops(response.data);
       } catch (error) {
         console.error("Failed to fetch shops:", error);

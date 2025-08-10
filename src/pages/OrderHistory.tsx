@@ -6,7 +6,7 @@ import { Package, CalendarDays } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/stores/authStore';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiGet } from '@/services/apiService';
 import { useTranslation } from 'react-i18next';
 
 interface OrderItem {
@@ -42,9 +42,7 @@ export const OrderHistory = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/orders/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await apiGet<Order[]>("/orders/");
         setOrders(response.data);
       } catch (error) {
         console.error("Failed to fetch orders:", error);

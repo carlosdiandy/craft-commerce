@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Magnifier } from '@/components/ui/magnifier'; // Import the Magnifier component
 
-import axios from 'axios';
+import { apiGet } from '@/services/apiService';
 
 export const ProductDetail = () => {
   const { productId } = useParams();
@@ -36,7 +36,7 @@ export const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/products/${productId}`);
+        const response = await apiGet<Product>(`/products/${productId}`);
         setProduct(response.data);
         if (response.data.images && response.data.images.length > 0) {
           setSelectedImage(response.data.images[0]);
