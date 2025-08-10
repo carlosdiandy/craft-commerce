@@ -19,7 +19,7 @@ const heroButtonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105",
+        hero: "bg-gradient-primary text-white shadow-glow hover:shadow-hover transition-all duration-300 transform hover:scale-105",
         gradient: "bg-gradient-primary text-white shadow-card hover:shadow-hover transition-all duration-300",
       },
       size: {

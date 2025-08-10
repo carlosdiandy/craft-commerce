@@ -252,59 +252,60 @@ export const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section
-        className="relative h-96 bg-cover bg-center flex items-center justify-center text-white"
-        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${heroImage})` }}
+        className="relative h-[300px] sm:h-[400px] lg:h-[500px] bg-cover bg-center flex items-center justify-center text-white overflow-hidden"
+        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url(${heroImage})` }}
       >
-        <div className="text-center space-y-6 max-w-2xl px-4">
-          <h1 className="text-5xl font-bold">
+        <div className="text-center space-y-4 sm:space-y-6 max-w-4xl px-4 sm:px-6 lg:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
             {t('discover_marketplace_title')}
           </h1>
-          <p className="text-xl text-gray-200">
+          <p className="text-base sm:text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto">
             {t('discover_marketplace_description')}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="hero" asChild>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-md mx-auto">
+            <Button size="lg" variant="hero" asChild className="w-full sm:w-auto shadow-glow">
               <Link to="/shops">
-                <Store className="w-5 h-5 mr-2" />
+                <Store className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
                 {t('browse_shops')}
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
-              <TrendingUp className="w-5 h-5 mr-2" />
+            <Button size="lg" variant="outline" className="w-full sm:w-auto text-white border-white hover:bg-white/10">
+              <TrendingUp className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
               {t('trending_products')}
             </Button>
           </div>
         </div>
       </section>
 
-      <div className="container px-4 py-8">
+      <div className="container px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl mx-auto">
         {/* Barre de recherche et filtres */}
         <div className="mb-6 lg:mb-8 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
               <SearchBar
                 placeholder={t('search_products_shops_placeholder')}
                 onSearch={setSearchQuery}
-                className="h-12"
+                className="h-10 sm:h-12"
               />
             </div>
             {/* Advanced Filters Button - now opens a filter section */}
-            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto h-10 sm:h-12">
               <Filter className="w-4 h-4" />
-              {t('advanced_filters')}
+              <span className="hidden sm:inline">{t('advanced_filters')}</span>
+              <span className="sm:hidden">Filtres</span>
             </Button>
           </div>
 
           {/* Filter and Sort Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
             {/* Category Filter */}
-            <div>
-              <Label htmlFor="category-filter" className="mb-1 block">{t('category')}</Label>
+            <div className="sm:col-span-1">
+              <Label htmlFor="category-filter" className="text-xs sm:text-sm mb-1 block font-medium">{t('category')}</Label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger id="category-filter">
+                <SelectTrigger id="category-filter" className="h-9 sm:h-10">
                   <SelectValue placeholder={t('select_category')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -402,28 +403,32 @@ export const Marketplace = () => {
         </div>
 
         {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Store className="w-8 h-8 text-primary mx-auto mb-2" />
-              <h3 className="text-2xl font-bold">{isLoadingShops ? '...' : shops.length || '0'}</h3>
-              <p className="text-muted-foreground">Partner Shops</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <ShoppingCart className="w-8 h-8 text-secondary mx-auto mb-2" />
-              <h3 className="text-2xl font-bold">{isLoadingProducts ? '...' : products.length || '0'}</h3>
-              <p className="text-muted-foreground">Available Products</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Users className="w-8 h-8 text-success mx-auto mb-2" />
-              <h3 className="text-2xl font-bold">
-                {(isLoadingShops || isLoadingProducts) ? '...' : '50K+'}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+          <Card className="hover:shadow-hover transition-all duration-300 border-0 bg-gradient-to-br from-primary/5 to-primary/10">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <Store className="w-6 sm:w-8 h-6 sm:h-8 text-primary mx-auto mb-2" />
+              <h3 className="text-xl sm:text-2xl font-bold text-primary">
+                {isLoadingShops ? <Skeleton className="h-6 sm:h-8 w-8 sm:w-12 mx-auto" /> : shops.length || '0'}
               </h3>
-              <p className="text-muted-foreground">Satisfied Customers</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Partner Shops</p>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-hover transition-all duration-300 border-0 bg-gradient-to-br from-secondary/5 to-secondary/10">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <ShoppingCart className="w-6 sm:w-8 h-6 sm:h-8 text-secondary mx-auto mb-2" />
+              <h3 className="text-xl sm:text-2xl font-bold text-secondary">
+                {isLoadingProducts ? <Skeleton className="h-6 sm:h-8 w-8 sm:w-12 mx-auto" /> : products.length || '0'}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">Available Products</p>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-hover transition-all duration-300 border-0 bg-gradient-to-br from-success/5 to-success/10">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <Users className="w-6 sm:w-8 h-6 sm:h-8 text-success mx-auto mb-2" />
+              <h3 className="text-xl sm:text-2xl font-bold text-success">
+                {(isLoadingShops || isLoadingProducts) ? <Skeleton className="h-6 sm:h-8 w-12 sm:w-16 mx-auto" /> : '50K+'}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">Satisfied Customers</p>
             </CardContent>
           </Card>
         </div>

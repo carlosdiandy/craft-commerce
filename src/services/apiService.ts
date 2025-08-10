@@ -6,6 +6,9 @@ import {
   ApiSuccessResponse 
 } from '@/types/api';
 
+// Export the ApiResponse type for other services
+export type { ApiResponse } from '@/types/api';
+
 // Base API configuration
 export const API_BASE_URL = 'http://localhost:8080/api';
 

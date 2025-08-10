@@ -401,3 +401,12 @@ export interface AnalyticsData {
 export interface GDPRData {
   userData: string; // JSON string of user data
 }
+
+// Permission type for role permissions service
+export interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  resource: string;
+  action: string;
+}
