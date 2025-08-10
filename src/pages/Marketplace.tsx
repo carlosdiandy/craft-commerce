@@ -15,7 +15,9 @@ import {
   Filter,
   MapPin,
   Clock,
-  Users
+  Users,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
 import { Product } from '@/stores/productStore';
@@ -32,6 +34,8 @@ import axios from 'axios';
 import { Shop } from '@/stores/authStore';
 import { ProductResponse, ShopResponse } from '@/types/api';
 import { apiGet } from '@/services/apiService';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
 // Données mockées pour la démonstration
@@ -140,6 +144,10 @@ export const Marketplace = () => {
   const [selectedShop, setSelectedShop] = useState<string>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [isLoadingShops, setIsLoadingShops] = useState(false);
+  const [productsError, setProductsError] = useState<string | null>(null);
+  const [shopsError, setShopsError] = useState<string | null>(null);
 
   const { addItem } = useCartStore();
   const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
@@ -153,6 +161,8 @@ export const Marketplace = () => {
   const shopNames = ['all', ...new Set(mockProducts.map(p => p.shopName))];
 
   const fetchProducts = async () => {
+    setIsLoadingProducts(true);
+    setProductsError(null);
     try {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
@@ -166,25 +176,26 @@ export const Marketplace = () => {
 
       const response = await apiGet<ProductResponse[]>(`/products/?${params.toString()}`);
       if (response.success && response.data) {
-        console.table(response.data);
         setProducts(response.data);
+        setProductsError(null);
       } else {
-        console.error("Failed to fetch products:", response.error);
+        setProductsError(response.error || 'Failed to load products');
         setProducts([]);
       }
     } catch (error) {
-      console.error("Failed to fetch products:", error);
-      setProducts([]); // Clear products on error
+      setProductsError('Network error - Unable to connect to server');
+      setProducts([]);
+    } finally {
+      setIsLoadingProducts(false);
     }
   };
 
   const fetchShops = async () => {
+    setIsLoadingShops(true);
+    setShopsError(null);
     try {
-      const params = new URLSearchParams();
-
       const response = await apiGet<ShopResponse[]>(`/shops/`);
       if (response.success && response.data) {
-        console.table(response.data);
         // Map ShopResponse to Shop format
         const mappedShops: Shop[] = response.data.map(shop => ({
           id: shop.id,
@@ -198,13 +209,16 @@ export const Marketplace = () => {
           shopUsers: []
         }));
         setShops(mappedShops);
+        setShopsError(null);
       } else {
-        console.error("Failed to fetch shops:", response.error);
+        setShopsError(response.error || 'Failed to load shops');
         setShops([]);
       }
     } catch (error) {
-      console.error("Failed to fetch shops:", error);
-      setShops([]); // Clear shops on error
+      setShopsError('Network error - Unable to connect to server');
+      setShops([]);
+    } finally {
+      setIsLoadingShops(false);
     }
   };
 
@@ -392,22 +406,24 @@ export const Marketplace = () => {
           <Card>
             <CardContent className="p-6 text-center">
               <Store className="w-8 h-8 text-primary mx-auto mb-2" />
-              <h3 className="text-2xl font-bold">{mockShops.length}</h3>
-              <p className="text-muted-foreground">{t('partner_shops')}</p>
+              <h3 className="text-2xl font-bold">{isLoadingShops ? '...' : shops.length || '0'}</h3>
+              <p className="text-muted-foreground">Partner Shops</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6 text-center">
               <ShoppingCart className="w-8 h-8 text-secondary mx-auto mb-2" />
-              <h3 className="text-2xl font-bold">{mockProducts.length}K+</h3>
-              <p className="text-muted-foreground">{t('available_products')}</p>
+              <h3 className="text-2xl font-bold">{isLoadingProducts ? '...' : products.length || '0'}</h3>
+              <p className="text-muted-foreground">Available Products</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6 text-center">
               <Users className="w-8 h-8 text-success mx-auto mb-2" />
-              <h3 className="text-2xl font-bold">50K+</h3>
-              <p className="text-muted-foreground">{t('satisfied_customers')}</p>
+              <h3 className="text-2xl font-bold">
+                {(isLoadingShops || isLoadingProducts) ? '...' : '50K+'}
+              </h3>
+              <p className="text-muted-foreground">Satisfied Customers</p>
             </CardContent>
           </Card>
         </div>
@@ -415,123 +431,193 @@ export const Marketplace = () => {
         {/* Boutiques en vedette */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold">{t('featured_shops')}</h2>
+            <h2 className="text-3xl font-bold">Featured Shops</h2>
             <Link to="/shops">
-              <Button variant="outline">{t('view_all_shops')}</Button>
+              <Button variant="outline">View All Shops</Button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {shops.map((shop) => (
-              <Card key={shop.id} className="overflow-hidden hover:shadow-hover transition-all duration-300">
-                <div className="h-48 overflow-hidden">
-                  <img
-                    src={shop.image}
-                    alt={shop.name}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-lg">{shop.name}</h3>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium ml-1">{4.8}</span>
+          {isLoadingShops ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <Skeleton className="h-48 w-full" />
+                  <CardContent className="p-4">
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full mb-3" />
+                    <Skeleton className="h-4 w-1/2 mb-3" />
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-8 w-16" />
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : shopsError ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>{shopsError}</span>
+                <Button variant="outline" size="sm" onClick={fetchShops}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : shops.length === 0 ? (
+            <div className="text-center py-12">
+              <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No shops available</h3>
+              <p className="text-muted-foreground">Check back later for new shops</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {shops.map((shop) => (
+                <Card key={shop.id} className="overflow-hidden hover:shadow-hover transition-all duration-300">
+                  <div className="h-48 overflow-hidden">
+                    <img
+                      src={shop.image}
+                      alt={shop.name}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <p className="text-muted-foreground text-sm mb-3">{shop.description}</p>
-                  <div className="flex items-center text-sm text-muted-foreground mb-3">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    Location
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary">2 {t('products_count', { count: 2 })}</Badge>
-                    <Link to={`/shops/${shop.id}`} >
-                      <Button size="sm" variant="outline">{t('visit')}</Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-lg">{shop.name}</h3>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium ml-1">4.8</span>
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground text-sm mb-3">{shop.description}</p>
+                    <div className="flex items-center text-sm text-muted-foreground mb-3">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      Location
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary">2 {t('products_count', { count: 2 })}</Badge>
+                      <Link to={`/shops/${shop.id}`} >
+                        <Button size="sm" variant="outline">{t('visit')}</Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Produits */}
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold">{t('popular_products')}</h2>
+            <h2 className="text-3xl font-bold">Popular Products</h2>
             <div className="text-sm text-muted-foreground">
-              {products.length} {t('products_found', { count: products.length })}
+              {isLoadingProducts ? 'Loading...' : `${products.length} products found`}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group">
-                <Link to={`/products/${product.id}`} className="relative h-48 overflow-hidden block">
-                  {(product.images && product.images.length > 0) && (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  )}
-                  <Button
-                    size="icon"
-                    variant={isItemInWishlist(product.id) ? "default" : "outline"}
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => { e.preventDefault(); handleToggleFavorite(product); }}
-                  >
-                    <Heart className={`w-4 h-4 ${isItemInWishlist(product.id) ? 'fill-current' : ''}`} />
-                  </Button>
-                  {product.stock < 10 && (
-                    <Badge variant="destructive" className="absolute top-2 left-2">
-                      {t('limited_stock', { stock: product.stock })}
-                    </Badge>
-                  )}
-                </Link>
-
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Store className="w-4 h-4 mr-1" />
-                    {product.shopName}
-                  </div>
-                </CardHeader>
-
-                <CardContent className="pb-2">
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                    {product.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-primary">
-                      {product.price}€
-                    </span>
-                    <Rating value={getReviewsByProductId(product.id).reduce((acc, review) => acc + review.rating, 0) / getReviewsByProductId(product.id).length} count={getReviewsByProductId(product.id).length} />
-                  </div>
-                </CardContent>
-
-                <CardFooter className="pt-2">
-                  <Button
-                    className="w-full"
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock === 0}
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    {product.stock === 0 ? t('out_of_stock') : t('add_to_cart')}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          {products.length === 0 && (
+          {isLoadingProducts ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <Skeleton className="h-48 w-full" />
+                  <CardHeader className="pb-2">
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-2/3 mb-2" />
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-8 w-16" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="pt-2">
+                    <Skeleton className="h-10 w-full" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : productsError ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex items-center justify-between">
+                <span>{productsError}</span>
+                <Button variant="outline" size="sm" onClick={fetchProducts}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Retry
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : products.length === 0 ? (
             <div className="text-center py-12">
               <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">{t('no_product_found')}</h3>
+              <h3 className="text-lg font-semibold mb-2">No products found</h3>
               <p className="text-muted-foreground">
-                {t('try_changing_criteria')}
+                Try adjusting your search criteria or check back later
               </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group">
+                  <Link to={`/products/${product.id}`} className="relative h-48 overflow-hidden block">
+                    {(product.images && product.images.length > 0) && (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    )}
+                    <Button
+                      size="icon"
+                      variant={isItemInWishlist(product.id) ? "default" : "outline"}
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => { e.preventDefault(); handleToggleFavorite(product); }}
+                    >
+                      <Heart className={`w-4 h-4 ${isItemInWishlist(product.id) ? 'fill-current' : ''}`} />
+                    </Button>
+                    {product.stock < 10 && (
+                      <Badge variant="destructive" className="absolute top-2 left-2">
+                        Limited stock: {product.stock}
+                      </Badge>
+                    )}
+                  </Link>
+
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg line-clamp-1">{product.name}</CardTitle>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Store className="w-4 h-4 mr-1" />
+                      {product.shopName}
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pb-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                      {product.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-primary">
+                        {product.price}€
+                      </span>
+                      <Rating value={getReviewsByProductId(product.id).reduce((acc, review) => acc + review.rating, 0) / getReviewsByProductId(product.id).length} count={getReviewsByProductId(product.id).length} />
+                    </div>
+                  </CardContent>
+
+                  <CardFooter className="pt-2">
+                    <Button
+                      className="w-full"
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stock === 0}
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           )}
         </section>
