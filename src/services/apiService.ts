@@ -1,16 +1,16 @@
 
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import { 
-  ApiResponse, 
-  ApiErrorResponse, 
-  ApiSuccessResponse 
+import {
+  ApiResponse,
+  ApiErrorResponse,
+  ApiSuccessResponse
 } from '@/types/api';
 
 // Export the ApiResponse type for other services
 export type { ApiResponse } from '@/types/api';
 
 // Base API configuration
-export const API_BASE_URL = 'http://localhost:8080/api';
+export const API_BASE_URL = 'http://localhost:3000/api';
 
 // Create axios instance with base configuration
 export const apiClient = axios.create({
@@ -20,12 +20,13 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth accessToken
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth-token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const accessToken = localStorage.getItem('auth_token');
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -48,7 +49,7 @@ apiClient.interceptors.response.use(
       status: error.response?.status || 500,
       path: error.config?.url,
     };
-    
+
     return Promise.reject(errorResponse);
   }
 );
@@ -68,7 +69,7 @@ export const handleApiError = (error: any): ApiErrorResponse => {
     // Already processed by interceptor
     return error as ApiErrorResponse;
   }
-  
+
   const errorData = error.response?.data;
   const status = error.response?.status || 500;
   let details: { [key: string]: string } | undefined;

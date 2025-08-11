@@ -31,7 +31,7 @@ interface Order {
 }
 
 export const ShopOrders = () => {
-  const { user, token } = useAuthStore();
+  const { user, accessToken } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const { t } = useTranslation();
 
@@ -48,10 +48,10 @@ export const ShopOrders = () => {
   };
 
   useEffect(() => {
-    if (user && token) {
+    if (user && accessToken) {
       fetchShopOrders();
     }
-  }, [user, token]);
+  }, [user, accessToken]);
 
   const handleOrderUpdate = async (orderId: string, newStatus: Order['status'], trackingNumber: string | null, estimatedDeliveryDate: string | null) => {
     try {

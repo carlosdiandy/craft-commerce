@@ -62,7 +62,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   user: UserResponse;
-  token: string;
+  accessToken: string;
   refreshToken?: string;
   shopOwnerStatus?: ShopOwnerStatus;
   success?: boolean;
@@ -114,7 +114,7 @@ export interface ProductsListResponse {
   totalPages: number;
 }
 
-export interface ProductDetailResponse extends ProductResponse {}
+export interface ProductDetailResponse extends ProductResponse { }
 
 export interface CreateProductRequest {
   name: string;
@@ -126,7 +126,7 @@ export interface CreateProductRequest {
   images?: string[];
 }
 
-export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
+export interface UpdateProductRequest extends Partial<CreateProductRequest> { }
 
 // Shop related types
 export interface Shop {
@@ -197,7 +197,7 @@ export interface CreateShopUserRequest {
   permissions?: string[];
 }
 
-export interface UpdateShopUserRequest extends Partial<CreateShopUserRequest> {}
+export interface UpdateShopUserRequest extends Partial<CreateShopUserRequest> { }
 
 // Order related types
 export interface OrderItem {
@@ -237,7 +237,7 @@ export interface OrdersListResponse {
   total: number;
 }
 
-export interface OrderDetailResponse extends OrderResponse {}
+export interface OrderDetailResponse extends OrderResponse { }
 
 export interface UpdateOrderRequest {
   status?: string;

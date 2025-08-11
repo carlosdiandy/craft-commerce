@@ -30,14 +30,14 @@ export const useAdminStore = create<AdminStore>((set) => ({
   fetchAllUsers: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiGet<User[]>('/admin/users');
+      const response = await apiGet<User[]>('/users');
       if (response.success && response.data) {
         set({ users: response.data, isLoading: false });
       } else {
         set({ isLoading: false, error: response.error || 'Failed to fetch users' });
       }
     } catch (error) {
-        //@ts-ignore
+      //@ts-ignore
       set({ isLoading: false, error: error.message });
     }
   },
@@ -45,14 +45,14 @@ export const useAdminStore = create<AdminStore>((set) => ({
   fetchAllShops: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiGet<Shop[]>('/admin/shops');
+      const response = await apiGet<Shop[]>('/shops');
       if (response.success && response.data) {
         set({ shops: response.data, isLoading: false });
       } else {
         set({ isLoading: false, error: response.error || 'Failed to fetch shops' });
       }
     } catch (error) {
-        //@ts-ignore
+      //@ts-ignore
       set({ isLoading: false, error: error.message });
     }
   },
@@ -60,14 +60,14 @@ export const useAdminStore = create<AdminStore>((set) => ({
   fetchAllOrders: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiGet<Order[]>('/admin/orders');
+      const response = await apiGet<Order[]>('/orders');
       if (response.success && response.data) {
         set({ orders: response.data, isLoading: false });
       } else {
         set({ isLoading: false, error: response.error || 'Failed to fetch orders' });
       }
     } catch (error) {
-        //@ts-ignore
+      //@ts-ignore
       set({ isLoading: false, error: error.message });
     }
   },
@@ -75,7 +75,7 @@ export const useAdminStore = create<AdminStore>((set) => ({
   updateUserStatus: async (userId, status) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiPut<User>(`/admin/users/${userId}/status`, { status });
+      const response = await apiPut<User>(`/users/${userId}/status`, { status });
       if (response.success && response.data) {
         set((state) => ({
           users: state.users.map((user) =>
@@ -87,7 +87,7 @@ export const useAdminStore = create<AdminStore>((set) => ({
         set({ isLoading: false, error: response.error || 'Failed to update user status' });
       }
     } catch (error) {
-        //@ts-ignore
+      //@ts-ignore
       set({ isLoading: false, error: error.message });
     }
   },

@@ -35,7 +35,7 @@ interface Order {
 }
 
 export const OrderHistory = () => {
-  const { token } = useAuthStore();
+  const { accessToken } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const { t } = useTranslation();
 
@@ -49,10 +49,10 @@ export const OrderHistory = () => {
       }
     };
 
-    if (token) {
+    if (accessToken) {
       fetchOrders();
     }
-  }, [token]);
+  }, [accessToken]);
 
   return (
     <div className="min-h-screen bg-muted/30">

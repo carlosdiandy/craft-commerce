@@ -20,7 +20,7 @@ interface Shop {
 
 export const AdminShopOverview = () => {
   const [shops, setShops] = useState<Shop[]>([]);
-  const { token } = useAuthStore();
+  const { accessToken } = useAuthStore();
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -32,10 +32,10 @@ export const AdminShopOverview = () => {
       }
     };
 
-    if (token) {
+    if (accessToken) {
       fetchShops();
     }
-  }, [token]);
+  }, [accessToken]);
 
   const handleEditShop = (shopId: string) => {
     console.log('Edit shop:', shopId);
@@ -81,9 +81,9 @@ export const AdminShopOverview = () => {
                       <Edit className="w-4 h-4 mr-2" />
                       Modifier
                     </Button>
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleChangeShopStatus(shop.id, shop.status)}
                     >
                       Changer statut

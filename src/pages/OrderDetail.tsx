@@ -37,7 +37,7 @@ interface Order {
 export const OrderDetail = () => {
   const { orderId } = useParams();
   const { t } = useTranslation();
-  const { token } = useAuthStore();
+  const { accessToken } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
@@ -50,10 +50,10 @@ export const OrderDetail = () => {
       }
     };
 
-    if (orderId && token) {
+    if (orderId && accessToken) {
       fetchOrder();
     }
-  }, [orderId, token]);
+  }, [orderId, accessToken]);
 
   if (!order) {
     return (

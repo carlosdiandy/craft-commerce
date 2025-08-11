@@ -3,13 +3,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from '@/types/api';
 import { apiPost, handleApiError } from '@/services/apiService';
-import { 
-  AuthResponse, 
-  LoginRequest, 
-  RegisterRequest, 
-  User, 
-  UserRole, 
-  ShopOwnerStatus 
+import {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  User,
+  UserRole,
+  ShopOwnerStatus
 } from '@/types/api';
 
 // Re-export types for external use
@@ -41,7 +41,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  token: string | null;
+  accessToken: string | null;
   // Mock users for demo purposes
   mockUsers: User[];
 }
@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
-      token: null,
+      accessToken: null,
       mockUsers: [
         {
           id: '1',
@@ -115,17 +115,20 @@ export const useAuthStore = create<AuthStore>()(
           const response = await apiPost<AuthResponse>('/auth/login', loginData);
 
           if (response.success && response.data) {
-            const { user, token } = response.data;
-            
-            // Store token in localStorage
-            localStorage.setItem('auth_token', token);
-            
+            const { user, accessToken } = response.data;
+
+            for (const k in response.data) {
+              console.log(k)
+            }
+            // Store accessToken in localStorage
+            localStorage.setItem('auth_token', accessToken);
+
             set({
               user,
               isAuthenticated: true,
               isLoading: false,
               error: null,
-              token,
+              accessToken,
             });
 
             return { success: true, message: response.data.message };
@@ -134,8 +137,8 @@ export const useAuthStore = create<AuthStore>()(
               isLoading: false,
               error: response.error || 'Login failed',
             });
-            return { 
-              success: false, 
+            return {
+              success: false,
               error: response.error || 'Login failed',
               message: response.message || 'Login failed'
             };
@@ -146,8 +149,8 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: errorResponse.error,
           });
-          return { 
-            success: false, 
+          return {
+            success: false,
             error: errorResponse.error,
             message: errorResponse.message || errorResponse.error
           };
@@ -161,17 +164,17 @@ export const useAuthStore = create<AuthStore>()(
           const response = await apiPost<AuthResponse>('/auth/register', data);
 
           if (response.success && response.data) {
-            const { user, token } = response.data;
-            
-            // Store token in localStorage
-            localStorage.setItem('auth_token', token);
-            
+            const { user, accessToken } = response.data;
+
+            // Store accessToken in localStorage
+            localStorage.setItem('auth_token', accessToken);
+
             set({
               user,
               isAuthenticated: true,
               isLoading: false,
               error: null,
-              token,
+              accessToken,
             });
 
             return { success: true, message: response.data.message };
@@ -180,8 +183,8 @@ export const useAuthStore = create<AuthStore>()(
               isLoading: false,
               error: response.error || 'Registration failed',
             });
-            return { 
-              success: false, 
+            return {
+              success: false,
               error: response.error || 'Registration failed',
               message: response.message || 'Registration failed'
             };
@@ -192,8 +195,8 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: errorResponse.error,
           });
-          return { 
-            success: false, 
+          return {
+            success: false,
             error: errorResponse.error,
             message: errorResponse.message || errorResponse.error
           };
@@ -207,7 +210,7 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
           isLoading: false,
           error: null,
-          token: null,
+          accessToken: null,
         });
       },
 
@@ -238,7 +241,7 @@ export const useAuthStore = create<AuthStore>()(
 
       adminUpdateUser: (userId: string, updates: Partial<User>) => {
         set((state) => ({
-          mockUsers: state.mockUsers.map(user => 
+          mockUsers: state.mockUsers.map(user =>
             user.id === userId ? { ...user, ...updates } : user
           )
         }));
