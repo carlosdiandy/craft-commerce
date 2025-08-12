@@ -42,6 +42,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   accessToken: string | null;
+  refreshToken: string | null;
   // Mock users for demo purposes
   mockUsers: User[];
 }
@@ -53,6 +54,7 @@ interface AuthActions {
   setUser: (user: User) => void;
   clearError: () => void;
   updateUser: (updates: Partial<User>) => void;
+  handleTokenRefresh: () => Promise<void>;
   // Admin functions
   getAllUsers: () => User[];
   deleteUser: (userId: string) => void;
@@ -79,6 +81,7 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       error: null,
       accessToken: null,
+      refreshToken: null,
       mockUsers: [
         {
           id: '1',
@@ -115,13 +118,13 @@ export const useAuthStore = create<AuthStore>()(
           const response = await apiPost<AuthResponse>('/auth/login', loginData);
 
           if (response.success && response.data) {
-            const { user, accessToken } = response.data;
+            const { user, accessToken, refreshToken } = response.data;
 
-            for (const k in response.data) {
-              console.log(k)
-            }
             // Store accessToken in localStorage
             localStorage.setItem('auth_token', accessToken);
+            if (refreshToken) {
+              localStorage.setItem('refresh_token', refreshToken);
+            }
 
             set({
               user,
@@ -129,6 +132,7 @@ export const useAuthStore = create<AuthStore>()(
               isLoading: false,
               error: null,
               accessToken,
+              refreshToken,
             });
 
             return { success: true, message: response.data.message };
@@ -164,10 +168,13 @@ export const useAuthStore = create<AuthStore>()(
           const response = await apiPost<AuthResponse>('/auth/register', data);
 
           if (response.success && response.data) {
-            const { user, accessToken } = response.data;
+            const { user, accessToken, refreshToken } = response.data;
 
             // Store accessToken in localStorage
             localStorage.setItem('auth_token', accessToken);
+            if (refreshToken) {
+              localStorage.setItem('refresh_token', refreshToken);
+            }
 
             set({
               user,
@@ -175,6 +182,7 @@ export const useAuthStore = create<AuthStore>()(
               isLoading: false,
               error: null,
               accessToken,
+              refreshToken,
             });
 
             return { success: true, message: response.data.message };
@@ -205,12 +213,14 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () => {
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('refresh_token');
         set({
           user: null,
           isAuthenticated: false,
           isLoading: false,
           error: null,
           accessToken: null,
+          refreshToken: null,
         });
       },
 
@@ -226,6 +236,26 @@ export const useAuthStore = create<AuthStore>()(
         const { user } = get();
         if (user) {
           set({ user: { ...user, ...updates } });
+        }
+      },
+
+      handleTokenRefresh: async () => {
+        const { refreshToken } = get();
+        if (!refreshToken) {
+          return;
+        }
+
+        try {
+          const response = await apiPost<{ accessToken: string, refreshToken: string }>('/auth/refresh-token', { refreshToken });
+          if (response.success && response.data) {
+            const { accessToken, refreshToken: newRefreshToken } = response.data;
+            localStorage.setItem('auth_token', accessToken);
+            localStorage.setItem('refresh_token', newRefreshToken);
+            set({ accessToken, refreshToken: newRefreshToken });
+          }
+        } catch (error) {
+          console.error('Failed to refresh token', error);
+          get().logout();
         }
       },
 

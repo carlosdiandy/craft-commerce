@@ -67,7 +67,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'login' }: AuthModalPr
       email: registerForm.email,
       password: registerForm.password,
       role: registerForm.role,
-      shopOwnerType: registerForm.role === 'ROLE_SHOP_OWNER' ? registerForm.shopOwnerType : undefined,
+      // shopOwnerType: registerForm.role === 'ROLE_SHOP_OWNER' ? registerForm.shopOwnerType : undefined,
     };
 
     const response = await register(registerData);

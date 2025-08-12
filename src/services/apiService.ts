@@ -1,53 +1,124 @@
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import { useAuthStore } from '@/stores/authStore';
+import { ApiErrorResponse, ApiResponse, ApiSuccessResponse } from '@/types/api';
 
-import axios, { AxiosResponse, AxiosError } from 'axios';
-import {
-  ApiResponse,
-  ApiErrorResponse,
-  ApiSuccessResponse
-} from '@/types/api';
 
 // Export the ApiResponse type for other services
 export type { ApiResponse } from '@/types/api';
 
 // Base API configuration
 export const API_BASE_URL = 'http://localhost:3000/api';
-
-// Create axios instance with base configuration
-export const apiClient = axios.create({
+const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  timeout: 10000,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor to add auth accessToken
+// ----------------------
+// REQUEST INTERCEPTOR
+// ----------------------
 apiClient.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('auth_token');
+    const { accessToken } = useAuthStore.getState();
 
-    if (accessToken) {
+    // On n'ajoute pas le token sur les routes publiques
+    const isPublicRoute =
+      config.url?.startsWith('/auth/login') ||
+      config.url?.startsWith('/auth/register') ||
+      config.url?.startsWith('/public/');
+
+    if (!isPublicRoute && accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle errors consistently
+// ----------------------
+// RESPONSE INTERCEPTOR
+// ----------------------
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
-  (error: AxiosError) => {
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            }
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const { refreshToken } = useAuthStore.getState();
+
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const refreshResponse = await apiClient.post('/auth/refresh-token', {
+          refreshToken,
+        });
+
+        const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
+
+        // Sauvegarde
+        localStorage.setItem('auth_token', accessToken);
+        localStorage.setItem('refresh_token', newRefreshToken);
+        useAuthStore.setState({ accessToken, refreshToken: newRefreshToken });
+
+        processQueue(null, accessToken);
+        if (originalRequest.headers) {
+          originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        return apiClient(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        useAuthStore.getState().logout();
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // Gestion d'erreur générique
     const errorData = error.response?.data as any;
     const errorResponse: ApiErrorResponse = {
       success: false,
       error: errorData?.error || error.message || 'An error occurred',
       message: errorData?.message || error.message || 'Request failed',
       status: error.response?.status || 500,
-      path: error.config?.url,
+      path: originalRequest?.url,
     };
 
     return Promise.reject(errorResponse);
@@ -120,3 +191,4 @@ export const apiDelete = <T>(url: string): Promise<ApiResponse<T>> => {
 export const apiPatch = <T>(url: string, data?: any): Promise<ApiResponse<T>> => {
   return apiRequest(() => apiClient.patch<T>(url, data));
 };
+
