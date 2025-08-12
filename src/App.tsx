@@ -25,6 +25,10 @@ import { ProductDetail } from "@/pages/ProductDetail";
 import { ShopUserManagement } from "@/pages/ShopUserManagement";
 import { OrderDetail } from "@/pages/OrderDetail";
 import { AboutUs } from "@/pages/AboutUs";
+import { AdminCoupons } from "@/pages/AdminCoupons";
+import { AdminPromotions } from "@/pages/AdminPromotions";
+import { SupportTickets } from "@/pages/SupportTickets";
+import { AddressManagement } from "@/pages/AddressManagement";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +106,26 @@ const App = () => (
           <Route path="/shops" element={<Shops />} />
           <Route path="/shops/:shopId" element={<ShopDetail />} />
           <Route path="/products/:productId" element={<ProductDetail />} />
+          <Route path="/admin/coupons" element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminCoupons />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/promotions" element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminPromotions />
+            </ProtectedRoute>
+          } />
+          <Route path="/support" element={
+            <ProtectedRoute allowedRoles={['ROLE_CLIENT', 'ROLE_SHOP_OWNER', 'ROLE_ADMIN']}>
+              <SupportTickets />
+            </ProtectedRoute>
+          } />
+          <Route path="/account/addresses" element={
+            <ProtectedRoute allowedRoles={['ROLE_CLIENT', 'ROLE_SHOP_OWNER', 'ROLE_ADMIN']}>
+              <AddressManagement />
+            </ProtectedRoute>
+          } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

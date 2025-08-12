@@ -311,6 +311,54 @@ export const AdminDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Additional Admin Tools */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mt-6">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CreditCard className="w-5 h-5" />
+                Coupons & Promotions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Manage discount coupons and promotional campaigns
+              </p>
+              <div className="space-y-2">
+                <Link to="/admin/coupons" className="block">
+                  <Button className="w-full" variant="outline" size="sm">
+                    Manage Coupons
+                  </Button>
+                </Link>
+                <Link to="/admin/promotions" className="block">
+                  <Button className="w-full" variant="outline" size="sm">
+                    Manage Promotions
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Support Management
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Handle customer support tickets and inquiries
+              </p>
+              <Link to="/support">
+                <Button className="w-full" variant="outline">
+                  Support Tickets
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

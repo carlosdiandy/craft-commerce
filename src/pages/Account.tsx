@@ -85,12 +85,30 @@ export const Account = () => {
 
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>Adresses de livraison</CardTitle>
+            <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <p className="text-muted-foreground">Aucune adresse enregistrée.</p>
-              <Button variant="outline">Ajouter une nouvelle adresse</Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Link to="/account/orders">
+                <Button variant="outline" className="justify-start w-full">
+                  Order History
+                </Button>
+              </Link>
+              <Link to="/account/addresses">
+                <Button variant="outline" className="justify-start w-full">
+                  Manage Addresses
+                </Button>
+              </Link>
+              <Link to="/support">
+                <Button variant="outline" className="justify-start w-full">
+                  Support Tickets
+                </Button>
+              </Link>
+              <Link to="/wishlist">
+                <Button variant="outline" className="justify-start w-full">
+                  My Wishlist
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

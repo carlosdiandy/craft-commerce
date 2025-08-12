@@ -36,10 +36,14 @@ export const Header = () => {
   if (isAuthenticated && user) {
     if (user.role === 'ROLE_ADMIN') {
       navLinks.push({ to: '/admin', label: 'Dashboard' });
+      navLinks.push({ to: '/admin/coupons', label: 'Coupons' });
+      navLinks.push({ to: '/admin/promotions', label: 'Promotions' });
     }
     if (user.role === 'ROLE_SHOP_OWNER') {
       navLinks.push({ to: '/backoffice', label: 'Backoffice' });
     }
+    // Support is available for all authenticated users
+    navLinks.push({ to: '/support', label: 'Support' });
   }
 
   return (
