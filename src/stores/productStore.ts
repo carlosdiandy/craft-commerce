@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product, ProductResponse, ApiResponse, ProductVariant } from '@/types/api';
+import { productService } from '@/services/productService';
+import { handleApiError } from '@/services/apiService';
 
 export type { Product, ProductVariant };
 
@@ -16,7 +18,7 @@ interface ProductActions {
   fetchProductsByShop: (shopId: string) => Promise<void>;
   addProduct: (product: Omit<Product, 'id'>) => Promise<ApiResponse<ProductResponse>>;
   updateProduct: (productId: string, product: Partial<Product>) => Promise<ApiResponse<ProductResponse>>;
-  deleteProduct: (productId: string) => Promise<ApiResponse<null>>;
+  deleteProduct: (productId: string) => Promise<ApiResponse<void>>;
   getProductById: (productId: string) => Product | undefined;
 }
 
@@ -32,94 +34,98 @@ export const useProductStore = create<ProductStore>()(
       fetchProducts: async (filters) => {
         set({ isLoading: true, error: null });
         try {
-          // Mock implementation - replace with actual API call
-          const mockProducts: Product[] = [
-            {
-              id: '1',
-              name: 'iPhone 15 Pro',
-              price: 1199,
-              images: ['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800'],
-              shopId: 'shop1',
-              shopName: 'TechStore Premium',
-              category: 'Électronique',
-              stock: 15,
-              description: 'Le dernier iPhone avec puce A17 Pro'
-            }
-          ];
-          
-          set({ products: mockProducts, isLoading: false });
+          const response = await productService.getAllProducts(filters);
+          if (response.success && response.data) {
+            // Handle both paginated and direct array responses
+            const products = Array.isArray(response.data) ? response.data : response.data.data;
+            set({ products: products as Product[], isLoading: false });
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to fetch products' });
+          }
         } catch (error) {
-          set({ isLoading: false, error: 'Failed to fetch products' });
+          const errorResponse = handleApiError(error);
+          set({ isLoading: false, error: errorResponse.error });
         }
       },
 
       fetchProductsByShop: async (shopId: string) => {
         set({ isLoading: true, error: null });
         try {
-          // Mock implementation - replace with actual API call
-          const mockProducts: Product[] = [
-            {
-              id: '1',
-              name: 'iPhone 15 Pro',
-              price: 1199,
-              images: ['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800'],
-              shopId: shopId,
-              shopName: 'TechStore Premium',
-              category: 'Électronique',
-              stock: 15,
-              description: 'Le dernier iPhone avec puce A17 Pro'
-            }
-          ];
-          
-          set({ products: mockProducts, isLoading: false });
+          const response = await productService.getAllProducts({ shopId });
+          if (response.success && response.data) {
+            const products = Array.isArray(response.data) ? response.data : response.data.data;
+            set({ products: products as Product[], isLoading: false });
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to fetch products' });
+          }
         } catch (error) {
-          set({ isLoading: false, error: 'Failed to fetch products' });
+          const errorResponse = handleApiError(error);
+          set({ isLoading: false, error: errorResponse.error });
         }
       },
 
       addProduct: async (product) => {
         set({ isLoading: true, error: null });
         try {
-          // Mock implementation
-          const newProduct: Product = { ...product, id: Date.now().toString() };
-          set((state) => ({
-            products: [...state.products, newProduct],
-            isLoading: false,
-          }));
-          return { success: true, data: newProduct as ProductResponse };
+          const response = await productService.createProduct(product as any);
+          if (response.success && response.data) {
+            set((state) => ({
+              products: [...state.products, response.data as Product],
+              isLoading: false,
+            }));
+            return response;
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to add product' });
+            return response;
+          }
         } catch (error) {
-          set({ isLoading: false, error: 'Failed to add product' });
-          return { success: false, error: 'Failed to add product' };
+          const errorResponse = handleApiError(error);
+          set({ isLoading: false, error: errorResponse.error });
+          return errorResponse;
         }
       },
 
       updateProduct: async (productId, product) => {
         set({ isLoading: true, error: null });
         try {
-          set((state) => ({
-            products: state.products.map((p) =>
-              p.id === productId ? { ...p, ...product } : p
-            ),
-            isLoading: false,
-          }));
-          return { success: true, data: { ...product, id: productId } as ProductResponse };
+          const response = await productService.updateProduct(productId, product);
+          if (response.success && response.data) {
+            set((state) => ({
+              products: state.products.map((p) =>
+                p.id === productId ? { ...p, ...response.data } : p
+              ),
+              isLoading: false,
+            }));
+            return response;
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to update product' });
+            return response;
+          }
         } catch (error) {
-          set({ isLoading: false, error: 'Failed to update product' });
-          return { success: false, error: 'Failed to update product' };
+          const errorResponse = handleApiError(error);
+          set({ isLoading: false, error: errorResponse.error });
+          return errorResponse;
         }
       },
 
       deleteProduct: async (productId) => {
         set({ isLoading: true, error: null });
         try {
-          set((state) => ({
-            products: state.products.filter((p) => p.id !== productId),
-            isLoading: false,
-          }));
-          return { success: true };
+          const response = await productService.deleteProduct(productId);
+          if (response.success) {
+            set((state) => ({
+              products: state.products.filter((p) => p.id !== productId),
+              isLoading: false,
+            }));
+            return response;
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to delete product' });
+            return response;
+          }
         } catch (error) {
-          set({ isLoading: false, error: 'Failed to delete product' });
-          return { success: false, error: 'Failed to delete product' };
+          const errorResponse = handleApiError(error);
+          set({ isLoading: false, error: errorResponse.error });
+          return errorResponse;
         }
       },
 

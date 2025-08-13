@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Package } from 'lucide-react';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { RoleBasedNav } from './RoleBasedNav';
 import { MobileMenu } from './MobileMenu';
 import { SearchBar } from './SearchBar';
 import { UserMenu } from './UserMenu';

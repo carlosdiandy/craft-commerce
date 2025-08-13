@@ -20,7 +20,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useCartStore } from '@/stores/cartStore';
-import { Product } from '@/stores/productStore';
+import { useProductStore, Product } from '@/stores/productStore';
+import { useShopStore } from '@/stores/shopStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { toast } from '@/hooks/use-toast';
 import { SearchBar } from '@/components/common/SearchBar';
@@ -142,90 +143,38 @@ export const Marketplace = () => {
   const [sortOrder, setSortOrder] = useState<string>('asc');
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [selectedShop, setSelectedShop] = useState<string>('all');
-  const [products, setProducts] = useState<Product[]>([]);
-  const [shops, setShops] = useState<Shop[]>([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  const [isLoadingShops, setIsLoadingShops] = useState(false);
-  const [productsError, setProductsError] = useState<string | null>(null);
-  const [shopsError, setShopsError] = useState<string | null>(null);
-
+  
+  const { fetchProducts, products: storeProducts, isLoading: isLoadingProducts, error: productsError } = useProductStore();
+  const { fetchShops, shops: storeShops, isLoading: isLoadingShops, error: shopsError } = useShopStore();
   const { addItem } = useCartStore();
   const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
   const { reviews } = useReviewStore();
+
+  // Use store data
+  const products = storeProducts;
+  const shops = storeShops;
 
   const getReviewsByProductId = (productId: string) => {
     return reviews.filter(review => review.productId === productId);
   };
 
   const categories = ['all', 'Électronique', 'Mode', 'Maison', 'Sport'];
-  const shopNames = ['all', ...new Set(mockProducts.map(p => p.shopName))];
-
-  const fetchProducts = async () => {
-    setIsLoadingProducts(true);
-    setProductsError(null);
-    try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('search', searchQuery);
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
-      if (minPrice) params.append('minPrice', minPrice);
-      if (maxPrice) params.append('maxPrice', maxPrice);
-      if (sortBy) params.append('sortBy', sortBy);
-      if (sortOrder) params.append('sortOrder', sortOrder);
-      if (inStockOnly) params.append('inStockOnly', 'true');
-      if (selectedShop !== 'all') params.append('shopName', selectedShop);
-
-      const response = await apiGet<ProductResponse[]>(`/products/?${params.toString()}`);
-      if (response.success && response.data) {
-        setProducts(response.data);
-        setProductsError(null);
-      } else {
-        setProductsError(response.error || 'Failed to load products');
-        setProducts([]);
-      }
-    } catch (error) {
-      setProductsError('Network error - Unable to connect to server');
-      setProducts([]);
-    } finally {
-      setIsLoadingProducts(false);
-    }
-  };
-
-  const fetchShops = async () => {
-    setIsLoadingShops(true);
-    setShopsError(null);
-    try {
-      const response = await apiGet<ShopResponse[]>(`/shops/`);
-      if (response.success && response.data) {
-        // Map ShopResponse to Shop format
-        const mappedShops: Shop[] = response.data.map(shop => ({
-          id: shop.id,
-          name: shop.name,
-          description: shop.description,
-          image: shop.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
-          ownerId: shop.ownerId,
-          status: shop.status as 'active' | 'suspended',
-          createdAt: shop.createdAt,
-          products: [],
-          shopUsers: []
-        }));
-        setShops(mappedShops);
-        setShopsError(null);
-      } else {
-        setShopsError(response.error || 'Failed to load shops');
-        setShops([]);
-      }
-    } catch (error) {
-      setShopsError('Network error - Unable to connect to server');
-      setShops([]);
-    } finally {
-      setIsLoadingShops(false);
-    }
-  };
+  const shopNames = ['all', ...new Set(products.map(p => p.shopName))];
 
   useEffect(() => {
-    fetchProducts();
-    fetchShops();
-  }, [searchQuery, selectedCategory, minPrice, maxPrice, sortBy, sortOrder, inStockOnly, selectedShop]);
+    const fetchData = async () => {
+      const filters: any = {};
+      if (selectedCategory !== 'all') filters.category = selectedCategory;
+      if (selectedShop !== 'all') filters.shopId = selectedShop;
+      
+      await Promise.all([
+        fetchProducts(filters),
+        fetchShops()
+      ]);
+    };
+    
+    fetchData();
+  }, [searchQuery, selectedCategory, minPrice, maxPrice, sortBy, sortOrder, inStockOnly, selectedShop, fetchProducts, fetchShops]);
 
   const handleAddToCart = (product: Product) => {
     addItem(product);
@@ -464,7 +413,7 @@ export const Marketplace = () => {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>{shopsError}</span>
-                <Button variant="outline" size="sm" onClick={fetchShops}>
+                <Button variant="outline" size="sm" onClick={() => fetchShops()}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Retry
                 </Button>
@@ -550,7 +499,7 @@ export const Marketplace = () => {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>{productsError}</span>
-                <Button variant="outline" size="sm" onClick={fetchProducts}>
+                <Button variant="outline" size="sm" onClick={() => fetchProducts()}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Retry
                 </Button>
