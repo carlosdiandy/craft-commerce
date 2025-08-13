@@ -16,6 +16,7 @@ interface ShopActions {
   createShop: (shopData: Omit<Shop, 'id' | 'ownerId' | 'status' | 'createdAt' | 'products' | 'shopUsers'>) => Promise<ApiResponse<ShopResponse>>;
   updateShop: (shopId: string, shopData: Partial<Shop>) => Promise<ApiResponse<ShopResponse>>;
   deleteShop: (shopId: string) => Promise<ApiResponse<null>>;
+  updateShopStatus: (shopId: string, status: 'active' | 'rejected' | 'pending' | 'suspended') => Promise<ApiResponse<ShopResponse>>;
   fetchShopUsers: (shopId: string) => Promise<ApiResponse<ShopUserResponse[]>>;
   addShopUser: (shopId: string, userData: Omit<ShopUser, 'id' | 'createdAt'>) => Promise<ApiResponse<ShopUserResponse>>;
   updateShopUser: (shopId: string, userId: string, userData: Partial<ShopUser>) => Promise<ApiResponse<ShopUserResponse>>;
@@ -31,9 +32,7 @@ const convertShopResponseToShop = (shopResponse: ShopResponse): Shop => ({
   description: shopResponse.description,
   image: shopResponse.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
   ownerId: shopResponse.ownerId,
-  status: (shopResponse.status === 'active' || shopResponse.status === 'suspended') 
-    ? shopResponse.status as 'active' | 'suspended' 
-    : 'active',
+  status: shopResponse.status as 'active' | 'suspended' | 'pending' | 'rejected',
   createdAt: shopResponse.createdAt,
   products: [],
   shopUsers: []
@@ -114,6 +113,28 @@ export const useShopStore = create<ShopStore>()(
             }));
           } else {
             set({ isLoading: false, error: response.error || 'Failed to delete shop' });
+          }
+          return response;
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
+      },
+
+      updateShopStatus: async (shopId, status) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiPut<ShopResponse>(`/shops/${shopId}/status`, { status });
+          if (response.success && response.data) {
+            const updatedShop = convertShopResponseToShop(response.data);
+            set((state) => ({
+              shops: state.shops.map((shop) =>
+                shop.id === shopId ? { ...shop, ...updatedShop } : shop
+              ),
+              isLoading: false,
+            }));
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to update shop status' });
           }
           return response;
         } catch (error) {

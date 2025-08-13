@@ -25,8 +25,14 @@ export interface ApiErrorResponse {
 
 // User roles and status
 export type UserRole = 'ROLE_CLIENT' | 'ROLE_SHOP_OWNER' | 'ROLE_ADMIN' | 'ROLE_SHOP_EMPLOYEE'; // Updated
+export enum UserRoleEnum {
+  ROLE_CLIENT = 'ROLE_CLIENT', ROLE_SHOP_OWNER = 'ROLE_SHOP_OWNER', ROLE_ADMIN = 'ROLE_ADMIN', ROLE_SHOP_EMPLOYEE = 'ROLE_SHOP_EMPLOYEE'
+} // Updated
 export type ShopOwnerStatus = 'pending' | 'approved' | 'rejected';
 export type ShopUserRole = 'SHOP_ADMIN' | 'SHOP_EMPLOYEE';
+export enum ShopUserRoleEnum {
+  ROLE_SHOP_ADMIN = 'ROLE_SHOP_ADMIN', ROLE_SHOP_EMPLOYEE = 'ROLE_SHOP_EMPLOYEE'
+}
 
 // User related types
 export interface User {
@@ -39,6 +45,7 @@ export interface User {
   isActive?: boolean;
   shopOwnerStatus?: ShopOwnerStatus;
   shops?: Shop[];
+  globalPermissions?: string[];
 }
 
 export interface UserResponse extends User {
@@ -107,13 +114,6 @@ export interface ProductResponse extends Product {
   reviewCount?: number;
 }
 
-export interface ProductsListResponse {
-  products: ProductResponse[];
-  total: number;
-  page: number;
-  totalPages: number;
-}
-
 export interface ProductDetailResponse extends ProductResponse { }
 
 export interface CreateProductRequest {
@@ -159,11 +159,6 @@ export interface ShopResponse {
   rating?: number;
   productsCount?: number;
   location?: string;
-}
-
-export interface ShopsListResponse {
-  shops: ShopResponse[];
-  total: number;
 }
 
 export interface ShopDetailResponse extends ShopResponse {
@@ -232,11 +227,6 @@ export interface OrderResponse extends Order {
   trackingNumber?: string;
 }
 
-export interface OrdersListResponse {
-  orders: OrderResponse[];
-  total: number;
-}
-
 export interface OrderDetailResponse extends OrderResponse { }
 
 export interface UpdateOrderRequest {
@@ -270,11 +260,6 @@ export interface Review {
 export interface ReviewResponse extends Review {
   productName?: string;
   userAvatar?: string;
-}
-
-export interface ReviewsListResponse {
-  reviews: ReviewResponse[];
-  total: number;
 }
 
 export interface CreateReviewRequest {
@@ -345,12 +330,6 @@ export interface ErrorResponse {
   message: string;
   statusCode: number;
   timestamp: string;
-}
-
-// Users list response
-export interface UsersListResponse {
-  users: UserResponse[];
-  total: number;
 }
 
 // New Interfaces for Promotions, Coupons, Support Tickets, Analytics, GDPR

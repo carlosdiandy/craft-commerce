@@ -1,15 +1,14 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from '@/types/api';
-import { apiPost, handleApiError } from '@/services/apiService';
+import { apiPost, handleApiError, apiGet, apiDelete, apiPut } from '@/services/apiService';
 import {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
   User,
-  UserRole,
-  ShopOwnerStatus
+  ShopOwnerStatus,
+  Permission, // Import Permission
 } from '@/types/api';
 
 // Re-export types for external use
@@ -22,6 +21,7 @@ export interface ShopUser {
   role: string;
   shopId: string;
   createdAt: string;
+  permissions?: string[];
 }
 
 export interface Shop {
@@ -30,7 +30,7 @@ export interface Shop {
   description: string;
   image: string;
   ownerId: string;
-  status: 'active' | 'suspended';
+  status: 'active' | 'suspended' | 'pending' | 'rejected';
   createdAt: string;
   products: Product[];
   shopUsers: ShopUser[];
@@ -43,8 +43,8 @@ interface AuthState {
   error: string | null;
   accessToken: string | null;
   refreshToken: string | null;
-  // Mock users for demo purposes
-  mockUsers: User[];
+  users: User[]; // To store all users fetched by admin
+  allPermissions: Permission[]; // To store all available permissions
 }
 
 interface AuthActions {
@@ -56,19 +56,14 @@ interface AuthActions {
   updateUser: (updates: Partial<User>) => void;
   handleTokenRefresh: () => Promise<void>;
   // Admin functions
-  getAllUsers: () => User[];
-  deleteUser: (userId: string) => void;
-  adminUpdateUser: (userId: string, updates: Partial<User>) => void;
+  fetchAllUsers: () => Promise<{ success: boolean; error?: string; }>;
+  deleteUser: (userId: string) => Promise<{ success: boolean; error?: string; }>;
+  adminUpdateUser: (userId: string, updates: Partial<User>) => Promise<{ success: boolean; error?: string; }>;
+  updateShopUserPermissions: (shopId: string, shopUserId: string, permissions: string[]) => Promise<{ success: boolean; error?: string; }>;
+  fetchAllPermissions: () => Promise<{ success: boolean; error?: string; }>; // New action
+  createPermission: (name: string, resource: string, action: string, description?: string) => Promise<{ success: boolean; error?: string; }>; // New action
   // Shop owner functions
   updateShopOwnerStatus: (status: ShopOwnerStatus) => void;
-  // Shop management functions
-  addProductToShop: (shopId: string, product: Product) => void;
-  updateProductInShop: (shopId: string, productId: string, updates: Partial<Product>) => void;
-  deleteProductFromShop: (shopId: string, productId: string) => void;
-  // Shop user management
-  addShopUser: (shopId: string, user: ShopUser) => void;
-  updateShopUser: (shopId: string, userId: string, updates: Partial<ShopUser>) => void;
-  deleteShopUser: (shopId: string, userId: string) => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -82,33 +77,8 @@ export const useAuthStore = create<AuthStore>()(
       error: null,
       accessToken: null,
       refreshToken: null,
-      mockUsers: [
-        {
-          id: '1',
-          name: 'Admin User',
-          email: 'admin@platform.com',
-          role: 'ROLE_ADMIN' as UserRole,
-          createdAt: '2024-01-01T00:00:00Z',
-          isActive: true,
-        },
-        {
-          id: '2',
-          name: 'Shop Owner',
-          email: 'shop@example.com',
-          role: 'ROLE_SHOP_OWNER' as UserRole,
-          createdAt: '2024-01-01T00:00:00Z',
-          isActive: true,
-          shopOwnerStatus: 'approved' as ShopOwnerStatus,
-        },
-        {
-          id: '3',
-          name: 'Client User',
-          email: 'client@example.com',
-          role: 'ROLE_CLIENT' as UserRole,
-          createdAt: '2024-01-01T00:00:00Z',
-          isActive: true,
-        },
-      ],
+      users: [],
+      allPermissions: [], // Initialize
 
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
@@ -137,10 +107,7 @@ export const useAuthStore = create<AuthStore>()(
 
             return { success: true, message: response.data.message };
           } else {
-            set({
-              isLoading: false,
-              error: response.error || 'Login failed',
-            });
+            set({ isLoading: false, error: response.error || 'Login failed' });
             return {
               success: false,
               error: response.error || 'Login failed',
@@ -187,10 +154,7 @@ export const useAuthStore = create<AuthStore>()(
 
             return { success: true, message: response.data.message };
           } else {
-            set({
-              isLoading: false,
-              error: response.error || 'Registration failed',
-            });
+            set({ isLoading: false, error: response.error || 'Registration failed' });
             return {
               success: false,
               error: response.error || 'Registration failed',
@@ -259,22 +223,100 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      getAllUsers: () => {
-        return get().mockUsers;
+      fetchAllUsers: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiGet<User[]>('/users');
+          if (response.success && response.data) {
+            set({ users: response.data, isLoading: false });
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to fetch users' });
+          }
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
       },
 
-      deleteUser: (userId: string) => {
-        set((state) => ({
-          mockUsers: state.mockUsers.filter(user => user.id !== userId)
-        }));
+      fetchAllPermissions: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiGet<Permission[]>('/permissions');
+          if (response.success && response.data) {
+            set({ allPermissions: response.data, isLoading: false });
+          }
+          else {
+            set({ isLoading: false, error: response.error || 'Failed to fetch permissions' });
+          }
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
       },
 
-      adminUpdateUser: (userId: string, updates: Partial<User>) => {
-        set((state) => ({
-          mockUsers: state.mockUsers.map(user =>
-            user.id === userId ? { ...user, ...updates } : user
-          )
-        }));
+      createPermission: async (name: string, resource: string, action: string, description?: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiPost<Permission>('/permissions', { name, resource, action, description });
+          if (response.success && response.data) {
+            set((state) => ({
+              allPermissions: [...state.allPermissions, response.data],
+              isLoading: false,
+            }));
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to create permission' });
+          }
+          return response;
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
+      },
+
+      deleteUser: async (userId: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiDelete<null>(`/users/${userId}`);
+          if (response.success) {
+            set((state) => ({
+              users: state.users.filter(user => user.id !== userId),
+              isLoading: false,
+            }));
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to delete user' });
+          }
+          return response;
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
+      },
+
+      adminUpdateUser: async (userId: string, updates: Partial<User>) => {
+        set({ isLoading: true, error: null });
+        try {
+          // Extract role and globalPermissions for the new endpoint
+          const { role, globalPermissions, ...rest } = updates;
+          const payload: any = {};
+          if (role !== undefined) payload.role = role;
+          if (globalPermissions !== undefined) payload.globalPermissions = globalPermissions;
+
+          const response = await apiPut<User>(`/users/${userId}/role-permissions`, payload);
+          if (response.success && response.data) {
+            set((state) => ({
+              users: state.users.map(user =>
+                user.id === userId ? { ...user, ...response.data } : user
+              ),
+              isLoading: false,
+            }));
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to update user' });
+          }
+          return response;
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
       },
 
       updateShopOwnerStatus: (status: ShopOwnerStatus) => {
@@ -284,34 +326,21 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      addProductToShop: (shopId: string, product: Product) => {
-        // Mock implementation
-        console.log('Adding product to shop:', shopId, product);
-      },
-
-      updateProductInShop: (shopId: string, productId: string, updates: Partial<Product>) => {
-        // Mock implementation
-        console.log('Updating product in shop:', shopId, productId, updates);
-      },
-
-      deleteProductFromShop: (shopId: string, productId: string) => {
-        // Mock implementation
-        console.log('Deleting product from shop:', shopId, productId);
-      },
-
-      addShopUser: (shopId: string, user: ShopUser) => {
-        // Mock implementation
-        console.log('Adding user to shop:', shopId, user);
-      },
-
-      updateShopUser: (shopId: string, userId: string, updates: Partial<ShopUser>) => {
-        // Mock implementation
-        console.log('Updating shop user:', shopId, userId, updates);
-      },
-
-      deleteShopUser: (shopId: string, userId: string) => {
-        // Mock implementation
-        console.log('Deleting shop user:', shopId, userId);
+      updateShopUserPermissions: async (shopId: string, shopUserId: string, permissions: string[]) => {
+        set({ isLoading: true, error: null });
+        try {
+          const response = await apiPut<ShopUser>(`/shops/${shopId}/users/${shopUserId}/permissions`, { permissions });
+          if (response.success && response.data) {
+            // Optionally update local state if needed, e.g., in a shop store
+            set({ isLoading: false });
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to update shop user permissions' });
+          }
+          return response;
+        } catch (error) {
+          set({ isLoading: false, error: handleApiError(error).error });
+          return handleApiError(error);
+        }
       },
     }),
     {

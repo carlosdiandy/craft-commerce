@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Store, Edit } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { apiGet } from '@/services/apiService';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, User } from '@/stores/authStore';
 
 interface Shop {
   id: string;
@@ -16,6 +16,7 @@ interface Shop {
   ownerName: string;
   status: 'active' | 'suspended';
   createdAt: string;
+  owner: User;
 }
 
 export const AdminShopOverview = () => {

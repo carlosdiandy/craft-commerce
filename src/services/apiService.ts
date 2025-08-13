@@ -57,9 +57,15 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
+    // On n'ajoute pas le token sur les routes publiques
+    const isPublicRoute =
+      error.config.url?.startsWith('/auth/login') ||
+      error.config.url?.startsWith('/auth/register') ||
+      error.config.url?.startsWith('/public/');
+
 
     if (
-      error.response?.status === 401 &&
+      error.response?.status === 401 && !isPublicRoute &&
       !originalRequest._retry
     ) {
       if (isRefreshing) {

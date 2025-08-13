@@ -38,7 +38,8 @@ export const ShopManagement = () => {
       }
     }
     if (!shopId) {
-        setIsEditing(true)
+        setIsEditing(true);
+        setShop({ name: '', description: '' }); // Initialize shop for new creation
     }
   }, [shopId, shops, navigate]);
 
@@ -61,7 +62,7 @@ export const ShopManagement = () => {
     if (!shopId && shop) {
         const response = await createShop(shop as Shop);
         if (response.success) {
-          toast({ title: t('shop_created_success') });
+          toast({ title: t('shop_created_success_pending_approval') });
           navigate(`/shops/manage/${response.data?.id}`)
         } else {
           toast({ title: t('shop_created_error'), description: response.error, variant: 'destructive' });

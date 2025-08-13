@@ -26,6 +26,7 @@ import { ShopUserManagement } from "@/pages/ShopUserManagement";
 import { OrderDetail } from "@/pages/OrderDetail";
 import { AboutUs } from "@/pages/AboutUs";
 import { AdminCoupons } from "@/pages/AdminCoupons";
+import { AdminShopValidation } from "@/pages/AdminShopValidation";
 import { AdminPromotions } from "@/pages/AdminPromotions";
 import { SupportTickets } from "@/pages/SupportTickets";
 import { AddressManagement } from "@/pages/AddressManagement";
@@ -56,6 +57,11 @@ const App = () => (
               <AdminShopOverview />
             </ProtectedRoute>
           } />
+          <Route path="/admin/shops/validation" element={
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminShopValidation />
+            </ProtectedRoute>
+          } />
           <Route path="/backoffice" element={
             <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopOwnerDashboard />
@@ -77,6 +83,11 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/shops/manage/:shopId" element={
+            <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
+              <ShopManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/shops/manage" element={
             <ProtectedRoute allowedRoles={['ROLE_SHOP_OWNER']}>
               <ShopManagement />
             </ProtectedRoute>
