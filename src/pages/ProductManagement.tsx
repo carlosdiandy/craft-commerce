@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuthStore, Shop } from '@/stores/authStore';
-import { Product } from '@/stores/productStore';
+import { useProductStore, Product } from '@/stores/productStore';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -24,7 +24,8 @@ const productSchema = z.object({
 type ProductFormValues = z.infer<typeof productSchema>;
 
 export const ProductManagement = () => {
-  const { user, addProductToShop, updateProductInShop, deleteProductFromShop } = useAuthStore();
+  const { user } = useAuthStore();
+  const { addProduct, updateProduct, deleteProduct } = useProductStore();
   const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productImages, setProductImages] = useState<string[]>([]);
@@ -99,7 +100,7 @@ export const ProductManagement = () => {
         stock: values.productStock,
         images: productImages,
       };
-      updateProductInShop(selectedShopId, editingProduct.id, updatedProduct);
+      updateProduct(editingProduct.id, updatedProduct);
       toast({
         title: t('product_updated'),
         description: t('product_updated_description', { productName: editingProduct.name }),
@@ -117,7 +118,7 @@ export const ProductManagement = () => {
         shopName: selectedShop?.name || '',
         category: 'General',
       };
-      addProductToShop(selectedShopId, newProduct);
+      addProduct(newProduct);
       toast({
         title: t('product_added'),
         description: t('product_added_description', { productName: newProduct.name }),
@@ -133,7 +134,7 @@ export const ProductManagement = () => {
 
   const handleDeleteProduct = (productId: string) => {
     if (!selectedShopId) return;
-    deleteProductFromShop(selectedShopId, productId);
+    deleteProduct(productId);
     toast({
       title: t('product_deleted'),
       description: t('product_deleted_description'),

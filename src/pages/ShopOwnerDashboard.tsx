@@ -10,7 +10,8 @@ import { useOrderStore } from '@/stores/orderStore';
 
 export const ShopOwnerDashboard = () => {
   const navigate = useNavigate();
-  const { user, updateShopOwnerStatus, addProductToShop } = useAuthStore();
+  const { user, updateShopOwnerStatus } = useAuthStore();
+  const { addProduct } = useProductStore();
   const { shops, fetchShops } = useShopStore();
   const { products, fetchProducts } = useProductStore();
   const { orders, fetchOrdersByShop } = useOrderStore();
@@ -39,7 +40,7 @@ export const ShopOwnerDashboard = () => {
         shopId: selectedShop.id,
         shopName: selectedShop.name,
       };
-      addProductToShop(selectedShop.id, newProduct);
+      addProduct(newProduct);
     }
   };
 
