@@ -49,63 +49,71 @@ export const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Package className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent hidden sm:block">
-              MarketPlace
-            </span>
-            <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent sm:hidden">
-              MP
-            </span>
-          </Link>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+        <div className="container-responsive">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-3 flex-shrink-0 group">
+              <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-card group-hover:shadow-hover transition-all duration-300 group-hover:scale-105">
+                <Package className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-display font-bold text-xl text-gradient hidden sm:block">
+                  CraftCommerce
+                </span>
+                <span className="text-xs text-muted-foreground hidden sm:block">
+                  Artisanal Marketplace
+                </span>
+              </div>
+              <span className="font-display font-bold text-lg text-gradient sm:hidden">
+                CC
+              </span>
+            </Link>
 
-          {/* Navigation centrale - uniquement pour marketplace */}
-          {isMarketplace && (
-            <nav className="hidden lg:flex items-center space-x-6">
-              {navLinks.map(link => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="text-sm font-medium hover:text-primary transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          )}
-
-          {/* Barre de recherche - uniquement pour marketplace */}
-          {isMarketplace && (
-            <div className="hidden md:block flex-1 max-w-md mx-4">
-              <SearchBar
-                placeholder="Rechercher des produits..."
-                className="w-full"
-              />
-            </div>
-          )}
-
-          {/* Actions à droite */}
-          <div className="flex items-center space-x-2">
-            {/* Panier et favoris - uniquement pour marketplace */}
+            {/* Navigation centrale - uniquement pour marketplace */}
             {isMarketplace && (
-              <div className="hidden sm:flex items-center space-x-1">
-                <ShoppingActions />
-                {isAuthenticated && <NotificationBell />}
+              <nav className="hidden lg:flex items-center space-x-8">
+                {navLinks.map(link => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors relative group"
+                  >
+                    {link.label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-primary transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                ))}
+              </nav>
+            )}
+
+            {/* Barre de recherche - uniquement pour marketplace */}
+            {isMarketplace && (
+              <div className="hidden md:block flex-1 max-w-md mx-6">
+                <SearchBar
+                  placeholder="Rechercher des produits artisanaux..."
+                  className="w-full glass-card border-0"
+                />
               </div>
             )}
 
-            {/* Menu utilisateur */}
-            <div className="hidden md:block">
-              <UserMenu onAuthClick={handleAuthClick} />
-            </div>
+            {/* Actions à droite */}
+            <div className="flex items-center space-x-3">
+              {/* Panier et favoris - uniquement pour marketplace */}
+              {isMarketplace && (
+                <div className="hidden sm:flex items-center space-x-2">
+                  <ShoppingActions />
+                  {isAuthenticated && <NotificationBell />}
+                </div>
+              )}
 
-            {/* Menu mobile */}
-            <MobileMenu />
+              {/* Menu utilisateur */}
+              <div className="hidden md:block">
+                <UserMenu onAuthClick={handleAuthClick} />
+              </div>
+
+              {/* Menu mobile */}
+              <MobileMenu />
+            </div>
           </div>
         </div>
       </header>
