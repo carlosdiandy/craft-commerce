@@ -9,10 +9,13 @@ interface ShopState {
   shops: Shop[];
   isLoading: boolean;
   error: string | null;
+  currentPage: number;
+  totalPages: number;
+  totalShops: number;
 }
 
 interface ShopActions {
-  fetchShops: () => Promise<void>;
+  fetchShops: (filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: string; }) => Promise<void>;
   createShop: (shopData: Omit<Shop, 'id' | 'ownerId' | 'status' | 'createdAt' | 'products' | 'shopUsers'>) => Promise<ApiResponse<ShopResponse>>;
   updateShop: (shopId: string, shopData: Partial<Shop>) => Promise<ApiResponse<ShopResponse>>;
   deleteShop: (shopId: string) => Promise<ApiResponse<null>>;
@@ -44,14 +47,23 @@ export const useShopStore = create<ShopStore>()(
       shops: [],
       isLoading: false,
       error: null,
+      currentPage: 1,
+      totalPages: 1,
+      totalShops: 0,
 
-      fetchShops: async () => {
+      fetchShops: async (filters) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await apiGet<ShopResponse[]>('/shops');
+          const response = await apiGet<ShopResponse[]>('/shops', filters);
           if (response.success && response.data) {
-            const shops = response.data.map(convertShopResponseToShop);
-            set({ shops, isLoading: false });
+            const shopsData = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
+            set({
+              shops: shopsData.data,
+              currentPage: shopsData.meta.currentPage,
+              totalPages: shopsData.meta.totalPages,
+              totalShops: shopsData.meta.totalItems,
+              isLoading: false,
+            });
           } else {
             set({ isLoading: false, error: response.error || 'Failed to fetch shops' });
           }

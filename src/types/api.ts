@@ -46,6 +46,7 @@ export interface User {
   shopOwnerStatus?: ShopOwnerStatus;
   shops?: Shop[];
   globalPermissions?: string[];
+  profilePictureUrl?: string;
 }
 
 export interface UserResponse extends User {

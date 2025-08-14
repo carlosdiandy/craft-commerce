@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,7 @@ import {
 import { useCartStore } from '@/stores/cartStore';
 import { useProductStore, Product } from '@/stores/productStore';
 import { useShopStore } from '@/stores/shopStore';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { toast } from '@/hooks/use-toast';
 import { SearchBar } from '@/components/common/SearchBar';
@@ -31,107 +32,10 @@ import { useReviewStore } from '@/stores/reviewStore';
 import { Rating } from '@/components/ui/Rating';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import axios from 'axios';
-import { Shop } from '@/stores/authStore';
-import { ProductResponse, ShopResponse } from '@/types/api';
-import { apiGet } from '@/services/apiService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-
-// Données mockées pour la démonstration
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'iPhone 15 Pro',
-    price: 1199,
-    images: [
-      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800',
-      'https://images.unsplash.com/photo-1607936854279-55e8a427428f?w=800',
-      'https://images.unsplash.com/photo-1580910051074-3ed686210cf7?w=800',
-    ],
-    shopId: 'shop1',
-    shopName: 'TechStore Premium',
-    category: 'Électronique',
-    stock: 15,
-    description: 'Le dernier iPhone avec puce A17 Pro'
-  },
-  {
-    id: '2',
-    name: 'MacBook Air M3',
-    price: 1299,
-    images: [
-      'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800',
-      'https://images.unsplash.com/photo-1531297484441-ed2c03377c5a?w=800',
-      'https://images.unsplash.com/photo-1580528322430-a1277069877e?w=800',
-    ],
-    shopId: 'shop1',
-    shopName: 'TechStore Premium',
-    category: 'Électronique',
-    stock: 8,
-    description: 'Ultrabook puissant avec puce M3'
-  },
-  {
-    id: '3',
-    name: 'Sneakers Nike Air Max',
-    price: 159,
-    images: [
-      'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800',
-      'https://images.unsplash.com/photo-1595951700296-12945645b01a?w=800',
-      'https://images.unsplash.com/photo-1552066344-2464c15d55c5?w=800',
-    ],
-    shopId: 'shop2',
-    shopName: 'Sport & Style',
-    category: 'Mode',
-    stock: 25,
-    description: 'Baskets confortables pour le sport'
-  },
-  {
-    id: '4',
-    name: 'Sac à main Coach',
-    price: 289,
-    images: [
-      'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800',
-      'https://images.unsplash.com/photo-1566150905421-ce7b99116179?w=800',
-      'https://images.unsplash.com/photo-1584917865442-ce845516d89d?w=800',
-    ],
-    shopId: 'shop3',
-    shopName: 'Luxury Fashion',
-    category: 'Mode',
-    stock: 12,
-    description: 'Sac à main en cuir de luxe'
-  },
-];
-
-const mockShops = [
-  {
-    id: 'shop1',
-    name: 'TechStore Premium',
-    description: 'Spécialiste en électronique et high-tech',
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
-    rating: 4.8,
-    productsCount: 156,
-    location: 'Paris, France'
-  },
-  {
-    id: 'shop2',
-    name: 'Sport & Style',
-    description: 'Vêtements et équipements de sport',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400',
-    rating: 4.6,
-    productsCount: 89,
-    location: 'Lyon, France'
-  },
-  {
-    id: 'shop3',
-    name: 'Luxury Fashion',
-    description: 'Mode et accessoires de luxe',
-    image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400',
-    rating: 4.9,
-    productsCount: 67,
-    location: 'Nice, France'
-  }
-];
+import { BestShopsSlider } from '@/components/common/BestShopsSlider';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 export const Marketplace = () => {
   const { t } = useTranslation();
@@ -143,38 +47,79 @@ export const Marketplace = () => {
   const [sortOrder, setSortOrder] = useState<string>('asc');
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [selectedShop, setSelectedShop] = useState<string>('all');
-  
-  const { fetchProducts, products: storeProducts, isLoading: isLoadingProducts, error: productsError } = useProductStore();
-  const { fetchShops, shops: storeShops, isLoading: isLoadingShops, error: shopsError } = useShopStore();
+
+  const [productPage, setProductPage] = useState(1);
+  const [shopPage, setShopPage] = useState(1);
+  const PRODUCT_LIMIT = 8;
+  const SHOP_LIMIT = 10; // For featured shops
+
+  const { fetchProducts, products, isLoading: isLoadingProducts, error: productsError, currentPage: currentProductPage, totalPages: totalProductPages, resetProducts } = useProductStore();
+  const { fetchShops, shops, isLoading: isLoadingShops, error: shopsError, currentPage: currentShopPage, totalPages: totalShopPages } = useShopStore();
   const { addItem } = useCartStore();
   const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
   const { reviews } = useReviewStore();
-
-  // Use store data
-  const products = storeProducts;
-  const shops = storeShops;
 
   const getReviewsByProductId = (productId: string) => {
     return reviews.filter(review => review.productId === productId);
   };
 
   const categories = ['all', 'Électronique', 'Mode', 'Maison', 'Sport'];
-  const shopNames = ['all', ...new Set(products.map(p => p.shopName))];
+  const shopNames = ['all', ...new Set(shops.map(p => p.name))]; // Use shops from store
+
+  const observer = useRef<IntersectionObserver>();
+  const lastProductElementRef = useCallback((node: HTMLDivElement) => {
+    if (isLoadingProducts) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && currentProductPage < totalProductPages) {
+        setProductPage(prevPage => prevPage + 1);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [isLoadingProducts, currentProductPage, totalProductPages]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const filters: any = {};
+    // Reset products and fetch first page when filters change
+    resetProducts();
+    setProductPage(1); // Reset page to 1 when filters change
+    const filters: any = {
+      page: 1, // Always fetch first page on filter change
+      limit: PRODUCT_LIMIT,
+      searchQuery,
+      minPrice: parseFloat(minPrice) || undefined,
+      maxPrice: parseFloat(maxPrice) || undefined,
+      sortBy,
+      sortOrder,
+      inStockOnly,
+    };
+    if (selectedCategory !== 'all') filters.category = selectedCategory;
+    if (selectedShop !== 'all') filters.shopId = selectedShop;
+    fetchProducts(filters, false); // Fetch without appending on filter change
+  }, [searchQuery, selectedCategory, minPrice, maxPrice, sortBy, sortOrder, inStockOnly, selectedShop]);
+
+  useEffect(() => {
+    // Fetch more products when productPage changes (for infinite scroll)
+    if (productPage > 1) { // Only fetch if page is greater than 1 (initial fetch is handled by filter useEffect)
+      const filters: any = {
+        page: productPage,
+        limit: PRODUCT_LIMIT,
+        searchQuery,
+        minPrice: parseFloat(minPrice) || undefined,
+        maxPrice: parseFloat(maxPrice) || undefined,
+        sortBy,
+        sortOrder,
+        inStockOnly,
+      };
       if (selectedCategory !== 'all') filters.category = selectedCategory;
       if (selectedShop !== 'all') filters.shopId = selectedShop;
-      
-      await Promise.all([
-        fetchProducts(filters),
-        fetchShops()
-      ]);
-    };
-    
-    fetchData();
-  }, [searchQuery, selectedCategory, minPrice, maxPrice, sortBy, sortOrder, inStockOnly, selectedShop, fetchProducts, fetchShops]);
+      fetchProducts(filters, true); // Fetch and append
+    }
+  }, [productPage]);
+
+  useEffect(() => {
+    // Fetch featured shops once on component mount
+    fetchShops({ page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' });
+  }, []); // Empty dependency array to run only once
 
   const handleAddToCart = (product: Product) => {
     addItem(product);
@@ -391,7 +336,7 @@ export const Marketplace = () => {
             </Link>
           </div>
 
-          {isLoadingShops ? (
+          {!isLoadingShops ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
                 <Card key={i} className="overflow-hidden">
@@ -426,39 +371,49 @@ export const Marketplace = () => {
               <p className="text-muted-foreground">Check back later for new shops</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shops.map((shop) => (
-                <Card key={shop.id} className="overflow-hidden hover:shadow-hover transition-all duration-300">
-                  <div className="h-48 overflow-hidden">
-                    <img
-                      src={shop.image}
-                      alt={shop.name}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-lg">{shop.name}</h3>
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium ml-1">4.8</span>
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {shops.slice(0, 10).map((shop) => (
+                  <CarouselItem key={shop.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="overflow-hidden h-full flex flex-col">
+                      <div className="h-48 overflow-hidden">
+                        <img
+                          src={shop.image}
+                          alt={shop.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-3">{shop.description}</p>
-                    <div className="flex items-center text-sm text-muted-foreground mb-3">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      Location
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Badge variant="secondary">2 {t('products_count', { count: 2 })}</Badge>
-                      <Link to={`/shops/${shop.id}`} >
-                        <Button size="sm" variant="outline">{t('visit')}</Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      <CardContent className="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
+                          <div className="flex items-center text-sm text-muted-foreground mb-2">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
+                            <span>{shop.rating?.toFixed(1) || 'N/A'}</span>
+                          </div>
+                          <p className="text-muted-foreground text-sm line-clamp-2">{shop.description}</p>
+                        </div>
+                        <div className="mt-4">
+                          <Badge className='mb-2' variant="secondary"> {t('products_count', { count: shop.productsCount })}</Badge>
+                          <Link to={`/shops/${shop.id}`}>
+                            <Button size="sm" variant="outline" className="w-full">
+                              {t('visit_shop')}
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           )}
         </section>
 
@@ -516,7 +471,7 @@ export const Marketplace = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
-                <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group">
+                <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group" ref={products.length === index + 1 ? lastProductElementRef : null}>
                   <Link to={`/products/${product.id}`} className="relative h-48 overflow-hidden block">
                     {(product.images && product.images.length > 0) && (
                       <img
@@ -572,6 +527,17 @@ export const Marketplace = () => {
                   </CardFooter>
                 </Card>
               ))}
+            </div>
+          )}
+          {isLoadingProducts && currentProductPage < totalProductPages && (
+            <div className="flex justify-center items-center py-4">
+              <RefreshCw className="w-6 h-6 animate-spin text-primary" />
+              <span className="ml-2">Loading more products...</span>
+            </div>
+          )}
+          {!isLoadingProducts && products.length > 0 && currentProductPage >= totalProductPages && (
+            <div className="text-center text-muted-foreground py-4">
+              You've reached the end of the product list.
             </div>
           )}
         </section>

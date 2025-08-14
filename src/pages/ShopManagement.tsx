@@ -22,6 +22,7 @@ export const ShopManagement = () => {
   const { user } = useAuthStore();
   const [shop, setShop] = useState<Partial<Shop> | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [shopImage, setShopImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchShops();
@@ -32,6 +33,7 @@ export const ShopManagement = () => {
       const currentShop = shops.find((s) => s.id === shopId);
       if (currentShop) {
         setShop(currentShop);
+        setShopImage(currentShop.image || null);
       } else {
         // If shop not found, maybe redirect or show an error
         navigate('/backoffice');
@@ -40,6 +42,7 @@ export const ShopManagement = () => {
     if (!shopId) {
         setIsEditing(true);
         setShop({ name: '', description: '' }); // Initialize shop for new creation
+        setShopImage(null);
     }
   }, [shopId, shops, navigate]);
 
@@ -49,9 +52,25 @@ export const ShopManagement = () => {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setShopImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setShopImage(null);
+  };
+
   const handleSave = async () => {
     if (shop && shopId) {
-      const response = await updateShop(shopId, shop);
+      const updatedShopData = { ...shop, image: shopImage };
+      const response = await updateShop(shopId, updatedShopData);
       if (response.success) {
         toast({ title: t('shop_updated_success') });
         setIsEditing(false);
@@ -60,7 +79,8 @@ export const ShopManagement = () => {
       }
     }
     if (!shopId && shop) {
-        const response = await createShop(shop as Shop);
+        const newShopData = { ...shop, image: shopImage };
+        const response = await createShop(newShopData as Shop);
         if (response.success) {
           toast({ title: t('shop_created_success_pending_approval') });
           navigate(`/shops/manage/${response.data?.id}`)
@@ -112,6 +132,26 @@ export const ShopManagement = () => {
                             onChange={handleInputChange}
                             disabled={!isEditing}
                         />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="shopImage">{t('shop_image')}</Label>
+                          <Input id="shopImage" name="shopImage" type="file" accept="image/*" onChange={handleImageUpload} disabled={!isEditing} />
+                          {shopImage && (
+                            <div className="relative w-32 h-32 mt-2">
+                              <img src={shopImage} alt="Shop preview" className="w-full h-full object-cover rounded-md" />
+                              {isEditing && (
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                                  onClick={handleRemoveImage}
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
                         </div>
                         {isEditing ? (
                         <Button onClick={handleSave} disabled={isLoading}>

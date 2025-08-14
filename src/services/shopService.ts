@@ -5,8 +5,18 @@ const SHOPS_BASE_URL = '/shops';
 
 export const shopService = {
   // Shop CRUD operations
-  getAllShops(): Promise<ApiResponse<Shop[]>> {
-    return apiGet<Shop[]>(SHOPS_BASE_URL);
+  getAllShops(filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: 'asc' | 'desc'; }): Promise<ApiResponse<PaginatedResponse<ShopResponse> | ShopResponse[]>> {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.isFeatured) params.append('isFeatured', filters.isFeatured.toString());
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+    const queryString = params.toString();
+    const url = queryString ? `${SHOPS_BASE_URL}?${queryString}` : SHOPS_BASE_URL;
+
+    return apiGet<PaginatedResponse<ShopResponse> | ShopResponse[]>(url);
   },
 
   getShopById(id: string): Promise<ApiResponse<ShopDetailResponse>> {

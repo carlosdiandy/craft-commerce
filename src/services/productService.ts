@@ -4,12 +4,18 @@ import { Product, ProductResponse, ProductDetailResponse, CreateProductRequest, 
 const PRODUCTS_BASE_URL = '/products';
 
 export const productService = {
-  getAllProducts(filters?: { shopId?: string; category?: string; page?: number; limit?: number }): Promise<ApiResponse<PaginatedResponse<ProductResponse> | ProductResponse[]>> {
+  getAllProducts(filters?: { page?: number; limit?: number; shopId?: string; category?: string; searchQuery?: string; minPrice?: number; maxPrice?: number; sortBy?: string; sortOrder?: 'asc' | 'desc'; inStockOnly?: boolean; }): Promise<ApiResponse<PaginatedResponse<ProductResponse> | ProductResponse[]>> {
     const params = new URLSearchParams();
     if (filters?.shopId) params.append('shopId', filters.shopId);
     if (filters?.category) params.append('category', filters.category);
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.searchQuery) params.append('searchQuery', filters.searchQuery);
+    if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
+    if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+    if (filters?.inStockOnly) params.append('inStockOnly', filters.inStockOnly.toString());
     
     const queryString = params.toString();
     const url = queryString ? `${PRODUCTS_BASE_URL}?${queryString}` : PRODUCTS_BASE_URL;

@@ -8,19 +8,59 @@ import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Camera, XCircle } from 'lucide-react';
 
 export const Account = () => {
   const { t } = useTranslation();
-  const { user, updateUser } = useAuthStore();
+  const { user, updateUser, updateProfilePicture } = useAuthStore();
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(user?.profilePictureUrl || null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImageFile(null);
+    setProfileImagePreview(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
 
     if (user) {
+      // Update user details
       updateUser({ name, email });
+
+      // Update profile picture if a new one is selected
+      if (profileImageFile) {
+        const response = await updateProfilePicture(profileImageFile);
+        if (response.success) {
+          toast({
+            title: t('profile_picture_updated'),
+            description: t('profile_picture_updated_description'),
+          });
+        } else {
+          toast({
+            title: t('profile_picture_update_error'),
+            description: response.error,
+            variant: 'destructive',
+          });
+        }
+      }
+
       toast({
         title: t('profile_updated'),
         description: t('profile_updated_description'),
@@ -47,6 +87,29 @@ export const Account = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="relative">
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage src={profileImagePreview || undefined} alt="Profile Picture" />
+                    <AvatarFallback>{user?.name ? user.name.charAt(0) : 'U'}</AvatarFallback>
+                  </Avatar>
+                  <Label htmlFor="profile-picture-upload" className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full cursor-pointer">
+                    <Camera className="w-5 h-5" />
+                    <Input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  </Label>
+                  {profileImagePreview && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-0 right-0 h-6 w-6 rounded-full"
+                      onClick={handleRemoveImage}
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="name">Nom</Label>
                 <Input id="name" name="name" defaultValue={user?.name} />

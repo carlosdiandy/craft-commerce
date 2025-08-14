@@ -27,7 +27,7 @@ export const AdminShopOverview = () => {
     const fetchShops = async () => {
       try {
         const response = await apiGet<Shop[]>("/shops/");
-        setShops(response.data);
+        setShops(response.data.data);
       } catch (error) {
         console.error("Failed to fetch shops:", error);
       }

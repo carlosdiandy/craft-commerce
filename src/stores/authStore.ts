@@ -33,6 +33,9 @@ export interface Shop {
   status: 'active' | 'suspended' | 'pending' | 'rejected';
   createdAt: string;
   products: Product[];
+  productsCount: number;
+  rating: number;
+  location: string;
   shopUsers: ShopUser[];
 }
 
@@ -54,6 +57,7 @@ interface AuthActions {
   setUser: (user: User) => void;
   clearError: () => void;
   updateUser: (updates: Partial<User>) => void;
+  updateProfilePicture: (file: File) => Promise<{ success: boolean; error?: string; }>;
   handleTokenRefresh: () => Promise<void>;
   // Admin functions
   fetchAllUsers: () => Promise<{ success: boolean; error?: string; }>;
@@ -97,7 +101,7 @@ export const useAuthStore = create<AuthStore>()(
             }
 
             set({
-              user,
+              user: { ...user, profilePictureUrl: user.profilePictureUrl }, // Ensure profilePictureUrl is set
               isAuthenticated: true,
               isLoading: false,
               error: null,
@@ -144,7 +148,7 @@ export const useAuthStore = create<AuthStore>()(
             }
 
             set({
-              user,
+              user: { ...user, profilePictureUrl: user.profilePictureUrl }, // Ensure profilePictureUrl is set
               isAuthenticated: true,
               isLoading: false,
               error: null,
@@ -200,6 +204,30 @@ export const useAuthStore = create<AuthStore>()(
         const { user } = get();
         if (user) {
           set({ user: { ...user, ...updates } });
+        }
+      },
+
+      updateProfilePicture: async (file: File) => {
+        set({ isLoading: true, error: null });
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await apiPost<User>('/auth/profile-picture', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          if (response.success && response.data) {
+            set((state) => ({
+              user: { ...state.user, profilePictureUrl: response.data.profilePictureUrl },
+              isLoading: false,
+            }));
+            return { success: true };
+          } else {
+            set({ isLoading: false, error: response.error || 'Failed to update profile picture' });
+            return { success: false, error: response.error };
+          }
+        } catch (error) {
+          const errorResponse = handleApiError(error);
+          set({ isLoading: false, error: errorResponse.error });
+          return { success: false, error: errorResponse.error };
         }
       },
 
