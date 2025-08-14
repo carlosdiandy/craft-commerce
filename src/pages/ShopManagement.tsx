@@ -10,9 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Label } from '@/components/ui/label';
 import { ProductList } from '@/components/common/ProductList';
 import { UserList } from '@/components/common/UserList';
 import { OrderList } from '@/components/common/OrderList';
+import { XCircle } from 'lucide-react';
 
 export const ShopManagement = () => {
   const { shopId } = useParams<{ shopId: string }>();

@@ -35,8 +35,11 @@ const convertShopResponseToShop = (shopResponse: ShopResponse): Shop => ({
   description: shopResponse.description,
   image: shopResponse.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
   ownerId: shopResponse.ownerId,
-  status: shopResponse.status as 'active' | 'suspended' | 'pending' | 'rejected',
+  status: shopResponse.status as 'active' | 'suspended',
   createdAt: shopResponse.createdAt,
+  rating: shopResponse.rating || 0,
+  productsCount: shopResponse.productsCount || 0,
+  location: shopResponse.location || '',
   products: [],
   shopUsers: []
 });
@@ -54,14 +57,14 @@ export const useShopStore = create<ShopStore>()(
       fetchShops: async (filters) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await apiGet<ShopResponse[]>('/shops', filters);
+          const response = await apiGet<ShopResponse[]>('/shops');
           if (response.success && response.data) {
-            const shopsData = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
+            const shops = Array.isArray(response.data) ? response.data.map(convertShopResponseToShop) : [];
             set({
-              shops: shopsData.data,
-              currentPage: shopsData.meta.currentPage,
-              totalPages: shopsData.meta.totalPages,
-              totalShops: shopsData.meta.totalItems,
+              shops,
+              currentPage: 1,
+              totalPages: 1,
+              totalShops: shops.length,
               isLoading: false,
             });
           } else {

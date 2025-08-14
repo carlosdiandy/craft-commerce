@@ -213,7 +213,7 @@ export const useAuthStore = create<AuthStore>()(
           const formData = new FormData();
           formData.append('file', file);
 
-          const response = await apiPost<User>('/auth/profile-picture', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          const response = await apiPost<User>('/auth/profile-picture', formData);
           if (response.success && response.data) {
             set((state) => ({
               user: { ...state.user, profilePictureUrl: response.data.profilePictureUrl },

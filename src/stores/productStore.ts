@@ -82,7 +82,6 @@ export const useProductStore = create<ProductStore>()(
         } catch (error) {
           const errorResponse = handleApiError(error);
           set({ isLoading: false, error: errorResponse.error });
-          return errorResponse;
         }
       },
 

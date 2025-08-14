@@ -471,7 +471,7 @@ export const Marketplace = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
-                <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group" ref={products.length === index + 1 ? lastProductElementRef : null}>
+                <Card key={product.id} className="overflow-hidden hover:shadow-hover transition-all duration-300 group" ref={products.length === products.indexOf(product) + 1 ? lastProductElementRef : null}>
                   <Link to={`/products/${product.id}`} className="relative h-48 overflow-hidden block">
                     {(product.images && product.images.length > 0) && (
                       <img

@@ -48,7 +48,7 @@ export const useAdminStore = create<AdminStore>((set) => ({
       const response = await apiGet<Shop[]>('/shops');
 
       if (response.success && response.data) {
-        set({ shops: response.data.data, isLoading: false });
+        set({ shops: response.data || [], isLoading: false });
       } else {
         set({ isLoading: false, error: response.error || 'Failed to fetch shops' });
       }

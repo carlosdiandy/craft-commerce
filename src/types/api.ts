@@ -319,10 +319,14 @@ export interface WishlistItem {
 // Pagination types
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  meta: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    page?: number;
+    limit?: number;
+  };
+  total?: number;
 }
 
 // Error response

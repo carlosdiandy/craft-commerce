@@ -110,7 +110,7 @@ export const Shops = () => {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious onClick={() => handleShopPageChange(currentShopPage - 1)} disabled={currentShopPage === 1} />
+                  <PaginationPrevious onClick={() => handleShopPageChange(currentShopPage - 1)} />
                 </PaginationItem>
                 {[...Array(totalShopPages)].map((_, i) => (
                   <PaginationItem key={i}>
@@ -120,7 +120,7 @@ export const Shops = () => {
                   </PaginationItem>
                 ))}
                 <PaginationItem>
-                  <PaginationNext onClick={() => handleShopPageChange(currentShopPage + 1)} disabled={currentShopPage === totalShopPages} />
+                  <PaginationNext onClick={() => handleShopPageChange(currentShopPage + 1)} />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>

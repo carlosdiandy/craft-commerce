@@ -1,5 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete, ApiResponse } from './apiService';
-import { Shop, ShopResponse, ShopDetailResponse, ShopUser, ShopUserResponse, CreateShopUserRequest, UpdateShopUserRequest } from '@/types/api';
+import { Shop, ShopResponse, ShopDetailResponse, ShopUser, ShopUserResponse, CreateShopUserRequest, UpdateShopUserRequest, PaginatedResponse } from '@/types/api';
 
 const SHOPS_BASE_URL = '/shops';
 
