@@ -28,7 +28,6 @@ export const Header = () => {
     location.pathname.startsWith('/shops');
 
   const navLinks = [
-    { to: '/', label: 'Accueil' },
     { to: '/products', label: 'Produits' },
     { to: '/shops', label: 'Boutiques' },
     { to: '/about', label: 'À Propos' },
@@ -37,8 +36,8 @@ export const Header = () => {
   if (isAuthenticated && user) {
     if (user.role === 'ROLE_ADMIN') {
       navLinks.push({ to: '/admin', label: 'Dashboard' });
-      navLinks.push({ to: '/admin/coupons', label: 'Coupons' });
-      navLinks.push({ to: '/admin/promotions', label: 'Promotions' });
+      // navLinks.push({ to: '/admin/coupons', label: 'Coupons' });
+      // navLinks.push({ to: '/admin/promotions', label: 'Promotions' });
     }
     if (user.role === 'ROLE_SHOP_OWNER') {
       navLinks.push({ to: '/backoffice', label: 'Backoffice' });
@@ -53,7 +52,7 @@ export const Header = () => {
         <div className="container-responsive">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3 flex-shrink-0 group">
+            <Link to="/" className="flex mr-10 items-center space-x-3 flex-shrink-0 group">
               <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-card group-hover:shadow-hover transition-all duration-300 group-hover:scale-105">
                 <Package className="w-5 h-5 text-white" />
               </div>
