@@ -29,12 +29,25 @@ export const Shops = () => {
     <div className="min-h-screen bg-muted/30">
       <div className="container px-4 py-8">
         <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Toutes nos boutiques</h1>
-            <p className="text-muted-foreground">Découvrez les vendeurs de notre plateforme</p>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-display font-bold bg-gradient-fun bg-clip-text text-transparent animate-fade-in">
+              🎨 Toutes nos boutiques
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Découvrez les créateurs talentueux de notre marketplace artisanale ✨
+            </p>
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <span>🏪 {shopsCount || 0} boutiques</span>
+              <span>•</span>
+              <span>🎯 Créations uniques</span>
+              <span>•</span>
+              <span>💝 Fait avec amour</span>
+            </div>
           </div>
           <Link to="/">
-            <Button variant="outline">Retour à la marketplace</Button>
+            <Button variant="outline" className="hover:shadow-fun transition-all duration-300 hover:scale-105">
+              🏠 Retour à la marketplace
+            </Button>
           </Link>
         </div>
 
@@ -72,32 +85,49 @@ export const Shops = () => {
               <p className="text-muted-foreground">{t('check_back_later_for_new_shops')}</p>
             </div>
           ) : (
-            shops.map((shop) => (
-              <Card key={shop.id} className="overflow-hidden hover:shadow-hover transition-all duration-300">
-                <div className="h-48 overflow-hidden">
+            shops.map((shop, index) => (
+              <Card 
+                key={shop.id} 
+                className="overflow-hidden hover:shadow-fun transition-all duration-300 hover:-translate-y-2 group animate-fade-in-up border-2 hover:border-fun-orange/30"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="h-48 overflow-hidden relative">
                   <img
                     src={shop.image}
                     alt={shop.name}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
+                  <div className="absolute inset-0 bg-gradient-fun opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-fun-pink text-white animate-float shadow-fun">
+                      ✨ Artisan
+                    </Badge>
+                  </div>
                 </div>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-lg">{shop.name}</h3>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-semibold text-lg group-hover:text-fun-purple transition-colors">{shop.name}</h3>
+                    <div className="flex items-center bg-fun-yellow/10 px-2 py-1 rounded-full">
+                      <Star className="w-4 h-4 fill-fun-yellow text-fun-yellow animate-sparkle" />
                       <span className="text-sm font-medium ml-1">{shop.rating}</span>
                     </div>
                   </div>
-                  <p className="text-muted-foreground text-sm mb-3">{shop.description}</p>
-                  <div className="flex items-center text-sm text-muted-foreground mb-3">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {shop.location}
+                  <p className="text-muted-foreground text-sm line-clamp-2">{shop.description}</p>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4 mr-1 text-fun-green" />
+                    📍 {shop.location}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary">{shop.productsCount} {t('products')}</Badge>
+                  <div className="flex items-center justify-between pt-2">
+                    <Badge variant="secondary" className="bg-fun-blue/10 text-fun-blue hover:bg-fun-blue/20 transition-colors">
+                      🎨 {shop.productsCount} {t('products')}
+                    </Badge>
                     <Link to={`/shops/${shop.id}`}>
-                      <Button size="sm" variant="outline">{t('visit')}</Button>
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-fun text-white hover:shadow-fun transition-all duration-300 hover:scale-105"
+                      >
+                        💫 {t('visit')}
+                      </Button>
                     </Link>
                   </div>
                 </CardContent>

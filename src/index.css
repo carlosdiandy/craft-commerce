@@ -61,17 +61,39 @@
     --admin-primary: 223 12% 15%;
     --admin-secondary: 220 8% 46%;
 
+    /* Black Friday theme */
+    --blackfriday-primary: 0 0% 8%;
+    --blackfriday-accent: 350 75% 50%;
+    --blackfriday-text: 0 0% 98%;
+    --blackfriday-bg: 0 0% 3%;
+    --blackfriday-card: 0 0% 12%;
+    --blackfriday-glow: 0 100% 50%;
+    
+    /* Fun & Convivial Colors */
+    --fun-orange: 24 100% 60%;
+    --fun-pink: 328 85% 70%;
+    --fun-purple: 270 91% 65%;
+    --fun-yellow: 45 93% 58%;
+    --fun-green: 142 76% 36%;
+    --fun-blue: 210 100% 56%;
+
     /* Premium Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(220 80% 58%), hsl(265 70% 62%));
     --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 45%));
     --gradient-hero: linear-gradient(135deg, hsl(220 80% 58% / 0.05), hsl(265 70% 62% / 0.05));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    --gradient-blackfriday: linear-gradient(135deg, hsl(0 0% 8%), hsl(350 75% 50%));
+    --gradient-sparkle: conic-gradient(from 0deg, hsl(220 80% 58%), hsl(220 14% 96%), hsl(220 80% 58%));
+    --gradient-fun: linear-gradient(135deg, hsl(24 100% 60%), hsl(328 85% 70%), hsl(270 91% 65%));
+    --gradient-rainbow: linear-gradient(90deg, hsl(24 100% 60%), hsl(45 93% 58%), hsl(142 76% 36%), hsl(210 100% 56%), hsl(270 91% 65%));
 
     /* Elegant Shadows */
     --shadow-card: 0 1px 3px 0 hsl(220 8% 0% / 0.1), 0 1px 2px -1px hsl(220 8% 0% / 0.1);
     --shadow-hover: 0 10px 25px -3px hsl(220 80% 58% / 0.1), 0 4px 6px -2px hsl(220 80% 58% / 0.05);
     --shadow-glow: 0 0 0 1px hsl(220 80% 58% / 0.3);
     --shadow-glass: 0 8px 32px 0 hsl(220 80% 58% / 0.1);
+    --shadow-blackfriday: 0 0 30px hsl(350 75% 50% / 0.4);
+    --shadow-fun: 0 10px 30px -5px hsl(24 100% 60% / 0.3), 0 0 20px hsl(328 85% 70% / 0.2);
 
     /* Smooth Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

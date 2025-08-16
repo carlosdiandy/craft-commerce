@@ -202,22 +202,39 @@ export const ProductDetail = () => {
           </div>
 
           <div className="space-y-6">
-            <div>
-              <Badge variant="secondary" className="mb-2">{product.category}</Badge>
-              <h1 className="text-4xl font-bold">{product.name}</h1>
-              <div className="mt-2">
-                <Rating value={averageRating} count={reviews.length} />
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Badge className="bg-gradient-fun text-white animate-wiggle">✨ {product.category}</Badge>
+                <Badge variant="outline" className="text-fun-green border-fun-green">🌱 Fait main</Badge>
               </div>
-              <p className="text-muted-foreground text-lg">{product.description}</p>
+              <h1 className="text-4xl font-display font-bold bg-gradient-fun bg-clip-text text-transparent animate-fade-in-up">
+                {product.name}
+              </h1>
+              <div className="flex items-center space-x-4">
+                <Rating value={averageRating} count={reviews.length} />
+                <span className="text-sm text-muted-foreground">
+                  💬 {reviews.length} avis client{reviews.length > 1 ? 's' : ''}
+                </span>
+              </div>
+              <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-5xl font-bold text-primary">{displayPrice}€</span>
+            <div className="flex items-center justify-between p-4 bg-gradient-fun/10 rounded-xl border border-fun-orange/20">
+              <div className="flex items-center space-x-2">
+                <span className="text-5xl font-bold bg-gradient-fun bg-clip-text text-transparent animate-pulse-glow">
+                  {displayPrice}€
+                </span>
+                <span className="text-lg text-muted-foreground">💎</span>
+              </div>
               {displayStock !== undefined && displayStock < 10 && displayStock > 0 && (
-                <Badge variant="outline">{t('limited_stock', { stock: displayStock })}</Badge>
+                <Badge className="bg-warning text-warning-foreground animate-wiggle">
+                  ⚡ {t('limited_stock', { stock: displayStock })}
+                </Badge>
               )}
               {displayStock === 0 && (
-                <Badge variant="destructive">{t('out_of_stock')}</Badge>
+                <Badge variant="destructive" className="animate-pulse">
+                  😢 {t('out_of_stock')}
+                </Badge>
               )}
             </div>
 
@@ -272,17 +289,22 @@ export const ProductDetail = () => {
             )}
 
             <div className="space-y-4">
-              <Link to={`/shops/${product.shopId}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-                <Store className="w-5 h-5" />
-                {t('visit_shop')}: <span className="font-medium">{product.shopName}</span>
+              <Link 
+                to={`/shops/${product.shopId}`} 
+                className="flex items-center gap-2 p-3 bg-fun-blue/10 rounded-lg text-muted-foreground hover:text-fun-blue transition-all duration-300 hover:scale-105 hover:shadow-fun group"
+              >
+                <Store className="w-5 h-5 group-hover:animate-wiggle" />
+                <span>🏪 {t('visit_shop')}: </span>
+                <span className="font-medium text-fun-blue">{product.shopName}</span>
+                <span className="ml-auto">→</span>
               </Link>
               <Button
-                className="w-full py-6 text-lg"
+                className="w-full py-6 text-lg bg-gradient-fun text-white hover:shadow-fun transition-all duration-300 hover:scale-105 animate-pulse-glow"
                 onClick={handleAddToCart}
                 disabled={displayStock === 0 || !currentVariant}
               >
                 <ShoppingCart className="w-5 h-5 mr-2" />
-                {displayStock === 0 ? t('out_of_stock') : t('add_to_cart')}
+                {displayStock === 0 ? '😢 ' + t('out_of_stock') : '🛒 ' + t('add_to_cart')}
               </Button>
             </div>
 
