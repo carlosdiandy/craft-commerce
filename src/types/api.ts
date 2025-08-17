@@ -45,7 +45,7 @@ export interface User {
   isActive?: boolean;
   shopOwnerStatus?: ShopOwnerStatus;
   shops?: Shop[];
-  globalPermissions?: string[];
+  globalPermissions?: Permission[];
   profilePictureUrl?: string;
 }
 

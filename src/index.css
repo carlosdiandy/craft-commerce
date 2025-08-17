@@ -68,7 +68,7 @@
     --blackfriday-bg: 0 0% 3%;
     --blackfriday-card: 0 0% 12%;
     --blackfriday-glow: 0 100% 50%;
-    
+
     /* Fun & Convivial Colors */
     --fun-orange: 24 100% 60%;
     --fun-pink: 328 85% 70%;
@@ -163,18 +163,24 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display;
   }
 }
 
 @layer utilities {
+
   /* Text Utilities */
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .text-pretty {
     text-wrap: pretty;
   }
@@ -186,14 +192,14 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
   }
-  
+
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
-  
+
   .line-clamp-3 {
     overflow: hidden;
     display: -webkit-box;
@@ -252,7 +258,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     transition: left 0.5s;
   }
 
@@ -270,8 +276,8 @@
   }
 
   /* Card Variants */
-  .card-premium {
-    @apply bg-gradient-card backdrop-blur-sm border border-border/50 rounded-xl shadow-card hover:shadow-hover transition-all duration-300;
+  .card-glass {
+    @apply bg-gradient-primary backdrop-blur-sm border border-border/50 rounded-xl shadow-card hover:shadow-hover transition-all duration-300;
   }
 
   .card-glass {
@@ -289,7 +295,7 @@
   }
 
   .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     animation: shimmer 2s infinite;
   }
 

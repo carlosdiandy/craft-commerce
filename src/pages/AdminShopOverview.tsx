@@ -7,6 +7,7 @@ import { Store, Edit } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { apiGet } from '@/services/apiService';
 import { useAuthStore, User } from '@/stores/authStore';
+import { PaginatedResponse, ShopResponse } from '@/types/api';
 
 interface Shop {
   id: string;
@@ -26,8 +27,9 @@ export const AdminShopOverview = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const response = await apiGet<Shop[]>("/shops/");
-        setShops(response.data || []);
+        const response = await apiGet<PaginatedResponse<ShopResponse>>("/shops/");
+        const shops = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
+        setShops(shops.data);
       } catch (error) {
         console.error("Failed to fetch shops:", error);
       }

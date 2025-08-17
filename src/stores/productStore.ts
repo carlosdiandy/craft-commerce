@@ -17,7 +17,7 @@ interface ProductState {
 }
 
 interface ProductActions {
-  fetchProducts: (filters?: { page?: number; limit?: number; category?: string; shopId?: string; searchQuery?: string; minPrice?: number; maxPrice?: number; sortBy?: string; sortOrder?: 'asc' | 'desc'; inStockOnly?: boolean; }, append?: boolean) => Promise<void>;
+  fetchProducts: (filters?: { page?: number; limit?: number; category?: string; shopId?: string; searchQuery?: string; minPrice?: number; maxPrice?: number; sortBy?: string; sortOrder?: string; inStockOnly?: boolean; }, append?: boolean) => Promise<void>;
   resetProducts: () => void;
   fetchProductsByShop: (shopId: string, filters?: { page?: number; limit?: number; }) => Promise<void>;
   addProduct: (product: Omit<Product, 'id'>) => Promise<ApiResponse<ProductResponse>>;

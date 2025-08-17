@@ -5,7 +5,7 @@ const SHOPS_BASE_URL = '/shops';
 
 export const shopService = {
   // Shop CRUD operations
-  getAllShops(filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: 'asc' | 'desc'; }): Promise<ApiResponse<PaginatedResponse<ShopResponse> | ShopResponse[]>> {
+  getAllShops(filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: string; }): Promise<ApiResponse<PaginatedResponse<ShopResponse> | ShopResponse[]>> {
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());

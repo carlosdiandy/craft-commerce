@@ -51,7 +51,7 @@ export const Marketplace = () => {
   const [productPage, setProductPage] = useState(1);
   const [shopPage, setShopPage] = useState(1);
   const PRODUCT_LIMIT = 8;
-  const SHOP_LIMIT = 10; // For featured shops
+  const SHOP_LIMIT = 5; // For featured shops
 
   const { fetchProducts, products, isLoading: isLoadingProducts, error: productsError, currentPage: currentProductPage, totalPages: totalProductPages, resetProducts } = useProductStore();
   const { fetchShops, shops, isLoading: isLoadingShops, error: shopsError, currentPage: currentShopPage, totalPages: totalShopPages } = useShopStore();
@@ -155,14 +155,14 @@ export const Marketplace = () => {
             <div className="space-y-8 animate-fade-in">
               <div>
                 <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white text-balance leading-tight">
-                  Découvrez l'Art 
+                  Découvrez l'Art
                   <span className="block text-yellow-300">Artisanal</span>
                 </h1>
                 <p className="text-xl text-white/90 mt-6 text-pretty max-w-lg">
                   Explorez notre collection unique de produits artisanaux créés avec passion par des artisans talentueux.
                 </p>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="btn-premium bg-white text-primary hover:bg-white/90 font-medium">
                   <TrendingUp className="w-5 h-5 mr-2" />
@@ -211,7 +211,7 @@ export const Marketplace = () => {
             <h2 className="font-display text-3xl font-bold">Notre Collection</h2>
             <p className="text-muted-foreground text-lg">Filtrez et trouvez exactement ce que vous cherchez</p>
           </div>
-          
+
           <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 shadow-card">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               <div className="md:col-span-2">
@@ -221,7 +221,7 @@ export const Marketplace = () => {
                   className="h-12"
                 />
               </div>
-              
+
               {/* Category Filter */}
               <div>
                 <Label htmlFor="category-filter" className="text-sm mb-2 block font-medium">{t('category')}</Label>
@@ -297,7 +297,7 @@ export const Marketplace = () => {
                 </Select>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-6 mt-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -307,7 +307,7 @@ export const Marketplace = () => {
                 />
                 <Label htmlFor="in-stock-only" className="text-sm">{t('in_stock_only')}</Label>
               </div>
-              
+
               <Select value={sortOrder} onValueChange={setSortOrder}>
                 <SelectTrigger className="w-[140px] h-10">
                   <SelectValue placeholder={t('sort_order')} />
@@ -323,7 +323,7 @@ export const Marketplace = () => {
 
         {/* Statistiques rapides */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-          <Card className="card-premium hover-lift">
+          <Card className="card-glass hover-lift">
             <CardContent className="p-6 text-center">
               <Store className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-primary">
@@ -332,7 +332,7 @@ export const Marketplace = () => {
               <p className="text-sm text-muted-foreground">Boutiques Partenaires</p>
             </CardContent>
           </Card>
-          <Card className="card-premium hover-lift">
+          <Card className="card-glass hover-lift">
             <CardContent className="p-6 text-center">
               <ShoppingCart className="w-8 h-8 text-secondary mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-secondary">
@@ -341,7 +341,7 @@ export const Marketplace = () => {
               <p className="text-sm text-muted-foreground">Produits Disponibles</p>
             </CardContent>
           </Card>
-          <Card className="card-premium hover-lift">
+          <Card className="card-glass hover-lift">
             <CardContent className="p-6 text-center">
               <Users className="w-8 h-8 text-success mx-auto mb-3" />
               <h3 className="text-2xl font-bold text-success">50K+</h3>
@@ -365,7 +365,7 @@ export const Marketplace = () => {
           {isLoadingShops ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
-                <Card key={i} className="card-premium">
+                <Card key={i} className="card-glass">
                   <Skeleton className="h-48 w-full rounded-t-xl" />
                   <CardContent className="p-6">
                     <Skeleton className="h-6 w-3/4 mb-3" />
@@ -384,7 +384,7 @@ export const Marketplace = () => {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>{shopsError}</span>
-                <Button variant="outline" size="sm" onClick={() => fetchShops()}>
+                <Button variant="outline" size="sm" onClick={() => fetchShops({ page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' })}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Réessayer
                 </Button>
@@ -397,9 +397,9 @@ export const Marketplace = () => {
               <p className="text-muted-foreground">Revenez plus tard pour découvrir de nouvelles boutiques</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
               {shops.slice(0, 6).map((shop) => (
-                <Card key={shop.id} className="card-premium hover-lift group">
+                <Card key={shop.id} className="card-glass hover-lift group">
                   <div className="h-48 overflow-hidden rounded-t-xl">
                     <img
                       src={shop.image}
@@ -421,7 +421,7 @@ export const Marketplace = () => {
                         {shop.productsCount || 0} produits
                       </Badge>
                       <Link to={`/shops/${shop.id}`}>
-                        <Button size="sm" className="btn-premium text-xs">
+                        <Button size="sm" className="btn-glass text-xs">
                           Visiter
                         </Button>
                       </Link>
@@ -447,7 +447,7 @@ export const Marketplace = () => {
           {isLoadingProducts ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
-                <Card key={i} className="card-premium">
+                <Card key={i} className="card-glass">
                   <Skeleton className="h-56 w-full rounded-t-xl" />
                   <CardContent className="p-4">
                     <Skeleton className="h-6 w-3/4 mb-3" />
@@ -483,7 +483,7 @@ export const Marketplace = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product, index) => (
-                <Card key={product.id} className="card-premium hover-lift group" ref={products.length === index + 1 ? lastProductElementRef : null}>
+                <Card key={product.id} className="card-glass hover-lift group" ref={products.length === index + 1 ? lastProductElementRef : null}>
                   <Link to={`/products/${product.id}`} className="relative block">
                     <div className="h-56 overflow-hidden rounded-t-xl">
                       {(product.images && product.images.length > 0) ? (
@@ -533,9 +533,9 @@ export const Marketplace = () => {
                       {product.description}
                     </p>
                     <div className="flex items-center justify-between">
-                      <Rating 
-                        value={getReviewsByProductId(product.id).reduce((acc, review) => acc + review.rating, 0) / getReviewsByProductId(product.id).length || 0} 
-                        count={getReviewsByProductId(product.id).length} 
+                      <Rating
+                        value={getReviewsByProductId(product.id).reduce((acc, review) => acc + review.rating, 0) / getReviewsByProductId(product.id).length || 0}
+                        count={getReviewsByProductId(product.id).length}
                       />
                       <Button
                         size="sm"
@@ -552,14 +552,14 @@ export const Marketplace = () => {
               ))}
             </div>
           )}
-          
+
           {isLoadingProducts && currentProductPage < totalProductPages && (
             <div className="flex justify-center items-center py-8">
               <RefreshCw className="w-6 h-6 animate-spin text-primary mr-3" />
               <span className="text-muted-foreground">Chargement de plus de produits...</span>
             </div>
           )}
-          
+
           {!isLoadingProducts && products.length > 0 && currentProductPage >= totalProductPages && (
             <div className="text-center text-muted-foreground py-8">
               <p className="text-lg">🎉 Vous avez exploré toute notre collection !</p>

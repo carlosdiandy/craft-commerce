@@ -27,16 +27,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'; // Added Checkbox
 import { Permission, UserRoleEnum } from '@/types/api';
 
-// Hardcoded list of global permissions for demonstration
-const globalPermissionsList = [
-  'user:read',
-  'user:update',
-  'user:delete',
-  'shop:validate',
-  'product:manage_all',
-  'order:manage_all',
-  'analytics:view_all',
-];
+
 
 export const UserManagement = () => {
   const { fetchAllUsers, users, deleteUser, adminUpdateUser, isLoading, allPermissions, fetchAllPermissions } = useAuthStore(); // Modified
@@ -55,30 +46,7 @@ export const UserManagement = () => {
     setCurrentUserToEdit(userToEdit);
     setEditedUser({ ...userToEdit }); // Initialize editedUser with current user data
 
-    // Fetch permissions for the user's current role dynamically when opening the modal
-    try {
-      const response = await apiGet<Permission[]>(`/permissions/roles/${userToEdit.role.toLowerCase().replace('role_', '')}`);
-      if (response.success && response.data) {
-        setEditedUser((prev) => ({
-          ...prev!,
-          globalPermissions: response.data.map(p => p.name),
-        }));
-      } else {
-        toast({
-          title: "Failed to fetch role permissions",
-          description: response.error || "An unknown error occurred.",
-          variant: "destructive",
-        });
-        setEditedUser((prev) => ({ ...prev!, globalPermissions: userToEdit.globalPermissions || [] })); // Fallback
-      }
-    } catch (error) {
-      toast({
-        title: "Error fetching role permissions",
-        description: "An error occurred while fetching permissions for the user's role.",
-        variant: "destructive",
-      });
-      setEditedUser((prev) => ({ ...prev!, globalPermissions: userToEdit.globalPermissions || [] })); // Fallback
-    }
+    setEditedUser({ ...userToEdit, globalPermissions: userToEdit.globalPermissions || [] }); // Initialize editedUser with current user data and its globalPermissions
     setIsModalOpen(true);
   };
 
@@ -90,39 +58,20 @@ export const UserManagement = () => {
   const handleRoleChange = async (value: UserRole) => {
     setEditedUser((prev) => ({ ...prev, role: value }));
 
-    // Fetch permissions for the selected role dynamically
-    try {
-      const response = await apiGet<Permission[]>(`/permissions/roles/${value.toLowerCase().replace('role_', '')}`);
-      if (response.success && response.data) {
-        setEditedUser((prev) => ({
-          ...prev,
-          globalPermissions: response.data.map(p => p.name),
-        }));
-      } else {
-        toast({
-          title: "Failed to fetch role permissions",
-          description: response.error || "An unknown error occurred.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error fetching role permissions",
-        description: "An error occurred while fetching permissions for the selected role.",
-        variant: "destructive",
-      });
-    }
+
   };
 
-  const handlePermissionChange = (permission: string, checked: boolean) => {
+  const handlePermissionChange = (permission: Permission, checked: boolean) => {
     setEditedUser((prev) => {
       const currentPermissions = prev.globalPermissions || [];
       if (checked) {
+        // Add the full permission object
         return { ...prev, globalPermissions: [...currentPermissions, permission] };
       } else {
+        // Filter by permission.id to remove the object
         return {
           ...prev,
-          globalPermissions: currentPermissions.filter((p) => p !== permission),
+          globalPermissions: currentPermissions.filter((p) => p.id !== permission.id),
         };
       }
     });
@@ -222,8 +171,8 @@ export const UserManagement = () => {
                       {user.globalPermissions && user.globalPermissions.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {user.globalPermissions.map((perm) => (
-                            <Badge key={perm} variant="secondary" className="text-xs">
-                              {perm}
+                            <Badge key={perm.id} variant="secondary" className="text-xs">
+                              {perm.name}
                             </Badge>
                           ))}
                         </div>
@@ -306,13 +255,13 @@ export const UserManagement = () => {
                 {t('global_permissions')}
               </Label>
               <div className="col-span-3 space-y-2">
-                {allPermissions.map((permission) => (
+                {allPermissions.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).map((permission) => (
                   <div key={permission.name} className="flex items-center space-x-2">
                     <Checkbox
                       id={permission.name}
-                      checked={editedUser.globalPermissions?.includes(permission.name) || false}
+                      checked={editedUser.globalPermissions?.some(p => p.id === permission.id) || false}
                       onCheckedChange={(checked) =>
-                        handlePermissionChange(permission.name, checked as boolean)
+                        handlePermissionChange(permission, checked as boolean)
                       }
                     />
                     <Label htmlFor={permission.name}>{permission.name}</Label>

@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 import { Shop, ShopUser } from './authStore';
 import { apiGet, apiPost, apiPut, apiDelete, handleApiError } from '@/services/apiService';
 import { ApiResponse, ShopResponse, ShopUserResponse } from '@/types/api';
+import { shopService } from '@/services/shopService';
 
 interface ShopState {
   shops: Shop[];
@@ -57,14 +58,14 @@ export const useShopStore = create<ShopStore>()(
       fetchShops: async (filters) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await apiGet<ShopResponse[]>('/shops');
+          const response = await shopService.getAllShops(filters);
           if (response.success && response.data) {
-            const shops = Array.isArray(response.data) ? response.data.map(convertShopResponseToShop) : [];
+            const shops = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
             set({
-              shops,
-              currentPage: 1,
-              totalPages: 1,
-              totalShops: shops.length,
+              shops: shops.data,
+              currentPage: shops.meta.currentPage,
+              totalPages: shops.meta.totalPages,
+              totalShops: shops.meta.totalItems,
               isLoading: false,
             });
           } else {

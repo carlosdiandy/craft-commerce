@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { apiGet, apiPut } from '@/services/apiService';
 import { User, Shop, Order } from '@/types/api';
+import { shopService } from '@/services/shopService';
 
 interface AdminState {
   users: User[];
@@ -45,10 +46,13 @@ export const useAdminStore = create<AdminStore>((set) => ({
   fetchAllShops: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiGet<Shop[]>('/shops');
+      const response = await shopService.getAllShops();
 
       if (response.success && response.data) {
-        set({ shops: response.data || [], isLoading: false });
+        const shops = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
+        set({
+          shops: shops.data,
+        });
       } else {
         set({ isLoading: false, error: response.error || 'Failed to fetch shops' });
       }
