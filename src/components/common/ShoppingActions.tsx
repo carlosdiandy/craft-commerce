@@ -40,7 +40,7 @@ export const ShoppingActions = () => {
         size="icon"
         className="relative"
         onClick={() => navigate('/cart')}
-        title="Mon panier"
+        title={t('my_cart')}
       >
         <ShoppingCart className="w-5 h-5" />
         {cartItemsCount > 0 && (

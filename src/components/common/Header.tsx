@@ -13,12 +13,15 @@ import { useAuthStore } from '@/stores/authStore';
 import { NotificationBell } from './NotificationBell';
 import { BlackFridayBanner } from './BlackFridayBanner';
 import { ElosaBrand } from './ElosaBrand';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const location = useLocation();
   const { user, isAuthenticated } = useAuthStore();
+  const { t } = useTranslation();
 
   const handleAuthClick = (tab: 'login' | 'register') => {
     setAuthModalTab(tab);
@@ -30,21 +33,21 @@ export const Header = () => {
     location.pathname.startsWith('/shops');
 
   const navLinks = [
-    { to: '/products', label: 'Produits' },
-    { to: '/shops', label: 'Boutiques' },
+    { to: '/products', label: t('products') },
+    { to: '/shops', label: t('shops') },
   ];
 
   if (isAuthenticated && user) {
     if (user.role === 'ROLE_ADMIN') {
-      navLinks.push({ to: '/admin', label: 'Dashboard' });
+      navLinks.push({ to: '/admin', label: t('dashboard') });
       // navLinks.push({ to: '/admin/coupons', label: 'Coupons' });
       // navLinks.push({ to: '/admin/promotions', label: 'Promotions' });
     }
     if (user.role === 'ROLE_SHOP_OWNER') {
-      navLinks.push({ to: '/backoffice', label: 'Backoffice' });
+      navLinks.push({ to: '/backoffice', label: t('backoffice') });
     }
     // Support is available for all authenticated users
-    navLinks.push({ to: '/support', label: 'Support' });
+    navLinks.push({ to: '/support', label: t('support') });
   }
 
   return (
@@ -77,8 +80,8 @@ export const Header = () => {
             {/* Barre de recherche - uniquement pour marketplace */}
             {isMarketplace && (
               <div className="hidden md:block flex-1 max-w-md mx-6">
-                <SearchBar
-                  placeholder="Rechercher des produits artisanaux..."
+                 <SearchBar
+                  placeholder={t('search_products_shops')}
                   className="w-full glass-card border-0"
                 />
               </div>
@@ -93,6 +96,11 @@ export const Header = () => {
                   {isAuthenticated && <NotificationBell />}
                 </div>
               )}
+
+              {/* Language Switcher */}
+              <div className="hidden md:block">
+                <LanguageSwitcher />
+              </div>
 
               {/* Menu utilisateur */}
               <div className="hidden md:block">

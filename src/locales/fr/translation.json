@@ -264,5 +264,17 @@
   "shop_user_deleted_success": "Utilisateur de la boutique supprimé",
   "shop_user_deleted_success_description": "L'utilisateur de la boutique a été supprimé.",
   "shop_user_deleted_error": "Échec de la suppression de l'utilisateur de la boutique",
-  "add_user_button": "Ajouter un utilisateur"
+  "add_user_button": "Ajouter un utilisateur",
+  "my_cart": "Mon Panier",
+  "all_shops": "Toutes les boutiques",
+  "ascending": "Ascendant",
+  "descending": "Descendant",
+  "in_stock_only": "En stock seulement",
+  "select_category": "Sélectionner une catégorie",
+  "dashboard": "Tableau de bord",
+  "backoffice": "Backoffice",
+  "support": "Support",
+  "orders": "Commandes",
+  "order": "Commande",
+  "search_products_shops_placeholder": "Rechercher des produits ou boutiques..."
 }
