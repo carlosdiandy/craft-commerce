@@ -24,7 +24,6 @@ import { Checkout } from "@/pages/Checkout";
 import { ProductDetail } from "@/pages/ProductDetail";
 import { ShopUserManagement } from "@/pages/ShopUserManagement";
 import { OrderDetail } from "@/pages/OrderDetail";
-import { AboutUs } from "@/pages/AboutUs";
 import { AdminCoupons } from "@/pages/AdminCoupons";
 import { AdminShopValidation } from "@/pages/AdminShopValidation";
 import { AdminPromotions } from "@/pages/AdminPromotions";

@@ -224,7 +224,7 @@ export const Marketplace = () => {
 
               {/* Category Filter */}
               <div>
-                <Label htmlFor="category-filter" className="text-sm mb-2 block font-medium">{t('category')}</Label>
+                {/* <Label htmlFor="category-filter" className="text-sm mb-2 block font-medium">{t('category')}</Label> */}
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger id="category-filter" className="h-10">
                     <SelectValue placeholder={t('select_category')} />
@@ -241,7 +241,7 @@ export const Marketplace = () => {
 
               {/* Shop Filter */}
               <div>
-                <Label htmlFor="shop-filter" className="text-sm mb-2 block font-medium">{t('shop')}</Label>
+                {/* <Label htmlFor="shop-filter" className="text-sm mb-2 block font-medium">{t('shop')}</Label> */}
                 <Select value={selectedShop} onValueChange={setSelectedShop}>
                   <SelectTrigger id="shop-filter" className="h-10">
                     <SelectValue placeholder={t('select_shop')} />
@@ -259,7 +259,7 @@ export const Marketplace = () => {
               {/* Price Range Filter */}
               <div className="flex gap-2">
                 <div>
-                  <Label htmlFor="min-price" className="text-sm mb-2 block font-medium">{t('min_price')}</Label>
+                  {/* <Label htmlFor="min-price" className="text-sm mb-2 block font-medium">{t('min_price')}</Label> */}
                   <Input
                     id="min-price"
                     type="number"
@@ -270,7 +270,7 @@ export const Marketplace = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="max-price" className="text-sm mb-2 block font-medium">{t('max_price')}</Label>
+                  {/* <Label htmlFor="max-price" className="text-sm mb-2 block font-medium">{t('max_price')}</Label> */}
                   <Input
                     id="max-price"
                     type="number"
@@ -284,7 +284,7 @@ export const Marketplace = () => {
 
               {/* Sort Options */}
               <div>
-                <Label htmlFor="sort-by" className="text-sm mb-2 block font-medium">{t('sort_by')}</Label>
+                {/* <Label htmlFor="sort-by" className="text-sm mb-2 block font-medium">{t('sort_by')}</Label> */}
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger id="sort-by" className="h-10">
                     <SelectValue placeholder={t('sort_by')} />
@@ -295,6 +295,23 @@ export const Marketplace = () => {
                     <SelectItem value="stock">{t('stock')}</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <Select value={sortOrder} onValueChange={setSortOrder}>
+                <SelectTrigger className="w-[140px] h-10">
+                  <SelectValue placeholder={t('sort_order')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="asc">{t('ascending')}</SelectItem>
+                  <SelectItem value="desc">{t('descending')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="in-stock-only"
+                  checked={inStockOnly}
+                  onCheckedChange={(checked: boolean) => setInStockOnly(checked)}
+                />
+                <Label htmlFor="in-stock-only" className="text-sm">{t('in_stock_only')}</Label>
               </div>
             </div>
 

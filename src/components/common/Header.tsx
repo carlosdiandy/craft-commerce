@@ -32,7 +32,6 @@ export const Header = () => {
   const navLinks = [
     { to: '/products', label: 'Produits' },
     { to: '/shops', label: 'Boutiques' },
-    { to: '/about', label: 'À Propos' },
   ];
 
   if (isAuthenticated && user) {
