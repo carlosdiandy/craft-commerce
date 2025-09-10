@@ -10,7 +10,7 @@ export const AdminShopValidation = () => {
   const { shops, fetchShops, updateShopStatus } = useShopStore();
 
   useEffect(() => {
-    fetchShops();
+    fetchShops(false);
   }, [fetchShops]);
 
   const handleUpdateStatus = async (shopId: string, status: 'active' | 'rejected') => {

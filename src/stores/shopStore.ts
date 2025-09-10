@@ -16,7 +16,7 @@ interface ShopState {
 }
 
 interface ShopActions {
-  fetchShops: (filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: string; }) => Promise<void>;
+  fetchShops: (isOwner: boolean, filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: string; }) => Promise<void>;
   createShop: (shopData: Omit<Shop, 'id' | 'ownerId' | 'status' | 'createdAt' | 'products' | 'shopUsers'>) => Promise<ApiResponse<ShopResponse>>;
   updateShop: (shopId: string, shopData: Partial<Shop>) => Promise<ApiResponse<ShopResponse>>;
   deleteShop: (shopId: string) => Promise<ApiResponse<null>>;
@@ -55,10 +55,10 @@ export const useShopStore = create<ShopStore>()(
       totalPages: 1,
       totalShops: 0,
 
-      fetchShops: async (filters) => {
+      fetchShops: async (isOwner, filters) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await shopService.getAllShops(filters);
+          const response = await shopService.getAllShops(isOwner, filters);
           if (response.success && response.data) {
             const shops = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
             set({

@@ -18,7 +18,7 @@ export const Shops = () => {
   const { fetchShops, shops, isLoading: isLoadingShops, error: shopsError, currentPage: currentShopPage, totalPages: totalShopPages, totalShops: shopsCount } = useShopStore();
 
   useEffect(() => {
-    fetchShops({ page: shopPage, limit: SHOP_LIMIT });
+    fetchShops(false, { page: shopPage, limit: SHOP_LIMIT });
   }, [shopPage, fetchShops]);
 
   const handleShopPageChange = (page: number) => {
@@ -72,7 +72,7 @@ export const Shops = () => {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>{shopsError}</span>
-                <Button variant="outline" size="sm" onClick={() => fetchShops({ page: shopPage, limit: SHOP_LIMIT })}>
+                <Button variant="outline" size="sm" onClick={() => fetchShops(false, { page: shopPage, limit: SHOP_LIMIT })}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   {t('retry')}
                 </Button>

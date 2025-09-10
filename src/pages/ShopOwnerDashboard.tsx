@@ -18,7 +18,7 @@ export const ShopOwnerDashboard = () => {
   const [selectedShop, setSelectedShop] = useState(null);
 
   useEffect(() => {
-    fetchShops();
+    fetchShops(true);
     fetchProducts();
     // Only fetch orders if we have a selected shop
     if (selectedShop) {

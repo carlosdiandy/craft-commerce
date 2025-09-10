@@ -5,7 +5,7 @@ const SHOPS_BASE_URL = '/shops';
 
 export const shopService = {
   // Shop CRUD operations
-  getAllShops(filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: string; }): Promise<ApiResponse<PaginatedResponse<ShopResponse> | ShopResponse[]>> {
+  getAllShops(isOwner?: boolean, filters?: { page?: number; limit?: number; isFeatured?: boolean; sortBy?: string; sortOrder?: string; }): Promise<ApiResponse<PaginatedResponse<ShopResponse> | ShopResponse[]>> {
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
@@ -14,7 +14,8 @@ export const shopService = {
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
     const queryString = params.toString();
-    const url = queryString ? `${SHOPS_BASE_URL}?${queryString}` : SHOPS_BASE_URL;
+    const baseUrl = isOwner ? `${SHOPS_BASE_URL}/owned` : SHOPS_BASE_URL;
+    const url = queryString ? `${baseUrl}?${queryString}` : SHOPS_BASE_URL;
 
     return apiGet<PaginatedResponse<ShopResponse> | ShopResponse[]>(url);
   },

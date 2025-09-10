@@ -118,7 +118,7 @@ export const Marketplace = () => {
 
   useEffect(() => {
     // Fetch featured shops once on component mount
-    fetchShops({ page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' });
+    fetchShops(false, { page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' });
   }, []); // Empty dependency array to run only once
 
   const handleAddToCart = (product: Product) => {

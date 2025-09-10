@@ -27,7 +27,7 @@ export const ShopManagement = () => {
   const [shopImage, setShopImage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchShops();
+    fetchShops(true);
   }, [fetchShops]);
 
   useEffect(() => {
