@@ -119,7 +119,7 @@ export const Marketplace = () => {
   useEffect(() => {
     // Fetch featured shops once on component mount
     fetchShops(false, { page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' });
-  }, []); // Empty dependency array to run only once
+  }, [fetchShops]); // Add fetchShops to dependency array
 
   const handleAddToCart = (product: Product) => {
     addItem(product);
@@ -384,7 +384,7 @@ export const Marketplace = () => {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>{shopsError}</span>
-                <Button variant="outline" size="sm" onClick={() => fetchShops({ page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' })}>
+                <Button variant="outline" size="sm" onClick={() => fetchShops(false, { page: 1, limit: SHOP_LIMIT, isFeatured: true, sortBy: 'rating', sortOrder: 'desc' })}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Réessayer
                 </Button>

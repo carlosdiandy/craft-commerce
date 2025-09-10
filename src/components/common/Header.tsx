@@ -12,6 +12,7 @@ import { ShoppingActions } from './ShoppingActions';
 import { useAuthStore } from '@/stores/authStore';
 import { NotificationBell } from './NotificationBell';
 import { BlackFridayBanner } from './BlackFridayBanner';
+import { ElosaBrand } from './ElosaBrand';
 
 export const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -54,22 +55,9 @@ export const Header = () => {
         <div className="container-responsive">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex mr-10 items-center space-x-3 flex-shrink-0 group">
-              <div className="w-9 h-9 bg-gradient-fun rounded-xl flex items-center justify-center shadow-fun group-hover:shadow-hover transition-all duration-300 group-hover:scale-105 animate-pulse-glow">
-                <Package className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-display font-bold text-xl bg-gradient-fun bg-clip-text text-transparent hidden sm:block group-hover:animate-wiggle">
-                  ✨ ARTIKA
-                </span>
-                <span className="text-xs text-muted-foreground hidden sm:block">
-                  🎨 Marketplace Artisanale
-                </span>
-              </div>
-              <span className="font-display font-bold text-lg bg-gradient-fun bg-clip-text text-transparent sm:hidden">
-                ✨ A
-              </span>
-            </Link>
+            <div className="mr-10 flex-shrink-0">
+              <ElosaBrand variant="header" size="md" />
+            </div>
 
             {/* Navigation centrale - uniquement pour marketplace */}
             {isMarketplace && (
