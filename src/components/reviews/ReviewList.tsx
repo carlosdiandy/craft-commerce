@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useReviewStore } from '@/stores/reviewStore';
+import { useReviewStore } from '@/stores/supabase/reviewStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
@@ -29,12 +29,12 @@ export const ReviewList = ({ productId }: ReviewListProps) => {
           reviews.map(review => (
             <div key={review.id} className="flex gap-4">
               <Avatar>
-                <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${review.userName}`} />
-                <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
+                <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${(review as any).profiles?.first_name || 'User'}`} />
+                <AvatarFallback>{((review as any).profiles?.first_name || 'U').charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold">{review.userName}</p>
+                  <p className="font-semibold">{(review as any).profiles?.first_name} {(review as any).profiles?.last_name}</p>
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
