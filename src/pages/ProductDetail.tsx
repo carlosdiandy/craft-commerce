@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Magnifier } from '@/components/ui/magnifier'; // Import the Magnifier component
 
-import { apiGet } from '@/services/apiService';
+import { productService } from '@/services/supabase/productService';
 
 export const ProductDetail = () => {
   const { productId } = useParams();
@@ -36,16 +36,23 @@ export const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await apiGet<Product>(`/products/${productId}`);
-        setProduct(response.data);
-        if (response.data.images && response.data.images.length > 0) {
-          setSelectedImage(response.data.images[0]);
-        }
-        if (response.data.variants && response.data.variants.length > 0) {
-          const firstVariant = response.data.variants[0];
-          if (firstVariant.color) setSelectedColor(firstVariant.color);
-          if (firstVariant.size) setSelectedSize(firstVariant.size);
-          if (firstVariant.material) setSelectedMaterial(firstVariant.material);
+        const response = await productService.getProductById(productId);
+        const supabaseProduct = response.data;
+        // Transform Supabase data to component interface
+        const transformedProduct: Product = {
+          id: supabaseProduct.id,
+          name: supabaseProduct.name,
+          description: supabaseProduct.description,
+          price: supabaseProduct.price,
+          category: supabaseProduct.category,
+          shopId: supabaseProduct.shop_id,
+          shopName: supabaseProduct.shops?.name || 'Unknown Shop',
+          stock: supabaseProduct.stock_quantity,
+          images: supabaseProduct.image_url ? [supabaseProduct.image_url] : []
+        };
+        setProduct(transformedProduct);
+        if (transformedProduct.images && transformedProduct.images.length > 0) {
+          setSelectedImage(transformedProduct.images[0]);
         }
       } catch (error) {
         console.error("Failed to fetch product:", error);

@@ -8,7 +8,8 @@ import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import { toast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { apiGet } from '@/services/apiService';
+import { shopService } from '@/services/supabase/shopService';
+import { productService } from '@/services/supabase/productService';
 import { Product } from '@/stores/productStore';
 
 interface Shop {
@@ -32,11 +33,34 @@ export const ShopDetail = () => {
   useEffect(() => {
     const fetchShopDetails = async () => {
       try {
-        const shopResponse = await apiGet<Shop>(`/shops/${shopId}`);
-        setShop(shopResponse.data);
+        const shopResponse = await shopService.getShopById(shopId);
+        const supabaseShop = shopResponse.data;
+        // Transform Supabase data to component interface
+        const transformedShop: Shop = {
+          id: supabaseShop.id,
+          name: supabaseShop.name,
+          description: supabaseShop.description,
+          image: supabaseShop.logo_url || '',
+          rating: 4.5, // Default rating for now
+          productsCount: supabaseShop.products?.length || 0,
+          location: 'Location not available' // Default location
+        };
+        setShop(transformedShop);
 
-        const productsResponse = await apiGet<Product[]>(`/products/?shopId=${shopId}`);
-        setShopProducts(productsResponse.data);
+        const productsResponse = await productService.getAllProducts({ shopId });
+        // Transform products data
+        const transformedProducts: Product[] = productsResponse.data?.map(product => ({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          category: product.category,
+          shopId: product.shop_id,
+          shopName: product.shops?.name || 'Unknown Shop',
+          stock: product.stock_quantity,
+          images: product.image_url ? [product.image_url] : []
+        })) || [];
+        setShopProducts(transformedProducts);
       } catch (error) {
         console.error("Failed to fetch shop details or products:", error);
       }

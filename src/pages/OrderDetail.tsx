@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Package, CalendarDays, MapPin, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { apiGet } from '@/services/apiService';
+import { orderService } from '@/services/supabase/orderService';
 import { useAuthStore } from '@/stores/authStore';
 
 interface OrderItem {
@@ -43,8 +43,32 @@ export const OrderDetail = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const response = await apiGet<Order>(`/orders/${orderId}`);
-        setOrder(response.data);
+        const response = await orderService.getOrderById(orderId);
+        // Transform Supabase data to component interface
+        const supabaseOrder = response.data;
+        const transformedOrder: Order = {
+          id: supabaseOrder.id,
+          date: new Date(supabaseOrder.created_at).toLocaleDateString(),
+          total: supabaseOrder.total_amount,
+          status: supabaseOrder.status as Order['status'],
+          items: supabaseOrder.order_items?.map(item => ({
+            id: item.id,
+            name: item.products?.name || 'Unknown Product',
+            quantity: item.quantity,
+            price: item.price,
+            image: item.products?.image_url
+          })) || [],
+          shippingAddress: {
+            street: 'Address from profile',
+            city: 'City',
+            zipCode: 'Postal Code',
+            country: 'Country'
+          },
+          paymentMethod: 'Credit Card',
+          trackingNumber: supabaseOrder.tracking_number,
+          estimatedDeliveryDate: supabaseOrder.estimated_delivery_date
+        };
+        setOrder(transformedOrder);
       } catch (error) {
         console.error("Failed to fetch order:", error);
       }

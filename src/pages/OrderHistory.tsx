@@ -6,7 +6,7 @@ import { Package, CalendarDays } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/stores/authStore';
 import { useState, useEffect } from 'react';
-import { apiGet } from '@/services/apiService';
+import { orderService } from '@/services/supabase/orderService';
 import { useTranslation } from 'react-i18next';
 
 interface OrderItem {
@@ -42,8 +42,24 @@ export const OrderHistory = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await apiGet<Order[]>("/orders/");
-        setOrders(response.data);
+        const response = await orderService.getAllOrders();
+        // Transform Supabase data to component interface
+        const transformedOrders: Order[] = response.data?.map(order => ({
+          id: order.id,
+          date: new Date(order.created_at).toLocaleDateString(),
+          total: order.total_amount,
+          status: order.status as Order['status'],
+          items: order.order_items?.map(item => ({
+            id: item.id,
+            name: item.products?.name || 'Unknown Product',
+            quantity: item.quantity,
+            price: item.price,
+            image: item.products?.image_url
+          })) || [],
+          trackingNumber: order.tracking_number,
+          estimatedDeliveryDate: order.estimated_delivery_date
+        })) || [];
+        setOrders(transformedOrders);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       }

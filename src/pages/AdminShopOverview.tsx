@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Store, Edit } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { apiGet } from '@/services/apiService';
-import { useAuthStore, User } from '@/stores/authStore';
+import { shopService } from '@/services/supabase/shopService';
+import { useAuthStore, User, UserRole } from '@/stores/authStore';
 import { PaginatedResponse, ShopResponse } from '@/types/api';
 
 interface Shop {
@@ -15,7 +15,7 @@ interface Shop {
   description: string;
   ownerId: string;
   ownerName: string;
-  status: 'active' | 'suspended';
+  status: 'active' | 'suspended' | 'validated' | 'pending';
   createdAt: string;
   owner: User;
 }
@@ -27,9 +27,32 @@ export const AdminShopOverview = () => {
   useEffect(() => {
     const fetchShops = async () => {
       try {
-        const response = await apiGet<PaginatedResponse<ShopResponse>>("/shops/");
-        const shops = response.data as { data: Shop[]; meta: { currentPage: number; totalPages: number; totalItems: number } };
-        setShops(shops.data);
+        const response = await shopService.getAllShops();
+        // Transform Supabase data to component interface
+        const transformedShops: Shop[] = response.data?.map(shop => {
+          const profile = shop.profiles as any;
+          return {
+            id: shop.id,
+            name: shop.name,
+            description: shop.description || '',
+            ownerId: shop.owner_id,
+            ownerName: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown Owner' : 'Unknown Owner',
+            status: shop.is_validated ? 'validated' : 'pending',
+            createdAt: shop.created_at,
+            owner: {
+              id: shop.owner_id,
+              name: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'Unknown',
+              firstName: profile?.first_name || '',
+              lastName: profile?.last_name || '',
+              email: profile?.email || '',
+              role: 'shopOwner' as UserRole,
+              createdAt: shop.created_at,
+              phoneNumber: profile?.phone || '',
+              avatar: profile?.avatar_url || ''
+            } as User
+          };
+        }) || [];
+        setShops(transformedShops);
       } catch (error) {
         console.error("Failed to fetch shops:", error);
       }
@@ -75,7 +98,7 @@ export const AdminShopOverview = () => {
                   <div className="space-y-1">
                     <h4 className="font-medium">{shop.name}</h4>
                     <p className="text-sm text-muted-foreground">Propriétaire: {shop.ownerName}</p>
-                    <Badge variant={shop.status === 'active' ? 'default' : 'destructive'}>
+                    <Badge variant={shop.status === 'validated' || shop.status === 'active' ? 'default' : 'destructive'}>
                       Statut: {shop.status}
                     </Badge>
                   </div>

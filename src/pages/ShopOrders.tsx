@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Package, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useState, useEffect } from 'react';
-import { apiGet, apiPut } from '@/services/apiService';
+import { orderService } from '@/services/supabase/orderService';
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -37,10 +37,26 @@ export const ShopOrders = () => {
 
   const fetchShopOrders = async () => {
     try {
-      const response = await apiGet<Order[]>("/orders/");
-      // Filter orders based on the shops owned by the current user
+      const response = await orderService.getAllOrders();
+      // Transform and filter orders based on the shops owned by the current user
       const userShopIds = user?.shops?.map(shop => shop.id) || [];
-      const filteredOrders = response.data.filter((order: Order) => userShopIds.includes(order.shopId));
+      const transformedOrders: Order[] = response.data?.map(order => ({
+        id: order.id,
+        date: new Date(order.created_at).toLocaleDateString(),
+        total: order.total_amount,
+        status: order.status as Order['status'],
+        shopId: order.shop_id,
+        items: order.order_items?.map(item => ({
+          id: item.id,
+          name: item.products?.name || 'Unknown Product',
+          quantity: item.quantity,
+          price: item.price,
+          image: item.products?.image_url
+        })) || [],
+        trackingNumber: order.tracking_number,
+        estimatedDeliveryDate: order.estimated_delivery_date
+      })) || [];
+      const filteredOrders = transformedOrders.filter(order => userShopIds.includes(order.shopId));
       setOrders(filteredOrders);
     } catch (error) {
       console.error("Failed to fetch shop orders:", error);
@@ -55,11 +71,11 @@ export const ShopOrders = () => {
 
   const handleOrderUpdate = async (orderId: string, newStatus: Order['status'], trackingNumber: string | null, estimatedDeliveryDate: string | null) => {
     try {
-      await apiPut(`/orders/${orderId}/status`, { status: newStatus });
+      await orderService.updateOrderStatus(orderId, newStatus);
       if (trackingNumber !== null || estimatedDeliveryDate !== null) {
-        await apiPut(`/orders/${orderId}/tracking`, {
-          trackingNumber,
-          estimatedDeliveryDate,
+        await orderService.updateOrderTracking(orderId, {
+          tracking_number: trackingNumber,
+          estimated_delivery_date: estimatedDeliveryDate,
         });
       }
       fetchShopOrders(); // Re-fetch orders to update UI
