@@ -18,7 +18,11 @@ interface ProductActions {
     category?: string; 
     shopId?: string; 
     sortBy?: string; 
-    sortOrder?: string; 
+    sortOrder?: string;
+    searchQuery?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    inStockOnly?: boolean;
   }) => Promise<void>;
   fetchProductById: (id: string) => Promise<Product | null>;
   createProduct: (product: any) => Promise<{ success: boolean; error?: string }>;
@@ -50,7 +54,7 @@ export const useProductStore = create<ProductStore>()(
             images: product.image_url ? [product.image_url] : [],
             stock: product.stock_quantity || 0,
             shopId: product.shop_id,
-            shopName: 'Unknown Shop', // This would need to be fetched separately or joined
+            shopName: product.shops?.name || 'Unknown Shop',
           })) || [];
           
           set({
