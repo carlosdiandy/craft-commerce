@@ -95,7 +95,7 @@ export const Marketplace = () => {
     };
     if (selectedCategory !== 'all') filters.category = selectedCategory;
     if (selectedShop !== 'all') filters.shopId = selectedShop;
-    fetchProducts(filters, false); // Fetch without appending on filter change
+    fetchProducts(filters); // Fetch without appending on filter change
   }, [searchQuery, selectedCategory, minPrice, maxPrice, sortBy, sortOrder, inStockOnly, selectedShop]);
 
   useEffect(() => {

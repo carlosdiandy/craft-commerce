@@ -48,9 +48,9 @@ export const useProductStore = create<ProductStore>()(
           const transformedProducts = data?.map((product: any) => ({
             ...product,
             images: product.image_url ? [product.image_url] : [],
-            stock: product.stock_quantity,
+            stock: product.stock_quantity || 0,
             shopId: product.shop_id,
-            shopName: '', // This would need to be fetched separately
+            shopName: 'Unknown Shop', // This would need to be fetched separately or joined
           })) || [];
           
           set({

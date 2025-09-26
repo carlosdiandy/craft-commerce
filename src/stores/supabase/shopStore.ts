@@ -53,7 +53,7 @@ export const useSupabaseShopStore = create<ShopStore>()(
           // Transform shop data to add missing properties
           const transformedShops = data?.map((shop: any) => ({
             ...shop,
-            image: shop.logo_url,
+            image: shop.logo_url || shop.banner_url,
             productsCount: 0, // This would need a separate query to get actual count
           })) || [];
           
