@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { useCartStore } from '@/stores/cartStore';
+import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 export const Checkout = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { items, total, clearCart } = useCartStore();
+  const { items, total, clearCart } = useSupabaseCartStore();
   const { user } = useAuthStore();
 
   const [step, setStep] = useState(1);

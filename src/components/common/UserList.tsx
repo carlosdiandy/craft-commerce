@@ -1,5 +1,5 @@
 
-import { useShopStore } from '@/stores/shopStore';
+import { useSupabaseShopStore } from '@/stores/supabase/shopStore';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,26 +12,26 @@ interface UserListProps {
 }
 
 export const UserList = ({ shopId }: UserListProps) => {
-  const { fetchShopUsers, deleteShopUser } = useShopStore();
+  const { fetchShopUsers, deleteShopUser } = useSupabaseShopStore();
   const [users, setUsers] = useState<ShopUser[]>([]);
   const { t } = useTranslation();
 
   useEffect(() => {
     const loadUsers = async () => {
       const response = await fetchShopUsers(shopId);
-      if (response.success && response.data) {
-        // Transform ShopUserResponse to ShopUser
-        const transformedUsers: ShopUser[] = response.data.map(user => ({
-          id: user.id,
-          name: user.name || user.email || 'Unknown User',
-          email: user.email || '',
-          role: user.role as 'SHOP_ADMIN' | 'SHOP_EMPLOYEE',
-          shopId: user.shopId,
-          createdAt: user.createdAt,
-          permissions: user.permissions
-        }));
-        setUsers(transformedUsers);
-      }
+      // Transform Supabase response to ShopUser
+      const transformedUsers: ShopUser[] = response.map((user: any) => ({
+        id: user.id,
+        name: user.profiles?.first_name && user.profiles?.last_name 
+          ? `${user.profiles.first_name} ${user.profiles.last_name}`
+          : user.profiles?.email || 'Unknown User',
+        email: user.profiles?.email || '',
+        role: user.role as 'SHOP_ADMIN' | 'SHOP_EMPLOYEE',
+        shopId: user.shop_id,
+        createdAt: user.created_at,
+        permissions: user.permissions || []
+      }));
+      setUsers(transformedUsers);
     };
     loadUsers();
   }, [shopId, fetchShopUsers]);

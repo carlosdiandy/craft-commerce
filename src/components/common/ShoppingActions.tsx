@@ -2,13 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Heart } from 'lucide-react';
-import { useCartStore } from '@/stores/cartStore';
-import { useWishlistStore } from '@/stores/wishlistStore';
+import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
+import { useSupabaseWishlistStore } from '@/stores/supabase/wishlistStore';
 import { useTranslation } from 'react-i18next';
 
 export const ShoppingActions = () => {
-  const { getItemsCount } = useCartStore();
-  const { items: favoriteItems } = useWishlistStore();
+  const { getItemsCount } = useSupabaseCartStore();
+  const { items: favoriteItems } = useSupabaseWishlistStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
 

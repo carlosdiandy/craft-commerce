@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Users, Store, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
-import { useAdminStore } from '@/stores/adminStore';
+import { useSupabaseAdminStore } from '@/stores/supabase/adminStore';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { useEffect } from 'react';
 
 export const AdminDashboard = () => {
-  const { users, shops, orders, fetchAllUsers, fetchAllShops, fetchAllOrders, updateUserStatus } = useAdminStore();
+  const { users, shops, orders, fetchAllUsers, fetchAllShops, fetchAllOrders, updateUserStatus } = useSupabaseAdminStore();
   const { t } = useTranslation();
 
   useEffect(() => {

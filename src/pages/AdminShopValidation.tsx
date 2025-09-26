@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useShopStore } from '@/stores/shopStore';
+import { useSupabaseShopStore } from '@/stores/supabase/shopStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,10 +7,10 @@ import { useTranslation } from 'react-i18next';
 
 export const AdminShopValidation = () => {
   const { t } = useTranslation();
-  const { shops, fetchShops, updateShopStatus } = useShopStore();
+  const { shops, fetchShops, updateShopStatus } = useSupabaseShopStore();
 
   useEffect(() => {
-    fetchShops(false);
+    fetchShops();
   }, [fetchShops]);
 
   const handleUpdateStatus = async (shopId: string, status: 'active' | 'rejected') => {
@@ -32,10 +32,10 @@ export const AdminShopValidation = () => {
                   <p className="text-sm text-muted-foreground">{shop.description}</p>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Badge variant={shop.status === 'pending' ? 'secondary' : 'default'}>
-                    {t(`shop_status_${shop.status}`)}
+                  <Badge variant={!shop.is_validated ? 'secondary' : 'default'}>
+                    {!shop.is_validated ? t('pending') : t('validated')}
                   </Badge>
-                  {shop.status === 'pending' && (
+                  {!shop.is_validated && (
                     <>
                       <Button onClick={() => handleUpdateStatus(shop.id, 'active')} size="sm">
                         {t('approve')}

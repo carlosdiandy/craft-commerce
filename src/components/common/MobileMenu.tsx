@@ -23,14 +23,14 @@ import {
   X
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { useCartStore } from '@/stores/cartStore';
-import { useWishlistStore } from '@/stores/wishlistStore';
+import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
+import { useSupabaseWishlistStore } from '@/stores/supabase/wishlistStore';
 
 export const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuthStore();
-  const { getItemsCount } = useCartStore();
-  const { items: favoriteItems } = useWishlistStore();
+  const { getItemsCount } = useSupabaseCartStore();
+  const { items: favoriteItems } = useSupabaseWishlistStore();
   const navigate = useNavigate();
   const location = useLocation();
 

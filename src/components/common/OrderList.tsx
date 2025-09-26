@@ -1,4 +1,4 @@
-import { useOrderStore } from '@/stores/orderStore';
+import { useSupabaseOrderStore } from '@/stores/supabase/orderStore';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ interface OrderListProps {
 }
 
 export const OrderList = ({ shopId }: OrderListProps) => {
-  const { orders, fetchOrdersByShop } = useOrderStore();
+  const { orders, fetchOrdersByShop } = useSupabaseOrderStore();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export const OrderList = ({ shopId }: OrderListProps) => {
             <div key={order.id} className="flex justify-between items-center">
               <div>
                 <p className="font-semibold">{t('order')} #{order.id}</p>
-                <p className="text-sm text-muted-foreground">{order.orderDate}</p>
+                <p className="text-sm text-muted-foreground">{order.created_at}</p>
               </div>
               <div>
                 <Link to={`/account/orders/${order.id}`}>

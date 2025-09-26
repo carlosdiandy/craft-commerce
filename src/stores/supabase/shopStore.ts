@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { shopService, Shop } from '@/services/supabase/shopService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ShopState {
   shops: Shop[];
   isLoading: boolean;
   error: string | null;
   currentPage: number;
+  totalPages: number;
   hasMore: boolean;
 }
 
@@ -22,7 +24,9 @@ interface ShopActions {
   createShop: (shop: { name: string; description?: string; logo_url?: string }) => Promise<{ success: boolean; error?: string; data?: Shop }>;
   updateShop: (shopId: string, shop: { name?: string; description?: string; logo_url?: string }) => Promise<{ success: boolean; error?: string }>;
   deleteShop: (shopId: string) => Promise<{ success: boolean; error?: string }>;
+  updateShopStatus: (shopId: string, status: string) => Promise<void>;
   fetchShopUsers: (shopId: string) => Promise<any[]>;
+  deleteShopUser: (shopId: string, userId: string) => Promise<void>;
   addUserToShop: (shopId: string, userData: { user_id: string; role?: string; permissions?: string[] }) => Promise<{ success: boolean; error?: string }>;
   updateShopUser: (shopId: string, shopUserId: string, userData: { role?: string; permissions?: string[] }) => Promise<{ success: boolean; error?: string }>;
   removeUserFromShop: (shopId: string, shopUserId: string) => Promise<{ success: boolean; error?: string }>;
@@ -39,15 +43,24 @@ export const useSupabaseShopStore = create<ShopStore>()(
       isLoading: false,
       error: null,
       currentPage: 1,
+      totalPages: 1,
       hasMore: true,
 
       fetchShops: async (filters) => {
         set({ isLoading: true, error: null });
         try {
           const { data } = await shopService.getAllShops(filters);
+          // Transform shop data to add missing properties
+          const transformedShops = data?.map((shop: any) => ({
+            ...shop,
+            image: shop.logo_url,
+            productsCount: 0, // This would need a separate query to get actual count
+          })) || [];
+          
           set({
-            shops: data || [],
+            shops: transformedShops,
             isLoading: false,
+            totalPages: 1, // This would need proper pagination from backend
           });
         } catch (error: any) {
           set({
@@ -128,13 +141,61 @@ export const useSupabaseShopStore = create<ShopStore>()(
         }
       },
 
+      updateShopStatus: async (shopId: string, status: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const { data, error } = await supabase
+            .from('shops')
+            .update({ is_validated: status === 'active' })
+            .eq('id', shopId)
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          set((state) => ({
+            shops: state.shops.map((shop) =>
+              shop.id === shopId ? { ...shop, is_validated: status === 'active' } : shop
+            ),
+            isLoading: false,
+          }));
+        } catch (error: any) {
+          set({
+            error: error.message,
+            isLoading: false,
+          });
+        }
+      },
+
       fetchShopUsers: async (shopId: string) => {
         try {
-          const { data } = await shopService.getShopUsers(shopId);
+          const { data, error } = await supabase
+            .from('shop_users')
+            .select(`
+              *,
+              profiles!shop_users_user_id_fkey(first_name, last_name, email)
+            `)
+            .eq('shop_id', shopId);
+
+          if (error) throw error;
           return data || [];
         } catch (error: any) {
           set({ error: error.message });
           return [];
+        }
+      },
+
+      deleteShopUser: async (shopId: string, userId: string) => {
+        try {
+          const { error } = await supabase
+            .from('shop_users')
+            .delete()
+            .eq('shop_id', shopId)
+            .eq('user_id', userId);
+
+          if (error) throw error;
+        } catch (error: any) {
+          set({ error: error.message });
         }
       },
 
@@ -186,6 +247,7 @@ export const useSupabaseShopStore = create<ShopStore>()(
       getShopById: (shopId: string) => {
         return get().shops.find((shop) => shop.id === shopId);
       },
+
 
       clearError: () => {
         set({ error: null });

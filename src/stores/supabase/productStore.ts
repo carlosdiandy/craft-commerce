@@ -44,8 +44,17 @@ export const useProductStore = create<ProductStore>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await productService.getAllProducts(filters);
+          // Transform product data to match expected interface
+          const transformedProducts = data?.map((product: any) => ({
+            ...product,
+            images: product.image_url ? [product.image_url] : [],
+            stock: product.stock_quantity,
+            shopId: product.shop_id,
+            shopName: '', // This would need to be fetched separately
+          })) || [];
+          
           set({
-            products: data || [],
+            products: transformedProducts,
             isLoading: false,
           });
         } catch (error: any) {

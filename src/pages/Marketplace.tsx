@@ -19,11 +19,12 @@ import {
   AlertCircle,
   RefreshCw
 } from 'lucide-react';
-import { useCartStore } from '@/stores/cartStore';
-import { useProductStore, Product } from '@/stores/productStore';
-import { useShopStore } from '@/stores/shopStore';
+import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
+import { useProductStore } from '@/stores/supabase/productStore';
+import { Product } from '@/types/api';
+import { useSupabaseShopStore } from '@/stores/supabase/shopStore';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { useWishlistStore } from '@/stores/wishlistStore';
+import { useSupabaseWishlistStore } from '@/stores/supabase/wishlistStore';
 import { toast } from '@/hooks/use-toast';
 import { SearchBar } from '@/components/common/SearchBar';
 import heroImage from '@/assets/hero-ecommerce.jpg';
@@ -54,9 +55,9 @@ export const Marketplace = () => {
   const SHOP_LIMIT = 5; // For featured shops
 
   const { fetchProducts, products, isLoading: isLoadingProducts, error: productsError, currentPage: currentProductPage, totalPages: totalProductPages, resetProducts } = useProductStore();
-  const { fetchShops, shops, isLoading: isLoadingShops, error: shopsError, currentPage: currentShopPage, totalPages: totalShopPages } = useShopStore();
-  const { addItem } = useCartStore();
-  const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useWishlistStore();
+  const { fetchShops, shops, isLoading: isLoadingShops, error: shopsError, currentPage: currentShopPage, totalPages: totalShopPages } = useSupabaseShopStore();
+  const { addItem } = useSupabaseCartStore();
+  const { addItem: addWishlistItem, removeItem: removeWishlistItem, isItemInWishlist } = useSupabaseWishlistStore();
   const { reviews } = useReviewStore();
 
   const getReviewsByProductId = (productId: string) => {

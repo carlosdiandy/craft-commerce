@@ -1,11 +1,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/stores/cartStore';
+import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
 import { Link, useNavigate } from 'react-router-dom';
 
 export const Cart = () => {
-  const { items, removeItem, getItemsCount, total } = useCartStore();
+  const { items, removeItem, getItemsCount, total } = useSupabaseCartStore();
   const navigate = useNavigate();
 
   return (
