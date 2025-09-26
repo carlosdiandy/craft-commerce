@@ -7,10 +7,16 @@ import { ShoppingCart, Heart, Star, Store, Search } from 'lucide-react';
 import { useProductStore } from '@/stores/supabase/productStore';
 import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
 import { useSupabaseWishlistStore } from '@/stores/supabase/wishlistStore';
-import { Product } from '@/services/supabase/productService';
+import { Product } from '@/types/api';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+
+// Extend Product type to include extra fields from Supabase
+interface ExtendedProduct extends Product {
+  discount_price?: number;
+  rating?: number;
+}
 
 export const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,9 +45,9 @@ export const Marketplace = () => {
     fetchProducts(filters);
   }, [searchQuery, selectedCategory, fetchProducts]);
 
-  const handleAddToCart = async (product: any) => {
+  const handleAddToCart = async (product: Product) => {
     try {
-      addToCart(product as Product, 1);
+      addToCart(product, 1);
       toast({
         title: "Produit ajouté",
         description: `${product.name} a été ajouté au panier`,
@@ -55,7 +61,7 @@ export const Marketplace = () => {
     }
   };
 
-  const handleWishlistToggle = async (product: any) => {
+  const handleWishlistToggle = async (product: Product) => {
     try {
       if (isItemInWishlist(product.id)) {
         removeFromWishlist(product.id);
@@ -64,7 +70,7 @@ export const Marketplace = () => {
           description: `${product.name} a été retiré de vos favoris`,
         });
       } else {
-        addToWishlist(product as Product);
+        addToWishlist(product);
         toast({
           title: "Ajouté aux favoris",
           description: `${product.name} a été ajouté à vos favoris`,
@@ -150,75 +156,90 @@ export const Marketplace = () => {
               <p className="text-muted-foreground">Aucun produit trouvé</p>
             </div>
           ) : (
-            products.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <CardHeader className="p-0">
-                  <div className="relative">
-                    <img
-                      src={product.image_url || '/placeholder.svg'}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                      onClick={() => handleWishlistToggle(product)}
-                    >
-                      <Heart
-                        className={`h-4 w-4 ${
-                          isItemInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''
-                        }`}
+            products.map((product) => {
+              const extendedProduct = product as ExtendedProduct;
+              return (
+                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <CardHeader className="p-0">
+                    <div className="relative">
+                      <img
+                        src={product.images?.[0] || '/placeholder.svg'}
+                        alt={product.name}
+                        className="w-full h-48 object-cover"
                       />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                        onClick={() => handleWishlistToggle(product)}
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${
+                            isItemInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''
+                          }`}
+                        />
+                      </Button>
+                      {extendedProduct.discount_price && (
+                        <Badge className="absolute top-2 left-2 bg-red-500">
+                          Promo
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <CardTitle className="text-lg mb-2 line-clamp-2">{product.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                      {product.description}
+                    </p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < (extendedProduct.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm text-muted-foreground">({extendedProduct.rating || 0})</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {extendedProduct.discount_price ? (
+                        <>
+                          <span className="text-lg font-bold text-primary">
+                            {extendedProduct.discount_price}€
+                          </span>
+                          <span className="text-sm text-muted-foreground line-through">
+                            {product.price}€
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-lg font-bold text-primary">{product.price}€</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Stock: {product.stock}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0 flex gap-2">
+                    <Button
+                      onClick={() => handleAddToCart(product)}
+                      className="flex-1"
+                      disabled={!product.stock || product.stock <= 0}
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Ajouter au panier
                     </Button>
-                    {product.discount_price && (
-                      <Badge className="absolute top-2 left-2 bg-red-500">
-                        Promo
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <CardTitle className="text-lg mb-2 line-clamp-2">{product.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                    {product.description}
-                  </p>
-                  {/* Rating temporarily removed until rating field is available */}
-                  <div className="flex items-center gap-2">
-                    {product.discount_price ? (
-                      <>
-                        <span className="text-lg font-bold text-primary">
-                          {product.discount_price}€
-                        </span>
-                        <span className="text-sm text-muted-foreground line-through">
-                          {product.price}€
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-lg font-bold text-primary">{product.price}€</span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Stock: {product.stock_quantity || 0}
-                  </p>
-                </CardContent>
-                <CardFooter className="p-4 pt-0 flex gap-2">
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    className="flex-1"
-                    disabled={!product.stock_quantity || product.stock_quantity <= 0}
-                  >
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Ajouter au panier
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <Link to={`/product/${product.id}`}>
-                      <Store className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))
+                    <Button variant="outline" asChild>
+                      <Link to={`/product/${product.id}`}>
+                        <Store className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+            })
           )}
         </div>
       </div>

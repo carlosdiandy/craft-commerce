@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { productService, Product } from '@/services/supabase/productService';
+import { productService } from '@/services/supabase/productService';
+import { Product } from '@/types/api';
 
 interface ProductState {
   products: Product[];
@@ -50,11 +51,17 @@ export const useProductStore = create<ProductStore>()(
           const { data } = await productService.getAllProducts(filters);
           // Transform product data to match expected interface
           const transformedProducts = data?.map((product: any) => ({
-            ...product,
+            id: product.id,
+            name: product.name,
+            price: product.price,
             images: product.image_url ? [product.image_url] : [],
-            stock: product.stock_quantity || 0,
             shopId: product.shop_id,
             shopName: product.shops?.name || 'Unknown Shop',
+            category: product.category,
+            stock: product.stock_quantity || 0,
+            description: product.description || '',
+            createdAt: product.created_at,
+            updatedAt: product.updated_at
           })) || [];
           
           set({
@@ -73,8 +80,22 @@ export const useProductStore = create<ProductStore>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await productService.getProductById(id);
+          // Transform single product data
+          const transformedProduct: Product = {
+            id: data.id,
+            name: data.name,
+            price: data.price,
+            images: data.image_url ? [data.image_url] : [],
+            shopId: data.shop_id,
+            shopName: data.shops?.name || 'Unknown Shop',
+            category: data.category,
+            stock: data.stock_quantity || 0,
+            description: data.description || '',
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+          };
           set({ isLoading: false });
-          return data;
+          return transformedProduct;
         } catch (error: any) {
           set({
             error: error.message,
@@ -88,8 +109,21 @@ export const useProductStore = create<ProductStore>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await productService.createProduct(product);
+          const transformedData: Product = {
+            id: data.id,
+            name: data.name,
+            price: data.price,
+            images: data.image_url ? [data.image_url] : [],
+            shopId: data.shop_id,
+            shopName: 'Unknown Shop',
+            category: data.category,
+            stock: data.stock_quantity || 0,
+            description: data.description || '',
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+          };
           set((state) => ({
-            products: [...state.products, data],
+            products: [...state.products, transformedData],
             isLoading: false,
           }));
           return { success: true };
@@ -106,12 +140,27 @@ export const useProductStore = create<ProductStore>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await productService.updateProduct(id, product);
-          set((state) => ({
-            products: state.products.map((p) =>
-              p.id === id ? { ...p, ...data } : p
-            ),
-            isLoading: false,
-          }));
+          set((state) => {
+            const transformedData: Product = {
+              id: data.id,
+              name: data.name,
+              price: data.price,
+              images: data.image_url ? [data.image_url] : [],
+              shopId: data.shop_id,
+              shopName: 'Unknown Shop',
+              category: data.category,
+              stock: data.stock_quantity || 0,
+              description: data.description || '',
+              createdAt: data.created_at,
+              updatedAt: data.updated_at
+            };
+            return {
+              products: state.products.map((p) =>
+                p.id === id ? { ...p, ...transformedData } : p
+              ),
+              isLoading: false,
+            };
+          });
           return { success: true };
         } catch (error: any) {
           set({
