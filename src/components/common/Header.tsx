@@ -33,7 +33,7 @@ export const Header = () => {
     location.pathname.startsWith('/shops');
 
   const navLinks = [
-    { to: '/products', label: t('products') },
+    { to: '/', label: t('products') },
     { to: '/shops', label: t('shops') },
   ];
 

@@ -31,7 +31,7 @@ export const RoleBasedNav = () => {
       {/* Admin Navigation */}
       {isAdmin && (
         <>
-          <Link to="/admin/dashboard">
+          <Link to="/admin">
             <Button variant="ghost" size="sm" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               Admin Dashboard
@@ -67,13 +67,13 @@ export const RoleBasedNav = () => {
       {/* Shop Owner Navigation */}
       {isShopOwner && (
         <>
-          <Link to="/shop-owner/dashboard">
+          <Link to="/backoffice">
             <Button variant="ghost" size="sm" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               Dashboard
             </Button>
           </Link>
-          <Link to="/shops">
+          <Link to="/shops/manage">
             <Button variant="ghost" size="sm" className="gap-2">
               <Store className="w-4 h-4" />
               My Shops
@@ -85,7 +85,7 @@ export const RoleBasedNav = () => {
               Products
             </Button>
           </Link>
-          <Link to="/shop-orders">
+          <Link to="/backoffice/orders">
             <Button variant="ghost" size="sm" className="gap-2">
               <ShoppingCart className="w-4 h-4" />
               Orders
@@ -103,7 +103,7 @@ export const RoleBasedNav = () => {
               Products
             </Button>
           </Link>
-          <Link to="/shop-orders">
+          <Link to="/backoffice/orders">
             <Button variant="ghost" size="sm" className="gap-2">
               <ShoppingCart className="w-4 h-4" />
               Orders
@@ -115,7 +115,7 @@ export const RoleBasedNav = () => {
       {/* Client Navigation */}
       {isClient && (
         <>
-          <Link to="/orders">
+          <Link to="/account/orders">
             <Button variant="ghost" size="sm" className="gap-2">
               <ShoppingCart className="w-4 h-4" />
               My Orders
@@ -127,7 +127,7 @@ export const RoleBasedNav = () => {
               Wishlist
             </Button>
           </Link>
-          <Link to="/addresses">
+          <Link to="/account/addresses">
             <Button variant="ghost" size="sm" className="gap-2">
               <MapPin className="w-4 h-4" />
               Addresses
@@ -137,7 +137,7 @@ export const RoleBasedNav = () => {
       )}
 
       {/* Support Tickets - Available to all authenticated users */}
-      <Link to="/support-tickets">
+      <Link to="/support">
         <Button variant="ghost" size="sm" className="gap-2">
           <Ticket className="w-4 h-4" />
           Support

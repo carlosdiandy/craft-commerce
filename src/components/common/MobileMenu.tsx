@@ -61,8 +61,8 @@ export const MobileMenu = () => {
 
   const menuItems = [
     { label: 'Accueil', path: '/', icon: Home, show: true },
-    { label: 'Produits', path: '/products', icon: Package, show: isMarketplace },
-    { label: 'Boutiques', path: '/shops/manage', icon: Store, show: isMarketplace },
+    { label: 'Produits', path: '/', icon: Package, show: isMarketplace },
+    { label: 'Boutiques', path: '/shops', icon: Store, show: isMarketplace },
   ];
 
   const userMenuItems = [
@@ -73,7 +73,7 @@ export const MobileMenu = () => {
       show: isAuthenticated 
     },
     { label: 'Mes commandes', path: '/account/orders', icon: Package, show: isAuthenticated },
-    { label: 'Paramètres', path: '/account/settings', icon: Settings, show: isAuthenticated && user?.role === 'ROLE_CLIENT' },
+    { label: 'Paramètres', path: '/account', icon: Settings, show: isAuthenticated && user?.role === 'ROLE_CLIENT' },
   ];
 
   return (
