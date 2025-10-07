@@ -96,14 +96,22 @@ export const BottomNav = ({ onAuthClick }: BottomNavProps) => {
                 )} />
               </div>
               
-              {/* Badge for cart and wishlist */}
-              {item.badge && item.badge > 0 && (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-5 min-w-[20px] flex items-center justify-center p-0 px-1 text-[10px] font-bold animate-scale-in"
-                >
-                  {item.badge > 99 ? '99+' : item.badge}
-                </Badge>
+              {/* Enhanced Badge for cart and wishlist */}
+              {item.badge !== undefined && item.badge > 0 && (
+                <div className="absolute -top-0.5 -right-0.5 animate-scale-in">
+                  <div className="relative">
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 bg-destructive rounded-full blur-sm opacity-60 animate-pulse" />
+                    
+                    {/* Badge */}
+                    <Badge 
+                      variant="destructive" 
+                      className="relative h-5 min-w-[20px] flex items-center justify-center p-0 px-1.5 text-[10px] font-bold border-2 border-background shadow-lg"
+                    >
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </Badge>
+                  </div>
+                </div>
               )}
             </div>
             
