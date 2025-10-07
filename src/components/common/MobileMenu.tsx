@@ -63,12 +63,7 @@ export const MobileMenu = ({ onAuthClick }: MobileMenuProps) => {
     location.pathname.startsWith('/products') ||
     location.pathname.startsWith('/shops');
 
-  const menuItems = [
-    { label: 'Accueil', path: '/', icon: Home, show: true },
-    { label: 'Produits', path: '/', icon: Package, show: isMarketplace },
-    { label: 'Boutiques', path: '/shops', icon: Store, show: isMarketplace },
-  ];
-
+  // Focus on secondary/user-specific actions (not in bottom nav)
   const userMenuItems = [
     { 
       label: getDashboardLabel(), 
@@ -77,17 +72,19 @@ export const MobileMenu = ({ onAuthClick }: MobileMenuProps) => {
       show: isAuthenticated 
     },
     { label: 'Mes commandes', path: '/account/orders', icon: Package, show: isAuthenticated },
-    { label: 'Paramètres', path: '/account', icon: Settings, show: isAuthenticated && user?.role === 'ROLE_CLIENT' },
+    { label: 'Mes adresses', path: '/account/addresses', icon: Settings, show: isAuthenticated },
+    { label: 'Support', path: '/support', icon: Settings, show: isAuthenticated },
   ];
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="md:hidden relative">
           <Menu className="w-5 h-5" />
+          {/* Notification dot if user has notifications */}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="right" className="w-[300px] sm:w-[340px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center justify-between">
             Menu
@@ -102,18 +99,18 @@ export const MobileMenu = ({ onAuthClick }: MobileMenuProps) => {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
-          {/* User Info */}
+        <div className="mt-6 space-y-6 pb-6">
+          {/* User Info or Auth buttons */}
           {isAuthenticated && user ? (
-            <div className="bg-muted rounded-lg p-4">
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-4 border border-border/50">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center">
-                  <User className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center shrink-0">
+                  <User className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{user.name}</p>
+                  <p className="font-semibold truncate text-foreground">{user.name}</p>
                   <p className="text-sm text-muted-foreground truncate">{user.email}</p>
-                  <Badge variant="outline" className="mt-1">
+                  <Badge variant="outline" className="mt-1.5">
                     {user.role === 'ROLE_ADMIN' ? 'Administrateur' :
                       user.role === 'ROLE_SHOP_OWNER' ? 'Propriétaire' :
                         'Client'}
@@ -122,111 +119,61 @@ export const MobileMenu = ({ onAuthClick }: MobileMenuProps) => {
               </div>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3 px-2">
+              <p className="text-sm text-muted-foreground mb-3">Connectez-vous pour accéder à toutes les fonctionnalités</p>
               <Button 
-                className="w-full justify-start"
+                className="w-full justify-center gap-2"
                 variant="outline"
                 onClick={() => {
                   onAuthClick?.('login');
                   setIsOpen(false);
                 }}
               >
-                <User className="w-4 h-4 mr-2" />
+                <User className="w-4 h-4" />
                 Connexion
               </Button>
               <Button 
-                className="w-full justify-start"
-                variant="gradient"
+                className="w-full justify-center gap-2 bg-gradient-primary hover:opacity-90"
                 onClick={() => {
                   onAuthClick?.('register');
                   setIsOpen(false);
                 }}
               >
-                <User className="w-4 h-4 mr-2" />
+                <User className="w-4 h-4" />
                 Inscription
               </Button>
             </div>
           )}
 
-          {/* Navigation */}
-          <div className="space-y-1">
-            <h3 className="font-medium text-sm text-muted-foreground mb-2">Navigation</h3>
-            {menuItems.map((item) => 
-              item.show ? (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center space-x-3 w-full p-3 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </Link>
-              ) : null
-            )}
-          </div>
-
-          {/* Shopping Actions */}
-          {isMarketplace && (
-            <div className="space-y-1">
-              <h3 className="font-medium text-sm text-muted-foreground mb-2">Shopping</h3>
-              <Link
-                to="/cart"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <ShoppingCart className="w-5 h-5" />
-                  <span>Panier</span>
-                </div>
-                {cartItemsCount > 0 && (
-                  <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">
-                    {cartItemsCount}
-                  </Badge>
-                )}
-              </Link>
-              <Link
-                to="/wishlist"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <Heart className="w-5 h-5" />
-                  <span>Favoris</span>
-                </div>
-                {favoriteItemsCount > 0 && (
-                  <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-xs">
-                    {favoriteItemsCount}
-                  </Badge>
-                )}
-              </Link>
-            </div>
-          )}
-
-          {/* User Menu */}
+          {/* Quick Actions - Only if authenticated */}
           {isAuthenticated && (
-            <div className="space-y-1">
-              <h3 className="font-medium text-sm text-muted-foreground mb-2">Mon Compte</h3>
+            <div className="space-y-2 px-2">
+              <h3 className="font-semibold text-sm text-muted-foreground mb-3 px-2">Menu</h3>
               {userMenuItems.map((item) => 
                 item.show ? (
                   <Link
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-3 w-full p-3 rounded-lg hover:bg-muted transition-colors"
+                    className="flex items-center space-x-3 w-full p-3 rounded-xl hover:bg-muted/50 active:bg-muted transition-all group"
                   >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <item.icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-medium">{item.label}</span>
                   </Link>
                 ) : null
               )}
               
+              {/* Logout button */}
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="w-full justify-start p-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+                className="w-full justify-start p-3 mt-4 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl"
               >
-                <LogOut className="w-5 h-5 mr-3" />
+                <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center mr-3">
+                  <LogOut className="w-4 h-4" />
+                </div>
                 Se déconnecter
               </Button>
             </div>
