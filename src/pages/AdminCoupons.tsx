@@ -10,8 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Percent, DollarSign, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@/hooks/use-toast';
-import { couponService } from '@/services/couponService';
-import { Coupon } from '@/types/api';
+import { couponService, Coupon } from '@/services/supabase/couponService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const AdminCoupons = () => {
@@ -23,11 +22,12 @@ export const AdminCoupons = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<Coupon>>({
     code: '',
-    type: 'PERCENTAGE',
-    discountValue: 0,
-    expiryDate: '',
-    usageLimit: 100,
-    active: true
+    discount_type: 'percentage',
+    discount_value: 0,
+    expires_at: '',
+    max_uses: 100,
+    is_active: true,
+    description: ''
   });
 
   const filteredCoupons = coupons.filter(coupon =>

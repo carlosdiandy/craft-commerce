@@ -9,8 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, MapPin, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@/hooks/use-toast';
-import { addressService } from '@/services/addressService';
-import { Address } from '@/types/api';
+import { addressService, Address } from '@/services/supabase/addressService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -25,9 +24,10 @@ export const AddressManagement = () => {
     street: '',
     city: '',
     state: '',
-    postalCode: '',
+    postal_code: '',
     country: '',
-    isDefault: false
+    is_default: false,
+    type: 'shipping'
   });
 
   const filteredAddresses = addresses.filter(address =>

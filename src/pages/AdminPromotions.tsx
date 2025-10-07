@@ -11,8 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit, Trash2, Percent, DollarSign, Truck, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@/hooks/use-toast';
-import { promotionService } from '@/services/promotionService';
-import { Promotion } from '@/types/api';
+import { promotionService, Promotion } from '@/services/supabase/promotionService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const AdminPromotions = () => {
@@ -23,13 +22,14 @@ export const AdminPromotions = () => {
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<Promotion>>({
-    name: '',
+    title: '',
     description: '',
-    type: 'PERCENTAGE',
-    discountValue: 0,
-    startDate: '',
-    endDate: '',
-    active: true
+    discount_type: 'percentage',
+    discount_value: 0,
+    start_date: '',
+    end_date: '',
+    is_active: true,
+    shop_id: undefined
   });
 
   const filteredPromotions = promotions.filter(promotion =>

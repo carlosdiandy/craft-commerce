@@ -11,8 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, MessageSquare, User, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '@/hooks/use-toast';
-import { supportTicketService } from '@/services/supportTicketService';
-import { SupportTicket } from '@/types/api';
+import { supportTicketService, SupportTicket } from '@/services/supabase/supportTicketService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -28,7 +27,7 @@ export const SupportTickets = () => {
   const [formData, setFormData] = useState<Partial<SupportTicket>>({
     subject: '',
     description: '',
-    status: 'OPEN'
+    priority: 'medium'
   });
 
   const isAdmin = user?.role === 'ROLE_ADMIN';
