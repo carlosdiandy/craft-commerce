@@ -56,15 +56,15 @@ export const Header = () => {
       <BlackFridayBanner />
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
         <div className="container-responsive">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-4">
             {/* Logo */}
-            <div className="mr-10 flex-shrink-0">
+            <div className="mr-2 sm:mr-4 lg:mr-10 flex-shrink-0">
               <ElosaBrand variant="header" size="md" />
             </div>
 
-            {/* Navigation centrale - uniquement pour marketplace */}
+            {/* Navigation centrale - uniquement pour marketplace - hidden on mobile */}
             {isMarketplace && (
-              <nav className="hidden lg:flex items-center space-x-8">
+              <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
                 {navLinks.map(link => (
                   <Link
                     key={link.to}
@@ -78,9 +78,9 @@ export const Header = () => {
               </nav>
             )}
 
-            {/* Barre de recherche - uniquement pour marketplace */}
+            {/* Barre de recherche - uniquement pour marketplace - hidden on mobile */}
             {isMarketplace && (
-              <div className="hidden md:block flex-1 max-w-md mx-6">
+              <div className="hidden lg:block flex-1 max-w-md mx-4 xl:mx-6">
                  <SearchBar
                   placeholder={t('search_products_shops')}
                   className="w-full glass-card border-0"
@@ -89,10 +89,10 @@ export const Header = () => {
             )}
 
             {/* Actions à droite */}
-            <div className="flex items-center space-x-3">
-              {/* Panier et favoris - uniquement pour marketplace */}
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
+              {/* Panier et favoris - uniquement pour marketplace - hidden on mobile (in bottom nav) */}
               {isMarketplace && (
-                <div className="hidden sm:flex items-center space-x-2">
+                <div className="hidden md:flex items-center space-x-2">
                   <ShoppingActions />
                   {isAuthenticated && <NotificationBell />}
                 </div>

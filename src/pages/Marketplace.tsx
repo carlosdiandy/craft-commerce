@@ -100,21 +100,21 @@ export const Marketplace = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-primary via-primary/90 to-secondary text-white py-20 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-primary via-primary/90 to-secondary text-white py-12 sm:py-16 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-black/20" />
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 animate-fade-in">
             Marketplace Elosa
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-fade-in">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 max-w-2xl mx-auto animate-fade-in px-4">
             Découvrez des milliers de produits de qualité auprès de boutiques locales
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" variant="secondary" className="animate-scale-in">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
+            <Button size="lg" variant="secondary" className="animate-scale-in w-full sm:w-auto">
               <TrendingUp className="mr-2 h-5 w-5" />
               Explorer les tendances
             </Button>
-            <Button size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 animate-scale-in">
+            <Button size="lg" variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 animate-scale-in w-full sm:w-auto">
               <Store className="mr-2 h-5 w-5" />
               Découvrir les boutiques
             </Button>
@@ -123,64 +123,64 @@ export const Marketplace = () => {
       </div>
 
       {/* Features Section */}
-      <div className="py-16 bg-muted/30">
+      <div className="py-8 sm:py-12 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="h-8 w-8 text-primary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="text-center p-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Zap className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Livraison Rapide</h3>
-              <p className="text-muted-foreground">Livraison en 24h pour la plupart des produits</p>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Livraison Rapide</h3>
+              <p className="text-sm sm:text-base text-muted-foreground">Livraison en 24h pour la plupart des produits</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gift className="h-8 w-8 text-primary" />
+            <div className="text-center p-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Gift className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Produits Locaux</h3>
-              <p className="text-muted-foreground">Soutenez les commerçants de votre région</p>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Produits Locaux</h3>
+              <p className="text-sm sm:text-base text-muted-foreground">Soutenez les commerçants de votre région</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-primary" />
+            <div className="text-center p-4 sm:col-span-2 md:col-span-1">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Star className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Qualité Garantie</h3>
-              <p className="text-muted-foreground">Tous nos produits sont vérifiés et certifiés</p>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Qualité Garantie</h3>
+              <p className="text-sm sm:text-base text-muted-foreground">Tous nos produits sont vérifiés et certifiés</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 sm:py-10 md:py-12">
         {/* Search and Filters */}
-        <div className="mb-12 space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Trouvez ce que vous cherchez</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+        <div className="mb-8 sm:mb-10 md:mb-12 space-y-4 sm:space-y-6">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Trouvez ce que vous cherchez</h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-4">
               Parcourez notre vaste sélection de produits ou utilisez les filtres pour affiner votre recherche
             </p>
           </div>
           
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-3 sm:top-3.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Rechercher des produits..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12 text-lg border-2"
+                  className="pl-10 h-11 sm:h-12 text-base sm:text-lg border-2"
                 />
               </div>
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
               {categories.map((category) => (
                 <Button
                   key={category}
                   variant={selectedCategory === category ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category)}
                   size="sm"
-                  className="hover-scale"
+                  className="hover-scale text-xs sm:text-sm"
                 >
                   {category === 'all' ? 'Tous' : category}
                 </Button>
@@ -190,14 +190,14 @@ export const Marketplace = () => {
         </div>
 
         {/* Best Shops Section */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-8">
+        <div className="mb-12 sm:mb-14 md:mb-16">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Boutiques Populaires</h2>
-              <p className="text-muted-foreground">Découvrez les boutiques les mieux notées</p>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Boutiques Populaires</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Découvrez les boutiques les mieux notées</p>
             </div>
-            <Button variant="outline" asChild>
-              <Link to="/shops">Voir toutes les boutiques</Link>
+            <Button variant="outline" asChild className="w-full sm:w-auto">
+              <Link to="/shops">Voir toutes</Link>
             </Button>
           </div>
           <BestShopsSlider shops={[]} isLoading={false} error="" limit={6} />
@@ -206,16 +206,16 @@ export const Marketplace = () => {
         <Separator className="my-12" />
 
         {/* Products Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-8">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Produits Tendances</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Produits Tendances</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 {products.length > 0 ? `${products.length} produit(s) trouvé(s)` : 'Aucun produit trouvé'}
               </p>
             </div>
             {searchQuery && (
-              <Button variant="outline" onClick={() => setSearchQuery('')}>
+              <Button variant="outline" onClick={() => setSearchQuery('')} className="w-full sm:w-auto text-sm">
                 Effacer la recherche
               </Button>
             )}
@@ -223,7 +223,7 @@ export const Marketplace = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
           {isLoading ? (
             // Loading skeletons
             Array.from({ length: 8 }).map((_, index) => (
@@ -334,18 +334,19 @@ export const Marketplace = () => {
                       )}
                     </div>
                   </CardContent>
-                  <CardFooter className="p-4 pt-0 flex gap-2">
+                  <CardFooter className="p-4 pt-0 flex flex-col sm:flex-row gap-2">
                     <Button
                       onClick={() => handleAddToCart(product)}
-                      className="flex-1 transition-all duration-200"
+                      className="flex-1 transition-all duration-200 w-full text-sm sm:text-base"
                       disabled={!product.stock || product.stock <= 0}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      {!product.stock || product.stock <= 0 ? 'Indisponible' : 'Ajouter au panier'}
+                      {!product.stock || product.stock <= 0 ? 'Indisponible' : 'Ajouter'}
                     </Button>
-                    <Button variant="outline" asChild className="transition-all duration-200 hover:bg-primary hover:text-white">
+                    <Button variant="outline" asChild className="transition-all duration-200 hover:bg-primary hover:text-white w-full sm:w-auto">
                       <Link to={`/products/${product.id}`}>
-                        <Store className="h-4 w-4" />
+                        <Store className="h-4 w-4 sm:mr-0" />
+                        <span className="sm:hidden ml-2">Détails</span>
                       </Link>
                     </Button>
                   </CardFooter>
@@ -357,19 +358,19 @@ export const Marketplace = () => {
 
         {/* Call to Action */}
         {products.length > 0 && (
-          <div className="text-center mt-16 py-12 bg-muted/30 rounded-lg">
-            <h3 className="text-2xl font-bold mb-4">Vous n'avez pas trouvé ce que vous cherchiez ?</h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+          <div className="text-center mt-12 sm:mt-14 md:mt-16 py-8 sm:py-10 md:py-12 bg-muted/30 rounded-lg px-4">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Vous n'avez pas trouvé ce que vous cherchiez ?</h3>
+            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 max-w-md mx-auto">
               Explorez nos boutiques ou contactez-nous pour obtenir de l'aide
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Button size="lg" asChild className="w-full sm:w-auto">
                 <Link to="/shops">
                   <Store className="mr-2 h-5 w-5" />
                   Parcourir les boutiques
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" asChild className="w-full sm:w-auto">
                 <Link to="/support">
                   Nous contacter
                 </Link>
