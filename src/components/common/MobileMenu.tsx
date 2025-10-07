@@ -26,7 +26,11 @@ import { useAuthStore } from '@/stores/authStore';
 import { useSupabaseCartStore } from '@/stores/supabase/cartStore';
 import { useSupabaseWishlistStore } from '@/stores/supabase/wishlistStore';
 
-export const MobileMenu = () => {
+interface MobileMenuProps {
+  onAuthClick?: (tab: 'login' | 'register') => void;
+}
+
+export const MobileMenu = ({ onAuthClick }: MobileMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuthStore();
   const { getItemsCount } = useSupabaseCartStore();
@@ -123,7 +127,7 @@ export const MobileMenu = () => {
                 className="w-full justify-start"
                 variant="outline"
                 onClick={() => {
-                  navigate('/login');
+                  onAuthClick?.('login');
                   setIsOpen(false);
                 }}
               >
@@ -134,7 +138,7 @@ export const MobileMenu = () => {
                 className="w-full justify-start"
                 variant="gradient"
                 onClick={() => {
-                  navigate('/register');
+                  onAuthClick?.('register');
                   setIsOpen(false);
                 }}
               >

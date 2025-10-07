@@ -15,6 +15,7 @@ import { BlackFridayBanner } from './BlackFridayBanner';
 import { ElosaBrand } from './ElosaBrand';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { BottomNav } from './BottomNav';
 
 export const Header = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -108,7 +109,7 @@ export const Header = () => {
               </div>
 
               {/* Menu mobile */}
-              <MobileMenu />
+              <MobileMenu onAuthClick={handleAuthClick} />
             </div>
           </div>
         </div>
@@ -119,6 +120,8 @@ export const Header = () => {
         onClose={() => setIsAuthModalOpen(false)}
         defaultTab={authModalTab}
       />
+      
+      <BottomNav onAuthClick={handleAuthClick} />
     </>
   );
 };
